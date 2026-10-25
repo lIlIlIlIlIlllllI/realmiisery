@@ -4,12 +4,10 @@ local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
-local UserInputService = UIS
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RS = ReplicatedStorage
 local HttpService = game:GetService("HttpService")
-local Lighting = game:GetService("Lighting")
 local TweenService = game:GetService("TweenService")
 
 local lp = Players.LocalPlayer
@@ -27,8 +25,6 @@ end)
 if not registerHit then
     registerHit = Net:FindFirstChild("RE/RegisterHit")
 end
-local ShootGunEvent = Net:FindFirstChild("Remotes") and Net.Remotes:FindFirstChild("ShootGunEvent") or Net:FindFirstChild("RE/ShootGunEvent")
-local Validator2 = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Validator2")
 
 pcall(function()
     if CoreGui:FindFirstChild("MiiseryLib_UI") then CoreGui.MiiseryLib_UI:Destroy() end
@@ -38,8 +34,6 @@ pcall(function()
     if Workspace:FindFirstChild("MiiseryWaterPlatform") then Workspace.MiiseryWaterPlatform:Destroy() end
     if CoreGui:FindFirstChild("Miisery_FOV") then CoreGui.Miisery_FOV:Destroy() end
     if playerGui:FindFirstChild("Miisery_FOV") then playerGui.Miisery_FOV:Destroy() end
-    if CoreGui:FindFirstChild("MiiseryMiniMacroUI") then CoreGui.MiiseryMiniMacroUI:Destroy() end
-    if playerGui:FindFirstChild("MiiseryMiniMacroUI") then playerGui.MiiseryMiniMacroUI:Destroy() end
 end)
 
 local ScreenGui = Instance.new("ScreenGui")
@@ -50,9 +44,7 @@ ScreenGui.Parent = (gethui and gethui()) or CoreGui or playerGui
 local Config = {
     FastAttack = false, FAPlayers = true, FAMobs = true, FARange = 1000,
     BringMobs = false, BringRange = 3000,
-    SafeGun = false, SafeMobs = true, SafePlayers = true, SafeSea = true, SafeRange = 500,
-    SuperGun = false, SuperMobs = true, SuperPlayers = true, SuperSea = true, SuperRange = 500,
-    Disappear = false, AutoV3 = false, AutoV4 = false, AutoPvP = false,
+    AutoV3 = false, AutoV4 = false, AutoPvP = false,
     InfiniteZoom = false, AntiAFK = true, Notifications = true,
     Fly = false, FlySpeed = 250, FlyVertical = 180, FlySmooth = true,
     WalkOnWater = false, AntiLava = false, SpeedEnabled = false, SpeedMode = "CFrame", SpeedValue = 50,
@@ -65,8 +57,6 @@ local Config = {
     SilentPlayer = false, SilentNPC = false, AimMode = "360", AimPriority = "Nearest",
     ShowFOV = false, FOVMode = "V1", FOVRadius = 150, AimMaxRange = 2000,
     Tracer = false, TracerColor = "Red",
-    BypassTpNpc = false, BypassTpRange = 500, BypassTpMode = "Nearest", BypassTpAbove = true, BypassTpHeight = 12,
-    LowGraphics = false, DisableShadows = false, NoFog = false, NoGfxMode = "Off",
     BL_Melee_Z = false, BL_Melee_X = false, BL_Melee_C = false, BL_Melee_V = false, BL_Melee_F = false,
     BL_Sword_Z = false, BL_Sword_X = false, BL_Sword_C = false, BL_Sword_V = false, BL_Sword_F = false,
     BL_Fruit_Z = false, BL_Fruit_X = false, BL_Fruit_C = false, BL_Fruit_V = false, BL_Fruit_F = false, BL_Fruit_TAP = false,
@@ -74,18 +64,9 @@ local Config = {
     Language = "English",
     CustomAssetID = "+18",
     CurrentBackground = "+18",
+    BasicBackground = "None",
     StreamProof = false
 }
-
-local MacroConfigData = {}
-local defaultSpeeds = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-local defaultKeys = {"None", "None", "None", "None", "None", "None", "None", "None", "None", "None"}
-for i = 1, 10 do
-    MacroConfigData[i] = { Key = defaultKeys[i], Delay = defaultSpeeds[i] }
-end
-
-local isMacroActive = false
-local ToggleMacroBtnRef = nil
 
 local CONFIG_FILE = "MiiseryHub_Config.json"
 
@@ -167,6 +148,10 @@ local function setupBackground(presetName)
     BackgroundPartImages = {}
     BackgroundImage = nil
 
+    if presetName == "None" then
+        return
+    end
+
     local preset = BackgroundPresets[presetName]
     if preset and #preset == 12 then
         local totalParts = 12
@@ -198,7 +183,12 @@ local function setupBackground(presetName)
     end
 end
 
-setupBackground(Config.CurrentBackground or "+18")
+-- Activar el fondo guardado inicialmente
+if Config.CurrentBackground == "+18" then
+    setupBackground("+18")
+else
+    setupBackground(Config.BasicBackground or "None")
+end
 
 local ToggleButton = Instance.new("Frame", ScreenGui)
 ToggleButton.Name = "WindUIPillToggle"
@@ -2121,8 +2111,12 @@ end)
 
 HomeTab:Paragraph({ Title = "Miisery Hub - Blox Fruits PvP", Desc = "Welcome to Miisery Hub v1.0" })
 
-local availableAssetIds = {
-    "+18",
+-- ==========================================
+-- APARTADOS DE BACKGROUND / LOGOS EN HOME
+-- ==========================================
+
+-- 1. Apartado de Backgrounds Normales (Basic)
+local basicAssetIds = {
     "None",
     "114065885540477",
     "85256255221310",
@@ -2131,23 +2125,49 @@ local availableAssetIds = {
     "88932447826978",
     "100480019494922"
 }
-local selectedCustomId = Config.CustomAssetID or "+18"
 
 HomeTab:Dropdown({
-    Title = "UI Background / Logo ID",
-    Values = availableAssetIds,
-    Value = selectedCustomId,
+    Title = "Background / Logo (Basic)",
+    Values = basicAssetIds,
+    Value = Config.BasicBackground or "None",
     Callback = function(v)
-        selectedCustomId = tostring(v)
-        Config.CustomAssetID = selectedCustomId
-        Config.CurrentBackground = selectedCustomId
+        Config.BasicBackground = tostring(v)
+        Config.CurrentBackground = tostring(v)
         SaveConfig()
-        setupBackground(selectedCustomId)
+        setupBackground(tostring(v))
         pcall(function()
-            if selectedCustomId ~= "+18" and selectedCustomId ~= "None" then
-                local formattedUri = "rbxassetid://" .. selectedCustomId
+            if tostring(v) ~= "None" then
+                local formattedUri = "rbxassetid://" .. tostring(v)
                 if SidebarLogo then SidebarLogo.Image = formattedUri end
                 if BadgeLogo then BadgeLogo.Image = formattedUri end
+            else
+                if SidebarLogo then SidebarLogo.Image = "rbxassetid://114190662442676" end
+                if BadgeLogo then BadgeLogo.Image = "rbxassetid://114190662442676" end
+            end
+        end)
+    end
+})
+
+-- 2. Apartado de Backgrounds +18 (Sistema de Piezas)
+local plus18AssetIds = {
+    "+18",
+    "None"
+}
+
+HomeTab:Dropdown({
+    Title = "Background / Logo (+18)",
+    Values = plus18AssetIds,
+    Value = Config.CustomAssetID or "+18",
+    Callback = function(v)
+        local choice = tostring(v)
+        Config.CustomAssetID = choice
+        Config.CurrentBackground = choice
+        SaveConfig()
+        setupBackground(choice)
+        pcall(function()
+            if choice == "+18" then
+                if SidebarLogo then SidebarLogo.Image = "rbxassetid://114190662442676" end
+                if BadgeLogo then BadgeLogo.Image = "rbxassetid://114190662442676" end
             else
                 if SidebarLogo then SidebarLogo.Image = "rbxassetid://114190662442676" end
                 if BadgeLogo then BadgeLogo.Image = "rbxassetid://114190662442676" end
@@ -2271,230 +2291,6 @@ for i = 1, #swordKeys do blToggle("Sword", swordKeys[i]) end
 BlacklistTab:Paragraph({ Title = "GUNS", Desc = "Z / X" })
 local gunKeys = {"Z", "X"}
 for i = 1, #gunKeys do blToggle("Gun", gunKeys[i]) end
-
--- ==========================================
--- PESTAÑA MACRO (Con formato "Tecla : [Valor] < >", delay y slot único hiper rápido)
--- ==========================================
-local MacroTab = MiiseryLibraryObj:CreateTab("Macro")
-MacroTab:Paragraph({ Title = "Configurar Macro PvP", Desc = "Usa las flechas para elegir la tecla (ej. 3) y su Delay. Al activarse, tira cada slot 1 vez hiper rápido y se auto-apaga." })
-
-local keyOptions = {"None", "Z", "X", "C", "V", "F", "1", "2", "3", "4", "5"}
-
-for i = 1, 10 do
-    local slotFrame = Instance.new("Frame", PagesFolder:FindFirstChild("MacroPage"))
-    slotFrame.Size = UDim2.new(1, -6, 0, 50)
-    slotFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
-    slotFrame.BackgroundTransparency = 0.25
-    slotFrame.ZIndex = 3
-    Instance.new("UICorner", slotFrame).CornerRadius = UDim.new(0, 6)
-
-    local stroke = Instance.new("UIStroke", slotFrame)
-    stroke.Color = Color3.fromRGB(80, 80, 80)
-    stroke.Thickness = 0.8
-
-    local slotTitle = Instance.new("TextLabel", slotFrame)
-    slotTitle.Size = UDim2.new(1, -12, 0, 16)
-    slotTitle.Position = UDim2.new(0, 10, 0, 4)
-    slotTitle.BackgroundTransparency = 1
-    slotTitle.Text = "Slot " .. i
-    slotTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-    slotTitle.Font = Enum.Font.GothamBold
-    slotTitle.TextSize = 10
-    slotTitle.TextXAlignment = Enum.TextXAlignment.Left
-    slotTitle.ZIndex = 4
-
-    -- Selector Tecla: [Valor] < >
-    local keyValIdx = 1
-    local keyBtn = Instance.new("TextButton", slotFrame)
-    keyBtn.Size = UDim2.new(0.48, 0, 0, 22)
-    keyBtn.Position = UDim2.new(0, 8, 0, 22)
-    keyBtn.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
-    keyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    keyBtn.Font = Enum.Font.GothamMedium
-    keyBtn.TextSize = 9.5
-    keyBtn.ZIndex = 4
-    Instance.new("UICorner", keyBtn).CornerRadius = UDim.new(0, 4)
-
-    local function updateKeyText()
-        keyBtn.Text = "Tecla : " .. MacroConfigData[i].Key .. "  <  >"
-    end
-    updateKeyText()
-
-    keyBtn.MouseButton1Click:Connect(function()
-        keyValIdx = keyValIdx + 1
-        if keyValIdx > #keyOptions then keyValIdx = 1 end
-        MacroConfigData[i].Key = keyOptions[keyValIdx]
-        updateKeyText()
-    end)
-
-    -- Selector Delay / Velocidad
-    local delayBtn = Instance.new("TextButton", slotFrame)
-    delayBtn.Size = UDim2.new(0.48, 0, 0, 22)
-    delayBtn.Position = UDim2.new(0.51, 0, 0, 22)
-    delayBtn.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
-    delayBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    delayBtn.Font = Enum.Font.GothamMedium
-    delayBtn.TextSize = 9.5
-    delayBtn.ZIndex = 4
-    Instance.new("UICorner", delayBtn).CornerRadius = UDim.new(0, 4)
-
-    local delays = {0, 0.05, 0.1, 0.15, 0.2, 0.3, 0.5}
-    local delayIdx = 1
-    local function updateDelayText()
-        delayBtn.Text = "Delay : " .. tostring(MacroConfigData[i].Delay) .. "s  <  >"
-    end
-    updateDelayText()
-
-    delayBtn.MouseButton1Click:Connect(function()
-        delayIdx = delayIdx + 1
-        if delayIdx > #delays then delayIdx = 1 end
-        MacroConfigData[i].Delay = delays[delayIdx]
-        updateDelayText()
-    end)
-end
-
-MacroTab:Button({
-    Title = "Generar Mini UI Flotante",
-    Callback = function()
-        -- Si ya había una Mini UI generada, se destruye y se reemplaza limpiamente por la nueva
-        pcall(function()
-            if CoreGui:FindFirstChild("MiiseryMiniMacroUI") then CoreGui.MiiseryMiniMacroUI:Destroy() end
-            if playerGui:FindFirstChild("MiiseryMiniMacroUI") then playerGui.MiiseryMiniMacroUI:Destroy() end
-        end)
-
-        local MiniGui = Instance.new("ScreenGui")
-        MiniGui.Name = "MiiseryMiniMacroUI"
-        MiniGui.ResetOnSpawn = false
-        MiniGui.Parent = ScreenGui
-
-        local MiniBox = Instance.new("Frame", MiniGui)
-        MiniBox.Size = UDim2.new(0, 130, 0, 70)
-        MiniBox.Position = UDim2.new(0.5, -65, 0.25, 0)
-        MiniBox.BackgroundColor3 = Color3.fromRGB(12, 12, 18)
-        MiniBox.Active = true
-        MiniBox.Draggable = true
-        Instance.new("UICorner", MiniBox).CornerRadius = UDim.new(0, 14)
-        
-        local MiniStroke = Instance.new("UIStroke", MiniBox)
-        MiniStroke.Color = Color3.fromRGB(0, 170, 255)
-        MiniStroke.Thickness = 1.5
-
-        local MiniLogo = Instance.new("ImageLabel", MiniBox)
-        MiniLogo.Size = UDim2.new(0, 16, 0, 16)
-        MiniLogo.Position = UDim2.new(0, 8, 0, 6)
-        MiniLogo.BackgroundTransparency = 1
-        MiniLogo.Image = ASSET_ID
-        Instance.new("UICorner", MiniLogo).CornerRadius = UDim.new(1, 0)
-
-        local MiniTitle = Instance.new("TextLabel", MiniBox)
-        MiniTitle.Size = UDim2.new(1, -50, 0, 20)
-        MiniTitle.Position = UDim2.new(0, 28, 0, 4)
-        MiniTitle.BackgroundTransparency = 1
-        MiniTitle.Text = "MACRO"
-        MiniTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-        MiniTitle.Font = Enum.Font.GothamBold
-        MiniTitle.TextSize = 10
-        MiniTitle.TextXAlignment = Enum.TextXAlignment.Left
-
-        -- Botón de Anclar (☆ = Desanclado / se puede mover, ¤ = Anclado / bloqueado)
-        local isLocked = false
-        local AnchorBtn = Instance.new("TextButton", MiniBox)
-        AnchorBtn.Size = UDim2.new(0, 20, 0, 20)
-        AnchorBtn.Position = UDim2.new(1, -24, 0, 4)
-        AnchorBtn.BackgroundTransparency = 1
-        AnchorBtn.Text = "☆"
-        AnchorBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        AnchorBtn.Font = Enum.Font.GothamBold
-        AnchorBtn.TextSize = 14
-
-        AnchorBtn.MouseButton1Click:Connect(function()
-            isLocked = not isLocked
-            if isLocked then
-                AnchorBtn.Text = "¤"
-                MiniBox.Draggable = false
-            else
-                AnchorBtn.Text = "☆"
-                MiniBox.Draggable = true
-            end
-        end)
-
-        ToggleMacroBtnRef = Instance.new("TextButton", MiniBox)
-        ToggleMacroBtnRef.Size = UDim2.new(1, -16, 0, 32)
-        ToggleMacroBtnRef.Position = UDim2.new(0, 8, 0, 30)
-        ToggleMacroBtnRef.BackgroundColor3 = isMacroActive and Color3.fromRGB(50, 200, 50) or Color3.fromRGB(200, 50, 50)
-        ToggleMacroBtnRef.Text = isMacroActive and "ON" or "OFF"
-        ToggleMacroBtnRef.TextColor3 = Color3.fromRGB(255, 255, 255)
-        ToggleMacroBtnRef.Font = Enum.Font.GothamBold
-        ToggleMacroBtnRef.TextSize = 12
-        Instance.new("UICorner", ToggleMacroBtnRef).CornerRadius = UDim.new(0, 8)
-
-        ToggleMacroBtnRef.MouseButton1Click:Connect(function()
-            isMacroActive = not isMacroActive
-            if isMacroActive then
-                ToggleMacroBtnRef.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
-                ToggleMacroBtnRef.Text = "ON"
-            else
-                ToggleMacroBtnRef.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-                ToggleMacroBtnRef.Text = "OFF"
-            end
-        end)
-    end
-})
-
-local VirtualInputManager = game:GetService("VirtualInputManager")
-local function getKeyCode(keyStr)
-    keyStr = string.upper(tostring(keyStr))
-    if keyStr == "NONE" then return nil end
-    local map = {
-        ["1"] = Enum.KeyCode.One,
-        ["2"] = Enum.KeyCode.Two,
-        ["3"] = Enum.KeyCode.Three,
-        ["4"] = Enum.KeyCode.Four,
-        ["5"] = Enum.KeyCode.Five,
-        ["Z"] = Enum.KeyCode.Z,
-        ["X"] = Enum.KeyCode.X,
-        ["C"] = Enum.KeyCode.C,
-        ["V"] = Enum.KeyCode.V,
-        ["F"] = Enum.KeyCode.F,
-    }
-    return map[keyStr]
-end
-
--- Bucle de Macro: Toca exactamente 1 vez por slot a velocidad hiper rápida y se auto-apaga
-task.spawn(function()
-    while true do
-        task.wait(0.01)
-        if isMacroActive then
-            for i = 1, 10 do
-                if not isMacroActive then break end
-                
-                local keyStr = MacroConfigData[i].Key
-                local slotDelay = MacroConfigData[i].Delay or 0
-                
-                if keyStr ~= "None" then
-                    local keyCode = getKeyCode(keyStr)
-                    if keyCode then
-                        pcall(function()
-                            VirtualInputManager:SendKeyEvent(true, keyCode, false, game)
-                            VirtualInputManager:SendKeyEvent(false, keyCode, false, game)
-                        end)
-                    end
-                end
-                
-                if slotDelay > 0 then
-                    task.wait(slotDelay)
-                end
-            end
-            
-            -- Auto-apagado automático al terminar la ronda de habilidades
-            isMacroActive = false
-            if ToggleMacroBtnRef and ToggleMacroBtnRef.Parent then
-                ToggleMacroBtnRef.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-                ToggleMacroBtnRef.Text = "OFF"
-            end
-        end
-    end
-end)
 
 local MiscTab = MiiseryLibraryObj:CreateTab("Misc")
 MiscTab:Toggle({ Title = "Notifications", Value = Config.Notifications, Callback = function(v) Config.Notifications = v SaveConfig() end })

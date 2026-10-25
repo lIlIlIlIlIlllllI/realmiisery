@@ -132,17 +132,15 @@ local function GetThemeColors()
     return Themes[Config.ColorTheme] or Themes.Miisery
 end
 
-local function getFormattedAsset(inputStr)
-    if not inputStr or inputStr == "" then return "" end
-    if tonumber(inputStr) then
-        return "rbxassetid://" .. inputStr
-    else
-        return inputStr
+local function getFormattedAsset(val)
+    if not val or val == "" then return "" end
+    if tonumber(val) then
+        return "rbxassetid://" .. val
     end
+    return val
 end
 
-local activeAssetVal = Config.CustomAssetID ~= "" and Config.CustomAssetID or "114065885540477"
-local ASSET_ID = getFormattedAsset(activeAssetVal)
+local ASSET_ID = getFormattedAsset(Config.CustomInputURL ~= "" and Config.CustomInputURL or Config.CustomAssetID)
 
 local OriginalSize = UDim2.new(0, 545, 0, 330)
 local ExpandedSize = UDim2.new(0, 680, 0, 410)
@@ -599,54 +597,6 @@ local MiiseryLibraryObj = {
             end)
         end
 
-        function tabObj:Input(data)
-            local titleText = data.Title or "Input"
-            local defaultText = data.Value or ""
-            local callback = data.Callback or function() end
-
-            local frame = Instance.new("Frame", Page)
-            frame.Size = UDim2.new(1, -6, 0, 42)
-            local thCols = GetThemeColors()
-            frame.BackgroundColor3 = thCols.PanelBg
-            frame.BackgroundTransparency = 0.25
-            frame.ZIndex = 3
-            Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
-
-            local stroke = Instance.new("UIStroke", frame)
-            stroke.Color = thCols.Stroke
-            stroke.Thickness = 0.8
-
-            local title = Instance.new("TextLabel", frame)
-            title.Size = UDim2.new(1, -16, 0, 16)
-            title.Position = UDim2.new(0, 8, 0, 3)
-            title.BackgroundTransparency = 1
-            title.Text = titleText
-            title.TextColor3 = Color3.fromRGB(255, 255, 255)
-            title.Font = Enum.Font.GothamMedium
-            title.TextSize = 10
-            title.TextXAlignment = Enum.TextXAlignment.Left
-            title.ZIndex = 4
-
-            local textBox = Instance.new("TextBox", frame)
-            textBox.Size = UDim2.new(1, -16, 0, 18)
-            textBox.Position = UDim2.new(0, 8, 0, 20)
-            textBox.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
-            textBox.BackgroundTransparency = 0.3
-            textBox.Text = tostring(defaultText)
-            textBox.TextColor3 = Color3.fromRGB(240, 240, 240)
-            textBox.PlaceholderText = "Enter ID or URL..."
-            textBox.PlaceholderColor3 = Color3.fromRGB(120, 120, 120)
-            textBox.Font = Enum.Font.Gotham
-            textBox.TextSize = 9.5
-            textBox.TextXAlignment = Enum.TextXAlignment.Left
-            textBox.ZIndex = 4
-            Instance.new("UICorner", textBox).CornerRadius = UDim.new(0, 4)
-
-            textBox.FocusLost:Connect(function(enterPressed)
-                pcall(callback, textBox.Text)
-            end)
-        end
-
         function tabObj:Paragraph(data)
             local titleText = data.Title or ""
             local descText = data.Desc or ""
@@ -689,6 +639,57 @@ local MiiseryLibraryObj = {
                 if newDesc then dLabel.Text = newDesc end
             end
             return paragraphObj
+        end
+
+        function tabObj:Textbox(data)
+            local titleText = data.Title or "Textbox"
+            local defaultText = data.Value or ""
+            local callback = data.Callback or function() end
+
+            local frame = Instance.new("Frame", Page)
+            frame.Size = UDim2.new(1, -6, 0, 38)
+            local thCols = GetThemeColors()
+            frame.BackgroundColor3 = thCols.PanelBg
+            frame.BackgroundTransparency = 0.25
+            frame.ZIndex = 3
+            Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
+
+            local stroke = Instance.new("UIStroke", frame)
+            stroke.Color = thCols.Stroke
+            stroke.Thickness = 0.8
+
+            local title = Instance.new("TextLabel", frame)
+            title.Size = UDim2.new(0.4, 0, 1, 0)
+            title.Position = UDim2.new(0, 10, 0, 0)
+            title.BackgroundTransparency = 1
+            title.Text = titleText
+            title.TextColor3 = Color3.fromRGB(255, 255, 255)
+            title.Font = Enum.Font.GothamMedium
+            title.TextSize = 10
+            title.TextXAlignment = Enum.TextXAlignment.Left
+            title.ZIndex = 4
+
+            local textBox = Instance.new("TextBox", frame)
+            textBox.Size = UDim2.new(0.55, 0, 0, 24)
+            textBox.Position = UDim2.new(0.43, 0, 0.5, -12)
+            textBox.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+            textBox.BackgroundTransparency = 0.2
+            textBox.Text = tostring(defaultText)
+            textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+            textBox.PlaceholderText = "Paste ID or URL..."
+            textBox.PlaceholderColor3 = Color3.fromRGB(120, 120, 120)
+            textBox.Font = Enum.Font.Gotham
+            textBox.TextSize = 9.5
+            textBox.ZIndex = 4
+            Instance.new("UICorner", textBox).CornerRadius = UDim.new(0, 4)
+
+            local boxStroke = Instance.new("UIStroke", textBox)
+            boxStroke.Color = Color3.fromRGB(80, 80, 80)
+            boxStroke.Thickness = 0.8
+
+            textBox.FocusLost:Connect(function(enterPressed)
+                pcall(callback, textBox.Text)
+            end)
         end
 
         function tabObj:Slider(data)
@@ -2600,7 +2601,7 @@ local PersonalizationTab = MiiseryLibraryObj:CreateTab("Personalization")
 
 PersonalizationTab:Paragraph({ Title = "UI Appearance Settings", Desc = "Customize color themes and background wallpapers via ID or URL." })
 
-local themeList = {"Miisery", "Amber", "CottonCandy", "Crimson", "Dark", "Emerald", "Indigo", "Light", "Mellowsi", "Midnight"}
+local themeList = {"Amber", "CottonCandy", "Crimson", "Dark", "Miisery", "Emerald", "Indigo", "Light", "Mellowsi", "Midnight"}
 PersonalizationTab:Dropdown({
     Title = "UI Color Theme",
     Values = themeList,
@@ -2653,11 +2654,18 @@ local function applyWallpaper(inputVal)
     Notify("Miisery Hub", "Background updated successfully!", 2)
 end
 
-PersonalizationTab:Input({
+PersonalizationTab:Textbox({
     Title = "Media URL or ID",
     Value = Config.CustomInputURL or "",
-    Callback = function(v)
-        applyWallpaper(v)
+    Callback = function(txt)
+        applyWallpaper(txt)
+    end
+})
+
+PersonalizationTab:Button({
+    Title = "Apply Background",
+    Callback = function()
+        applyWallpaper(Config.CustomInputURL)
     end
 })
 
@@ -2669,8 +2677,29 @@ PersonalizationTab:Button({
         SaveConfig()
         pcall(function()
             if BackgroundImage then BackgroundImage.Image = "" end
+            if SidebarLogo then SidebarLogo.Image = "" end
+            if BadgeLogo then BadgeLogo.Image = "" end
         end)
         Notify("Miisery Hub", "Background removed!", 2)
+    end
+})
+
+local availableAssetIds = {
+    "114065885540477",
+    "85256255221310",
+    "106006243046634",
+    "76375726192743",
+    "88932447826978",
+    "100480019494922"
+}
+
+PersonalizationTab:Dropdown({
+    Title = "Featured Backgrounds (Click to Apply)",
+    Values = availableAssetIds,
+    Value = Config.CustomAssetID,
+    Callback = function(v)
+        Config.CustomInputURL = tostring(v)
+        applyWallpaper(tostring(v))
     end
 })
 
@@ -2802,7 +2831,7 @@ InfoTab:Dropdown({
             infoDescParagraph:Update("Guía y Funciones del Script", "• Main: Ataque rápido, atraer NPCs y opciones de combate.\n• Farm: Detección inteligente de islas y recolección de cofres.\n• Aim & Trackers: Apuntado silencioso, FOV y rastreo de jugadores.\n• Movement: Vuelo, Noclip, velocidad y modificadores de movimiento.\n• Blacklist: Excluir habilidades específicas por categoría de arma.")
             bugFixParagraph:Update("Corrección de Errores y Actualizaciones", "0")
         elseif v == "Português" then
-            infoDescParagraph:Update("Guia e Funções do Script", "• Main: Ataque rápido, puxar mobs e opções de combate.\n• Farm: Detecção inteligente de ilhas e coleta de baús.\n• Aim & Trackers: Mira silenciosa, FOV e rastreo de jogadores.\n• Movement: Voo, Noclip, velocidade e modificadores de movimento.\n• Blacklist: Excluir habilidades específicas por categoria de arma.")
+            infoDescParagraph:Update("Guia e Funções do Script", "• Main: Ataque rápido, puxar mobs e opções de combate.\n• Farm: Detecção inteligente de ilhas e coleta de baús.\n• Aim & Trackers: Mira silenciosa, FOV e rastreamento de jogadores.\n• Movement: Voo, Noclip, velocidade e modificadores de movimento.\n• Blacklist: Excluir habilidades específicas por categoria de arma.")
             bugFixParagraph:Update("Correções de Bugs e Atualizações", "0")
         else
             infoDescParagraph:Update("Script Guide & Functions", "• Main: Fast Attack, Bring Mobs and combat options.\n• Farm: Smart island detection and automatic chest looting.\n• Aim & Trackers: Silent aim, FOV customization and player tracking.\n• Movement: Fly, Noclip, Speed Hack and utility movement modifiers.\n• Blacklist: Exclude specific skill keys per weapon category.")
@@ -2812,7 +2841,7 @@ InfoTab:Dropdown({
 })
 
 pcall(function()
-    local initialUri = getFormattedAsset(Config.CustomAssetID or "114065885540477")
+    local initialUri = getFormattedAsset(Config.CustomInputURL ~= "" and Config.CustomInputURL or Config.CustomAssetID)
     if BackgroundImage then BackgroundImage.Image = initialUri end
     if SidebarLogo then SidebarLogo.Image = initialUri end
     if BadgeLogo then BadgeLogo.Image = initialUri end

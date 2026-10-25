@@ -1979,19 +1979,8 @@ local function StopHipHeight()
     if hum then hum.HipHeight = 2 end
 end
 
--- ==========================================
--- CREACIÓN DE PESTAÑAS (Ordenadas correctamente)
--- ==========================================
 local HomeTab = MiiseryLibraryObj:CreateTab("Home")
-local MainTab = MiiseryLibraryObj:CreateTab("Main")
-local AimTab = MiiseryLibraryObj:CreateTab("Aim")
-local TrackersTab = MiiseryLibraryObj:CreateTab("Trackers")
-local MovementTab = MiiseryLibraryObj:CreateTab("Movement")
-local BlacklistTab = MiiseryLibraryObj:CreateTab("Blacklist")
-local MacroTab = MiiseryLibraryObj:CreateTab("Macro")
-local MiscTab = MiiseryLibraryObj:CreateTab("Misc")
 
--- HomeTab Content
 local HomeHeaderContainer = Instance.new("Frame", PagesFolder:FindFirstChild("HomePage"))
 HomeHeaderContainer.Size = UDim2.new(1, -6, 0, 115)
 HomeHeaderContainer.BackgroundTransparency = 1
@@ -2134,15 +2123,23 @@ end)
 HomeTab:Paragraph({ Title = "Miisery Hub - Blox Fruits PvP", Desc = "Welcome to Miisery Hub v1.0" })
 
 local availableAssetIds = {
-    "+18", "None", "114065885540477", "85256255221310", "106006243046634",
-    "76375726192743", "88932447826978", "100480019494922"
+    "+18",
+    "None",
+    "114065885540477",
+    "85256255221310",
+    "106006243046634",
+    "76375726192743",
+    "88932447826978",
+    "100480019494922"
 }
+local selectedCustomId = Config.CustomAssetID or "+18"
+
 HomeTab:Dropdown({
     Title = "UI Background / Logo ID",
     Values = availableAssetIds,
-    Value = Config.CustomAssetID or "+18",
+    Value = selectedCustomId,
     Callback = function(v)
-        local selectedCustomId = tostring(v)
+        selectedCustomId = tostring(v)
         Config.CustomAssetID = selectedCustomId
         Config.CurrentBackground = selectedCustomId
         SaveConfig()
@@ -2177,18 +2174,26 @@ task.spawn(function()
 
             local levelVal = nil
             if leaderstats and leaderstats:FindFirstChild("Level") then levelVal = leaderstats.Level.Value
-            elseif lp:FindFirstChild("Data") and lp.Data:FindFirstChild("Level") then levelVal = lp.Data.Level.Value end
+            elseif lp:FindFirstChild("Data") and lp.Data:FindFirstChild("Level") then levelVal = lp.Data.Level.Value
+            elseif lp:FindFirstChild("Data") and lp.Data:FindFirstChild("Stats") and lp.Data.Stats:FindFirstChild("Defense") and lp.Data.Stats.Defense:FindFirstChild("Level") then
+                levelVal = lp.Data.Stats.Defense.Level.Value end
             if levelVal then LevelLabel.Text = "Level: " .. tostring(levelVal) else LevelLabel.Text = "Level: N/A" end
 
             if lp.Team then
                 TeamLabel.Text = "Team: " .. tostring(lp.Team.Name)
                 TeamLabel.TextColor3 = lp.TeamColor.Color
+            elseif lp:FindFirstChild("Data") and lp.Data:FindFirstChild("Team") then
+                local teamName = tostring(lp.Data.Team.Value)
+                TeamLabel.Text = "Team: " .. teamName
+                if teamName:lower():find("pirate") then TeamLabel.TextColor3 = Color3.fromRGB(240, 70, 70)
+                elseif teamName:lower():find("marine") then TeamLabel.TextColor3 = Color3.fromRGB(70, 130, 240)
+                else TeamLabel.TextColor3 = Color3.fromRGB(220, 220, 220) end
             else TeamLabel.Text = "Team: None" TeamLabel.TextColor3 = Color3.fromRGB(220, 220, 220) end
         end)
     end
 end)
 
--- MainTab Content
+local MainTab = MiiseryLibraryObj:CreateTab("Main")
 MainTab:Toggle({ Title = "Fast Attack", Value = Config.FastAttack, Callback = function(v) Config.FastAttack = v SaveConfig() end })
 MainTab:Toggle({ Title = "Attack Players", Value = Config.FAPlayers, Callback = function(v) Config.FAPlayers = v SaveConfig() end })
 MainTab:Toggle({ Title = "Attack NPCs", Value = Config.FAMobs, Callback = function(v) Config.FAMobs = v SaveConfig() end })
@@ -2196,7 +2201,7 @@ MainTab:Slider({ Title = "FA Range", Value = { Min = 50, Max = 5000, Default = C
 MainTab:Toggle({ Title = "Bring Mobs", Value = Config.BringMobs, Callback = function(v) Config.BringMobs = v SaveConfig() end })
 MainTab:Slider({ Title = "Bring Range", Value = { Min = 50, Max = 5000, Default = Config.BringRange }, Callback = function(v) Config.BringRange = v SaveConfig() end })
 
--- AimTab Content
+local AimTab = MiiseryLibraryObj:CreateTab("Aim")
 AimTab:Toggle({ Title = "Silent Aim Players", Value = Config.SilentPlayer, Callback = function(v) Config.SilentPlayer = v SilentAimModule:SetPlayerSilentAim(v) SaveConfig() end })
 AimTab:Toggle({ Title = "Silent Aim NPCs", Value = Config.SilentNPC, Callback = function(v) Config.SilentNPC = v SilentAimModule:SetNPCSilentAim(v) SaveConfig() end })
 AimTab:Dropdown({ Title = "Aim Mode", Values = {"360", "180", "FOV"}, Value = Config.AimMode or "360", Callback = function(v) Config.AimMode = v SilentAimModule:SetAimMode(v) SaveConfig() end })
@@ -2210,7 +2215,7 @@ AimTab:Slider({ Title = "M1 Range", Value = { Min = 10, Max = 300, Default = Con
 AimTab:Toggle({ Title = "Gun Click SL", Value = Config.GunClickSL, Callback = function(v) Config.GunClickSL = v GunClickSLMod:SetEnabled(v) SaveConfig() end })
 AimTab:Toggle({ Title = "Tracer", Value = Config.Tracer, Callback = function(v) Config.Tracer = v SilentAimModule:SetTracerEnabled(v) SaveConfig() end })
 
--- TrackersTab Content
+local TrackersTab = MiiseryLibraryObj:CreateTab("Trackers")
 local function getPlayerList()
     local list = {"Nearest"}
     local players = Players:GetPlayers()
@@ -2236,7 +2241,7 @@ TrackersTab:Toggle({ Title = "Auto Flee", Value = Config.AutoFlee, Callback = fu
 TrackersTab:Slider({ Title = "Auto Flee HP %", Value = { Min = 5, Max = 80, Default = Config.AutoFleeHP }, Callback = function(v) Config.AutoFleeHP = v SaveConfig() end })
 TrackersTab:Toggle({ Title = "Spectate Target", Value = Config.Spectate, Callback = function(v) Config.Spectate = v if not v then pcall(function() Workspace.CurrentCamera.CameraSubject = lp.Character:FindFirstChildOfClass("Humanoid") end) end SaveConfig() end })
 
--- MovementTab Content
+local MovementTab = MiiseryLibraryObj:CreateTab("Movement")
 MovementTab:Toggle({ Title = "Fly", Value = Config.Fly, Callback = function(v) Config.Fly = v if v then startFly() else stopFly() end SaveConfig() end })
 MovementTab:Slider({ Title = "Fly Speed", Value = { Min = 50, Max = 500, Default = Config.FlySpeed or 250 }, Callback = function(v) Config.FlySpeed = v SaveConfig() end })
 MovementTab:Toggle({ Title = "Noclip", Value = false, Callback = function(v) if v then StartNoclip() else StopNoclip() end SaveConfig() end })
@@ -2250,7 +2255,7 @@ MovementTab:Slider({ Title = "Dash Length", Value = { Min = 10, Max = 200, Defau
 MovementTab:Toggle({ Title = "Custom Hip Height", Value = false, Callback = function(v) if v then StartHipHeight() else StopHipHeight() end SaveConfig() end })
 MovementTab:Slider({ Title = "Hip Height Value", Value = { Min = 0, Max = 20, Default = 2 }, Callback = function(v) MovementState.HipHeightValue = v SaveConfig() end })
 
--- BlacklistTab Content
+local BlacklistTab = MiiseryLibraryObj:CreateTab("Blacklist")
 local function blToggle(cat, key)
     local ck = "BL_" .. cat .. "_" .. key
     BlacklistTab:Toggle({ Title = cat .. ": Blacklist " .. key, Value = Config[ck] == true, Callback = function(v) Config[ck] = v SilentAimModule:SetBlacklistKey(cat, key, v) SaveConfig() end })
@@ -2269,8 +2274,9 @@ local gunKeys = {"Z", "X"}
 for i = 1, #gunKeys do blToggle("Gun", gunKeys[i]) end
 
 -- ==========================================
--- MACRO TAB (10 Slots + Mini UI flotante)
+-- PESTAÑA MACRO (Ubicada justo arriba de Misc con sus 10 Slots)
 -- ==========================================
+local MacroTab = MiiseryLibraryObj:CreateTab("Macro")
 MacroTab:Paragraph({ Title = "Sistema de Macro PvP (10 Slots)", Desc = "Configura tus teclas y velocidad (hasta 999). Si está en None, se omite." })
 
 for i = 1, 10 do
@@ -2410,7 +2416,7 @@ task.spawn(function()
     end
 end)
 
--- MiscTab Content
+local MiscTab = MiiseryLibraryObj:CreateTab("Misc")
 MiscTab:Toggle({ Title = "Notifications", Value = Config.Notifications, Callback = function(v) Config.Notifications = v SaveConfig() end })
 MiscTab:Toggle({ Title = "Anti AFK", Value = Config.AntiAFK, Callback = function(v) Config.AntiAFK = v SaveConfig() end })
 MiscTab:Toggle({ Title = "Auto V3", Value = Config.AutoV3, Callback = function(v) Config.AutoV3 = v SaveConfig() end })

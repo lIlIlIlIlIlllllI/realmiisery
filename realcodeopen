@@ -73,7 +73,7 @@ local Config = {
     Language = "English",
     CustomAssetID = "114065885540477",
     CustomInputURL = "",
-    ColorTheme = "Darling",
+    ColorTheme = "Miisery",
     StreamProof = false
 }
 
@@ -116,7 +116,7 @@ end
 LoadConfig()
 
 local Themes = {
-    Darling = { MainBg = Color3.fromRGB(8, 8, 10), PanelBg = Color3.fromRGB(12, 12, 15), Stroke = Color3.fromRGB(255, 255, 255) },
+    Miisery = { MainBg = Color3.fromRGB(8, 8, 10), PanelBg = Color3.fromRGB(12, 12, 15), Stroke = Color3.fromRGB(255, 255, 255) },
     Amber = { MainBg = Color3.fromRGB(30, 20, 10), PanelBg = Color3.fromRGB(45, 30, 15), Stroke = Color3.fromRGB(255, 170, 50) },
     CottonCandy = { MainBg = Color3.fromRGB(20, 15, 30), PanelBg = Color3.fromRGB(30, 22, 45), Stroke = Color3.fromRGB(255, 150, 220) },
     Crimson = { MainBg = Color3.fromRGB(25, 8, 8), PanelBg = Color3.fromRGB(40, 12, 12), Stroke = Color3.fromRGB(255, 80, 80) },
@@ -129,10 +129,20 @@ local Themes = {
 }
 
 local function GetThemeColors()
-    return Themes[Config.ColorTheme] or Themes.Darling
+    return Themes[Config.ColorTheme] or Themes.Miisery
 end
 
-local ASSET_ID = "rbxassetid://" .. tostring(Config.CustomAssetID or "114065885540477")
+local function getFormattedAsset(inputStr)
+    if not inputStr or inputStr == "" then return "" end
+    if tonumber(inputStr) then
+        return "rbxassetid://" .. inputStr
+    else
+        return inputStr
+    end
+end
+
+local activeAssetVal = Config.CustomAssetID ~= "" and Config.CustomAssetID or "114065885540477"
+local ASSET_ID = getFormattedAsset(activeAssetVal)
 
 local OriginalSize = UDim2.new(0, 545, 0, 330)
 local ExpandedSize = UDim2.new(0, 680, 0, 410)
@@ -586,6 +596,54 @@ local MiiseryLibraryObj = {
 
             btn.MouseButton1Click:Connect(function()
                 pcall(callback)
+            end)
+        end
+
+        function tabObj:Input(data)
+            local titleText = data.Title or "Input"
+            local defaultText = data.Value or ""
+            local callback = data.Callback or function() end
+
+            local frame = Instance.new("Frame", Page)
+            frame.Size = UDim2.new(1, -6, 0, 42)
+            local thCols = GetThemeColors()
+            frame.BackgroundColor3 = thCols.PanelBg
+            frame.BackgroundTransparency = 0.25
+            frame.ZIndex = 3
+            Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
+
+            local stroke = Instance.new("UIStroke", frame)
+            stroke.Color = thCols.Stroke
+            stroke.Thickness = 0.8
+
+            local title = Instance.new("TextLabel", frame)
+            title.Size = UDim2.new(1, -16, 0, 16)
+            title.Position = UDim2.new(0, 8, 0, 3)
+            title.BackgroundTransparency = 1
+            title.Text = titleText
+            title.TextColor3 = Color3.fromRGB(255, 255, 255)
+            title.Font = Enum.Font.GothamMedium
+            title.TextSize = 10
+            title.TextXAlignment = Enum.TextXAlignment.Left
+            title.ZIndex = 4
+
+            local textBox = Instance.new("TextBox", frame)
+            textBox.Size = UDim2.new(1, -16, 0, 18)
+            textBox.Position = UDim2.new(0, 8, 0, 20)
+            textBox.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+            textBox.BackgroundTransparency = 0.3
+            textBox.Text = tostring(defaultText)
+            textBox.TextColor3 = Color3.fromRGB(240, 240, 240)
+            textBox.PlaceholderText = "Enter ID or URL..."
+            textBox.PlaceholderColor3 = Color3.fromRGB(120, 120, 120)
+            textBox.Font = Enum.Font.Gotham
+            textBox.TextSize = 9.5
+            textBox.TextXAlignment = Enum.TextXAlignment.Left
+            textBox.ZIndex = 4
+            Instance.new("UICorner", textBox).CornerRadius = UDim.new(0, 4)
+
+            textBox.FocusLost:Connect(function(enterPressed)
+                pcall(callback, textBox.Text)
             end)
         end
 
@@ -2542,11 +2600,11 @@ local PersonalizationTab = MiiseryLibraryObj:CreateTab("Personalization")
 
 PersonalizationTab:Paragraph({ Title = "UI Appearance Settings", Desc = "Customize color themes and background wallpapers via ID or URL." })
 
-local themeList = {"Amber", "CottonCandy", "Crimson", "Dark", "Darling", "Emerald", "Indigo", "Light", "Mellowsi", "Midnight"}
+local themeList = {"Miisery", "Amber", "CottonCandy", "Crimson", "Dark", "Emerald", "Indigo", "Light", "Mellowsi", "Midnight"}
 PersonalizationTab:Dropdown({
     Title = "UI Color Theme",
     Values = themeList,
-    Value = Config.ColorTheme or "Darling",
+    Value = Config.ColorTheme or "Miisery",
     Callback = function(v)
         Config.ColorTheme = v
         SaveConfig()
@@ -2579,12 +2637,7 @@ PersonalizationTab:Dropdown({
 
 local function applyWallpaper(inputVal)
     if not inputVal or inputVal == "" then return end
-    local assetUri = ""
-    if tonumber(inputVal) then
-        assetUri = "rbxassetid://" .. inputVal
-    else
-        assetUri = inputVal
-    end
+    local assetUri = getFormattedAsset(inputVal)
     Config.CustomAssetID = inputVal
     Config.CustomInputURL = inputVal
     SaveConfig()
@@ -2600,33 +2653,11 @@ local function applyWallpaper(inputVal)
     Notify("Miisery Hub", "Background updated successfully!", 2)
 end
 
-local inputUrlVal = Config.CustomInputURL or ""
-
-PersonalizationTab:Button({
-    Title = "Media URL or ID: " .. (inputUrlVal == "" and "None" or inputUrlVal),
-    Callback = function()
-        pcall(function()
-            if not inputboxService and game:GetService("LogService") then
-            end
-        end)
-    end
-})
-
-local availableAssetIds = {
-    "114065885540477",
-    "85256255221310",
-    "106006243046634",
-    "76375726192743",
-    "88932447826978",
-    "100480019494922"
-}
-
-PersonalizationTab:Dropdown({
-    Title = "Preset Backgrounds",
-    Values = availableAssetIds,
-    Value = Config.CustomAssetID,
+PersonalizationTab:Input({
+    Title = "Media URL or ID",
+    Value = Config.CustomInputURL or "",
     Callback = function(v)
-        applyWallpaper(tostring(v))
+        applyWallpaper(v)
     end
 })
 
@@ -2771,7 +2802,7 @@ InfoTab:Dropdown({
             infoDescParagraph:Update("Guía y Funciones del Script", "• Main: Ataque rápido, atraer NPCs y opciones de combate.\n• Farm: Detección inteligente de islas y recolección de cofres.\n• Aim & Trackers: Apuntado silencioso, FOV y rastreo de jugadores.\n• Movement: Vuelo, Noclip, velocidad y modificadores de movimiento.\n• Blacklist: Excluir habilidades específicas por categoría de arma.")
             bugFixParagraph:Update("Corrección de Errores y Actualizaciones", "0")
         elseif v == "Português" then
-            infoDescParagraph:Update("Guia e Funções do Script", "• Main: Ataque rápido, puxar mobs e opções de combate.\n• Farm: Detecção inteligente de ilhas e coleta de baús.\n• Aim & Trackers: Mira silenciosa, FOV e rastreamento de jogadores.\n• Movement: Voo, Noclip, velocidade e modificadores de movimento.\n• Blacklist: Excluir habilidades específicas por categoria de arma.")
+            infoDescParagraph:Update("Guia e Funções do Script", "• Main: Ataque rápido, puxar mobs e opções de combate.\n• Farm: Detecção inteligente de ilhas e coleta de baús.\n• Aim & Trackers: Mira silenciosa, FOV e rastreo de jogadores.\n• Movement: Voo, Noclip, velocidade e modificadores de movimento.\n• Blacklist: Excluir habilidades específicas por categoria de arma.")
             bugFixParagraph:Update("Correções de Bugs e Atualizações", "0")
         else
             infoDescParagraph:Update("Script Guide & Functions", "• Main: Fast Attack, Bring Mobs and combat options.\n• Farm: Smart island detection and automatic chest looting.\n• Aim & Trackers: Silent aim, FOV customization and player tracking.\n• Movement: Fly, Noclip, Speed Hack and utility movement modifiers.\n• Blacklist: Exclude specific skill keys per weapon category.")
@@ -2781,7 +2812,7 @@ InfoTab:Dropdown({
 })
 
 pcall(function()
-    local initialUri = "rbxassetid://" .. tostring(Config.CustomAssetID or "114065885540477")
+    local initialUri = getFormattedAsset(Config.CustomAssetID or "114065885540477")
     if BackgroundImage then BackgroundImage.Image = initialUri end
     if SidebarLogo then SidebarLogo.Image = initialUri end
     if BadgeLogo then BadgeLogo.Image = initialUri end

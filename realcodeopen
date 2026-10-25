@@ -136,7 +136,7 @@ MainStroke.Color = Color3.fromRGB(255, 255, 255)
 MainStroke.Thickness = 1.5
 MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
--- Definición del preset de 12 partes para el fondo "+18"
+-- Definición de Fondos (incluyendo el "+18" de 12 partes exactas)
 local BackgroundPresets = {
     ["+18"] = {
         "114190662442676", "120046269451482", "140082597612823", "129273225975036",

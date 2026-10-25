@@ -56,7 +56,7 @@ local Config = {
     TweenOX = 0, TweenOY = 1.5, TweenOZ = 3.5, InstaTP = false, Spectate = false,
     SelectedTrackPlayer = "Nearest",
     M1Extender = false, M1Range = 50, GunClickSL = false,
-    SilentPlayer = false, SilentNPC = false, AimMode = "360", AimPriority = "Nearest",
+    SilentPlayer = false, SilentNPC = false, SoruAim = false, AimMode = "360", AimPriority = "Nearest",
     ShowFOV = false, FOVMode = "V1", FOVRadius = 150, AimMaxRange = 2000,
     Tracer = false, TracerColor = "Red",
     BL_Melee_Z = false, BL_Melee_X = false, BL_Melee_C = false, BL_Melee_V = false, BL_Melee_F = false,
@@ -1223,7 +1223,7 @@ RunService.Heartbeat:Connect(function()
 end)
 
 -- =========================================================================
--- AIM MODULE (PROTECTED)
+-- AIM MODULE (PROTECTED) + SORU AIM
 -- =========================================================================
 local mouse = lp:GetMouse()
 local SilentAimModule = (function()
@@ -1233,6 +1233,7 @@ local SilentAimModule = (function()
 
     local SilentAimPlayersEnabled = false
     local SilentAimNPCsEnabled = false
+    local SoruAimEnabled = false
     local ShowFOVCircle = false
     local FOVRadius = 150
     local FOVMode = "V1"
@@ -1555,13 +1556,13 @@ local SilentAimModule = (function()
                     if not lpChar then return end
                     local lpHRP = lpChar:FindFirstChild("HumanoidRootPart")
                     if not lpHRP then return end
-                    if not SilentAimPlayersEnabled and not SilentAimNPCsEnabled then
+                    if not SilentAimPlayersEnabled and not SilentAimNPCsEnabled and not SoruAimEnabled then
                         if TracerEnabled and tracerBeam then tracerBeam.Enabled = false end
                         PlayersPosition = nil
                         NPCPosition = nil
                         return
                     end
-                    if SilentAimPlayersEnabled then
+                    if SilentAimPlayersEnabled or SoruAimEnabled then
                         local targetplayer = getClosestplayer(lpHRP)
                         if targetplayer and targetplayer.Character then
                             local hrpTarget = getHRP(targetplayer.Character)
@@ -1598,7 +1599,20 @@ local SilentAimModule = (function()
         end
         if not heartbeatConnection then
             heartbeatConnection = RunService.Heartbeat:Connect(function()
-                if (not SilentAimPlayersEnabled and not SilentAimNPCsEnabled) then return end
+                if (not SilentAimPlayersEnabled and not SilentAimNPCsEnabled and not SoruAimEnabled) then return end
+                if SoruAimEnabled then
+                    pcall(function()
+                        local char = player.Character
+                        if not char then return end
+                        local hrp = char:FindFirstChild("HumanoidRootPart")
+                        local targetPos = PlayersPosition or NPCPosition
+                        if hrp and targetPos then
+                            local cam = Workspace.CurrentCamera
+                            cam.CFrame = CFrame.new(cam.CFrame.Position, targetPos)
+                            hrp.CFrame = CFrame.new(hrp.Position, Vector3.new(targetPos.X, hrp.Position.Y, targetPos.Z))
+                        end
+                    end)
+                end
                 if currentSkillKey and isKeyCurrentlyBlacklisted(currentSkillKey) then return end
                 if currentTool then
                     local n = string.lower(currentTool.Name)
@@ -1614,12 +1628,14 @@ local SilentAimModule = (function()
     end
 
     local function stopRenderLoop()
-        if renderConnection then renderConnection:Disconnect(); renderConnection = nil end
-        if heartbeatConnection then heartbeatConnection:Disconnect(); heartbeatConnection = nil end
-        FOVFrame.Visible = false
-        destroyTracer()
-        PlayersPosition = nil
-        NPCPosition = nil
+        if not SilentAimPlayersEnabled and not SilentAimNPCsEnabled and not SoruAimEnabled then
+            if renderConnection then renderConnection:Disconnect(); renderConnection = nil end
+            if heartbeatConnection then heartbeatConnection:Disconnect(); heartbeatConnection = nil end
+            FOVFrame.Visible = false
+            destroyTracer()
+            PlayersPosition = nil
+            NPCPosition = nil
+        end
     end
 
     pcall(function()
@@ -1633,7 +1649,7 @@ local SilentAimModule = (function()
             if args[1] == "TAP" then return oldNamecall(self, ...) end
             local skillKey = getSkillKeyFromArgs(args)
             if skillKey then
-                if SilentAimPlayersEnabled or SilentAimNPCsEnabled then
+                if SilentAimPlayersEnabled or SilentAimNPCsEnabled or SoruAimEnabled then
                     local targetPos = PlayersPosition or NPCPosition
                     if targetPos then task.spawn(function() faceTarget(targetPos) end) end
                 end
@@ -1644,11 +1660,11 @@ local SilentAimModule = (function()
             elseif not skillKey and currentSkillKey and isKeyCurrentlyBlacklisted(skillKey) then skip = true end
             if not skip then
                 if Method == "FireServer" and typeof(args[1]) == "Vector3" then
-                    if SilentAimPlayersEnabled and PlayersPosition then args[1] = PlayersPosition
+                    if (SilentAimPlayersEnabled or SoruAimEnabled) and PlayersPosition then args[1] = PlayersPosition
                     elseif SilentAimNPCsEnabled and NPCPosition then args[1] = NPCPosition end
                 elseif Method == "InvokeServer" and currentTool and currentTool.Name == "Buddy Sword" then
                     if type(args[1]) == "string" and table.find(Skills, args[1]) then
-                        if SilentAimPlayersEnabled and PlayersPosition then args[2] = PlayersPosition
+                        if (SilentAimPlayersEnabled or SoruAimEnabled) and PlayersPosition then args[2] = PlayersPosition
                         elseif SilentAimNPCsEnabled and NPCPosition then args[2] = NPCPosition end
                     end
                 end
@@ -1682,8 +1698,9 @@ local SilentAimModule = (function()
     player.CharacterAdded:Connect(onCharacterAdded)
     if player.Character then onCharacterAdded(player.Character) end
 
-    function module:SetPlayerSilentAim(state) SilentAimPlayersEnabled = state if state then startRenderLoop() elseif not SilentAimNPCsEnabled then stopRenderLoop() end end
-    function module:SetNPCSilentAim(state) SilentAimNPCsEnabled = state if state then startRenderLoop() elseif not SilentAimPlayersEnabled then stopRenderLoop() end end
+    function module:SetPlayerSilentAim(state) SilentAimPlayersEnabled = state if state then startRenderLoop() else stopRenderLoop() end end
+    function module:SetNPCSilentAim(state) SilentAimNPCsEnabled = state if state then startRenderLoop() else stopRenderLoop() end end
+    function module:SetSoruAim(state) SoruAimEnabled = state if state then startRenderLoop() else stopRenderLoop() end end
     function module:SetBlacklistKey(cat, key, state) if BlacklistedKeys[cat] and BlacklistedKeys[cat][key] ~= nil then BlacklistedKeys[cat][key] = state end end
     function module:SetAimMode(mode) AimMode = mode end
     function module:SetTargetPriority(prio) TargetPriority = prio end
@@ -1699,6 +1716,7 @@ end)()
 
 SilentAimModule:SetPlayerSilentAim(Config.SilentPlayer == true)
 SilentAimModule:SetNPCSilentAim(Config.SilentNPC == true)
+SilentAimModule:SetSoruAim(Config.SoruAim == true)
 SilentAimModule:SetAimMode(Config.AimMode or "360")
 SilentAimModule:SetTargetPriority(Config.AimPriority or "Nearest")
 SilentAimModule:SetShowFOVCircle(Config.ShowFOV == true)
@@ -1956,7 +1974,7 @@ local function StopHipHeight()
 end
 
 -- =========================================================================
--- TABS CREATION (Farm Tab Removed)
+-- TABS CREATION
 -- =========================================================================
 
 local HomeTab = MiiseryLibraryObj:CreateTab("Home")
@@ -2161,6 +2179,7 @@ MainTab:Slider({ Title = "Bring Range", Value = { Min = 50, Max = 5000, Default 
 
 AimTab:Toggle({ Title = "Silent Aim Players", Value = Config.SilentPlayer, Callback = function(v) Config.SilentPlayer = v SilentAimModule:SetPlayerSilentAim(v) SaveConfig() end })
 AimTab:Toggle({ Title = "Silent Aim NPCs", Value = Config.SilentNPC, Callback = function(v) Config.SilentNPC = v SilentAimModule:SetNPCSilentAim(v) SaveConfig() end })
+AimTab:Toggle({ Title = "Soru Aim", Value = Config.SoruAim, Callback = function(v) Config.SoruAim = v SilentAimModule:SetSoruAim(v) SaveConfig() end })
 AimTab:Dropdown({ Title = "Aim Mode", Values = {"360", "180", "FOV"}, Value = Config.AimMode or "360", Callback = function(v) Config.AimMode = v SilentAimModule:SetAimMode(v) SaveConfig() end })
 AimTab:Dropdown({ Title = "Priority", Values = {"Nearest", "Low HP", "HighestHP", "Looking At Me", "Lock Player"}, Value = Config.AimPriority or "Nearest", Callback = function(v) Config.AimPriority = v SilentAimModule:SetTargetPriority(v) SaveConfig() end })
 AimTab:Dropdown({ Title = "FOV Mode", Values = {"V1", "V2"}, Value = Config.FOVMode or "V1", Callback = function(v) Config.FOVMode = v SilentAimModule:SetFOVMode(v) SaveConfig() end })

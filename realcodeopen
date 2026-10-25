@@ -191,7 +191,7 @@ local BadgeText = Instance.new("TextLabel", ToggleButton)
 BadgeText.Size = UDim2.new(1, -72, 1, 0)
 BadgeText.Position = UDim2.new(0, 70, 0, 0)
 BadgeText.BackgroundTransparency = 1
-BadgeText.Text = "Miisery Hub"
+BadgeText.Text = "Hub"
 BadgeText.TextColor3 = Color3.fromRGB(255, 255, 255)
 BadgeText.Font = Enum.Font.GothamBold
 BadgeText.TextSize = 11
@@ -278,7 +278,7 @@ local HubTitle = Instance.new("TextLabel", LeftSidebar)
 HubTitle.Size = UDim2.new(1, -36, 0, 16)
 HubTitle.Position = UDim2.new(0, 34, 0, 4)
 HubTitle.BackgroundTransparency = 1
-HubTitle.Text = "Miisery Hub"
+HubTitle.Text = "Hub"
 HubTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
 HubTitle.Font = Enum.Font.GothamBold
 HubTitle.TextSize = 11
@@ -289,7 +289,7 @@ local AuthorSubTitle = Instance.new("TextLabel", LeftSidebar)
 AuthorSubTitle.Size = UDim2.new(1, -36, 0, 12)
 AuthorSubTitle.Position = UDim2.new(0, 34, 0, 20)
 AuthorSubTitle.BackgroundTransparency = 1
-AuthorSubTitle.Text = "by DementeMental"
+AuthorSubTitle.Text = "Private"
 AuthorSubTitle.TextColor3 = Color3.fromRGB(180, 180, 180)
 AuthorSubTitle.Font = Enum.Font.Gotham
 AuthorSubTitle.TextSize = 8
@@ -419,7 +419,7 @@ local firstTab = true
 local tabCounter = 0
 local UIStrokesList = {}
 
-local MiiseryLibraryObj = {
+local LibraryObj = {
     CreateTab = function(self, tabName)
         tabCounter = tabCounter + 1
         local currentOrder = tabCounter
@@ -1222,9 +1222,6 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
--- =========================================================================
--- AIM MODULE (PROTECTED) + SORU AIM
--- =========================================================================
 local mouse = lp:GetMouse()
 local SilentAimModule = (function()
     local module = {}
@@ -1973,22 +1970,15 @@ local function StopHipHeight()
     if hum then hum.HipHeight = 2 end
 end
 
--- =========================================================================
--- TABS CREATION
--- =========================================================================
+local HomeTab = LibraryObj:CreateTab("Home")
+local MainTab = LibraryObj:CreateTab("Main")
+local AimTab = LibraryObj:CreateTab("Aim")
+local TrackersTab = LibraryObj:CreateTab("Trackers")
+local MovementTab = LibraryObj:CreateTab("Movement")
+local BlacklistTab = LibraryObj:CreateTab("Blacklist")
+local AppearanceTab = LibraryObj:CreateTab("Appearance")
+local MiscTab = LibraryObj:CreateTab("Misc")
 
-local HomeTab = MiiseryLibraryObj:CreateTab("Home")
-local MainTab = MiiseryLibraryObj:CreateTab("Main")
-local AimTab = MiiseryLibraryObj:CreateTab("Aim")
-local TrackersTab = MiiseryLibraryObj:CreateTab("Trackers")
-local MovementTab = MiiseryLibraryObj:CreateTab("Movement")
-local BlacklistTab = MiiseryLibraryObj:CreateTab("Blacklist")
-local AppearanceTab = MiiseryLibraryObj:CreateTab("Appearance")
-local MiscTab = MiiseryLibraryObj:CreateTab("Misc")
-
--- =========================================================================
--- CONTENT: HOME (Profile & Stream Proof)
--- =========================================================================
 local HomeHeaderContainer = Instance.new("Frame", PagesFolder:FindFirstChild("HomePage"))
 HomeHeaderContainer.Size = UDim2.new(1, -6, 0, 115)
 HomeHeaderContainer.BackgroundTransparency = 1
@@ -2105,30 +2095,7 @@ StreamProofSwitchBtn.MouseButton1Click:Connect(function()
     ToggleStreamProof(not Config.StreamProof)
 end)
 
-local BoostButton = Instance.new("TextButton", PagesFolder:FindFirstChild("HomePage"))
-BoostButton.Size = UDim2.new(1, -6, 0, 34)
-BoostButton.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
-BoostButton.BackgroundTransparency = 0.2
-BoostButton.Text = "  Miisery Boost"
-BoostButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-BoostButton.Font = Enum.Font.GothamBold
-BoostButton.TextSize = 10
-BoostButton.TextXAlignment = Enum.TextXAlignment.Left
-BoostButton.ZIndex = 3
-
-Instance.new("UICorner", BoostButton).CornerRadius = UDim.new(0, 6)
-
-local BoostStroke = Instance.new("UIStroke", BoostButton)
-BoostStroke.Color = Color3.fromRGB(200, 200, 200)
-BoostStroke.Thickness = 0.9
-
-BoostButton.MouseButton1Click:Connect(function()
-    pcall(function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/ChaosXiter/MiiseryHub/refs/heads/main/Boost"))()
-    end)
-end)
-
-HomeTab:Paragraph({ Title = "Miisery Hub - Blox Fruits", Desc = "Welcome to Miisery Hub v1.0 - Fully Optimized for PvP" })
+HomeTab:Paragraph({ Title = "Hub - Blox Fruits", Desc = "Welcome - Fully Optimized for PvP" })
 
 task.spawn(function()
     while task.wait(2) do
@@ -2166,10 +2133,6 @@ task.spawn(function()
     end
 end)
 
--- =========================================================================
--- CONTENT: REMAINING TABS
--- =========================================================================
-
 MainTab:Toggle({ Title = "Fast Attack", Value = Config.FastAttack, Callback = function(v) Config.FastAttack = v SaveConfig() end })
 MainTab:Toggle({ Title = "Attack Players", Value = Config.FAPlayers, Callback = function(v) Config.FAPlayers = v SaveConfig() end })
 MainTab:Toggle({ Title = "Attack NPCs", Value = Config.FAMobs, Callback = function(v) Config.FAMobs = v SaveConfig() end })
@@ -2201,7 +2164,7 @@ local function getPlayerList()
     return list
 end
 local targetPlayerDropdown = TrackersTab:Dropdown({ Title = "Target Player", Values = getPlayerList(), Value = Config.SelectedTrackPlayer or "Nearest", Callback = function(v) Config.SelectedTrackPlayer = v SaveConfig() end })
-TrackersTab:Button({ Title = "Refresh Player List", Callback = function() pcall(function() targetPlayerDropdown:Refresh(getPlayerList()) end) Notify("Miisery Hub", "Player list updated", 2) end })
+TrackersTab:Button({ Title = "Refresh Player List", Callback = function() pcall(function() targetPlayerDropdown:Refresh(getPlayerList()) end) Notify("Hub", "Player list updated", 2) end })
 TrackersTab:Toggle({ Title = "Tween Nearest", Value = Config.TweenNearest, Callback = function(v) Config.TweenNearest = v if v then Config.TweenToPlayer = false end SaveConfig() end })
 TrackersTab:Toggle({ Title = "Tween To Player", Value = Config.TweenToPlayer, Callback = function(v) Config.TweenToPlayer = v if v then Config.TweenNearest = false end SaveConfig() end })
 TrackersTab:Toggle({ Title = "Insta TP", Value = Config.InstaTP, Callback = function(v) Config.InstaTP = v SaveConfig() end })
@@ -2246,9 +2209,6 @@ BlacklistTab:Paragraph({ Title = "GUNS", Desc = "Z / X" })
 local gunKeys = {"Z", "X"}
 for i = 1, #gunKeys do blToggle("Gun", gunKeys[i]) end
 
--- =========================================================================
--- APPEARANCE TAB (Original 6 Logos)
--- =========================================================================
 AppearanceTab:Paragraph({ Title = "Appearance Settings", Desc = "Customize UI background style, logo themes and color palettes." })
 
 local assetMap = {
@@ -2295,7 +2255,7 @@ AppearanceTab:Button({
             if SidebarLogo then SidebarLogo.Image = formattedUri end
             if BadgeLogo then BadgeLogo.Image = formattedUri end
         end)
-        Notify("Miisery Hub", "Appearance updated successfully!", 2)
+        Notify("Hub", "Appearance updated successfully!", 2)
     end
 })
 
@@ -2326,7 +2286,7 @@ AppearanceTab:Dropdown({
                 end
             end
         end)
-        Notify("Miisery Hub", "Accent color updated to " .. v, 2)
+        Notify("Hub", "Accent color updated to " .. v, 2)
     end
 })
 
@@ -2342,11 +2302,11 @@ MiscTab:Toggle({ Title = "Anti Lava", Value = Config.AntiLava, Callback = functi
 MiscTab:Toggle({ Title = "Speed Hack", Value = Config.SpeedEnabled, Callback = function(v) Config.SpeedEnabled = v if not v then local hum = lp.Character and lp.Character:FindFirstChildOfClass("Humanoid") if hum then hum.WalkSpeed = 16 end end SaveConfig() end })
 MiscTab:Dropdown({ Title = "Speed Mode", Values = {"WalkSpeed","CFrame","Velocity"}, Value = Config.SpeedMode, Callback = function(v) Config.SpeedMode = v SaveConfig() end })
 MiscTab:Slider({ Title = "Speed Value", Value = { Min = 16, Max = 500, Default = Config.SpeedValue }, Callback = function(v) Config.SpeedValue = v SaveConfig() end })
-MiscTab:Button({ Title = "Join Marines", Callback = function() pcall(function() CommF:InvokeServer("SetTeam", "Marines") end) Notify("Miisery Hub", "Joined Marines", 2) end })
-MiscTab:Button({ Title = "Join Pirates", Callback = function() pcall(function() CommF:InvokeServer("SetTeam", "Pirates") end) Notify("Miisery Hub", "Joined Pirates", 2) end })
-MiscTab:Button({ Title = "Reset Stats", Callback = function() pcall(function() CommF:InvokeServer("BlackbeardReward", "Refund", "2") end) pcall(function() CommF:InvokeServer("ResetStats") end) Notify("Miisery Hub", "Reset Stats sent", 2) end })
-MiscTab:Button({ Title = "Reroll Race", Callback = function() pcall(function() CommF:InvokeServer("BlackbeardReward", "Reroll", "2") end) Notify("Miisery Hub", "Reroll sent", 2) end })
-MiscTab:Button({ Title = "Save Config Now", Callback = function() SaveConfig() Notify("Miisery Hub", "Config saved", 2) end })
+MiscTab:Button({ Title = "Join Marines", Callback = function() pcall(function() CommF:InvokeServer("SetTeam", "Marines") end) Notify("Hub", "Joined Marines", 2) end })
+MiscTab:Button({ Title = "Join Pirates", Callback = function() pcall(function() CommF:InvokeServer("SetTeam", "Pirates") end) Notify("Hub", "Joined Pirates", 2) end })
+MiscTab:Button({ Title = "Reset Stats", Callback = function() pcall(function() CommF:InvokeServer("BlackbeardReward", "Refund", "2") end) pcall(function() CommF:InvokeServer("ResetStats") end) Notify("Hub", "Reset Stats sent", 2) end })
+MiscTab:Button({ Title = "Reroll Race", Callback = function() pcall(function() CommF:InvokeServer("BlackbeardReward", "Reroll", "2") end) Notify("Hub", "Reroll sent", 2) end })
+MiscTab:Button({ Title = "Save Config Now", Callback = function() SaveConfig() Notify("Hub", "Config saved", 2) end })
 
 pcall(function()
     local initialUri = "rbxassetid://" .. tostring(Config.CustomAssetID or "114065885540477")
@@ -2371,4 +2331,4 @@ task.defer(function()
     if Config.StreamProof then ToggleStreamProof(true) end
 end)
 
-Notify("Miisery Hub", "Loaded successfully and optimized for PvP!", 3)
+Notify("Hub", "Loaded successfully and optimized for PvP!", 3)

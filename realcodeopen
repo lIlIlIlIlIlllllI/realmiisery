@@ -69,7 +69,6 @@ local Config = {
     BL_Sword_Z = false, BL_Sword_X = false, BL_Sword_C = false, BL_Sword_V = false, BL_Sword_F = false,
     BL_Fruit_Z = false, BL_Fruit_X = false, BL_Fruit_C = false, BL_Fruit_V = false, BL_Fruit_F = false, BL_Fruit_TAP = false,
     BL_Gun_Z = false, BL_Gun_X = false, BL_Gun_C = false, BL_Gun_V = false, BL_Gun_F = false,
-    ChestFarm = false, ChestFarmSpeed = 160,
     Language = "English",
     CustomAssetID = "+18",
     CurrentBackground = "+18",
@@ -136,7 +135,6 @@ MainStroke.Color = Color3.fromRGB(255, 255, 255)
 MainStroke.Thickness = 1.5
 MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
--- Definición de Fondos (incluyendo el "+18" de 12 partes exactas)
 local BackgroundPresets = {
     ["+18"] = {
         "114190662442676", "120046269451482", "140082597612823", "129273225975036",
@@ -779,363 +777,6 @@ lp.CharacterAdded:Connect(function(c)
     humanoidRootPart = c:WaitForChild("HumanoidRootPart")
 end)
 local savedZoom = lp.CameraMaxZoomDistance
-
-local activeChestTween = nil
-local currentTargetChest = nil
-local currentTargetIsland = nil
-local lastIslandName = nil
-
-local IslandLocationsSea1 = {
-    { Name = "Skylands", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Skylands") and Workspace._WorldOrigin.Locations.Skylands.CFrame end },
-    { Name = "Desert", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Desert") and Workspace._WorldOrigin.Locations.Desert.CFrame end },
-    { Name = "Whirlpool", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Whirlpool") and Workspace._WorldOrigin.Locations.Whirlpool.CFrame end },
-    { Name = "Colosseum", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Colosseum") and Workspace._WorldOrigin.Locations.Colosseum.CFrame end },
-    { Name = "Marine Fortress", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Marine Fortress") and Workspace._WorldOrigin.Locations["Marine Fortress"].CFrame end },
-    { Name = "Middle Town", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Middle Town") and Workspace._WorldOrigin.Locations["Middle Town"].CFrame end },
-    { Name = "Pirate Village", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Pirate Village") and Workspace._WorldOrigin.Locations["Pirate Village"].CFrame end },
-    { Name = "Magma Village", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Magma Village") and Workspace._WorldOrigin.Locations["Magma Village"].CFrame end },
-    { Name = "Frozen Village", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Frozen Village") and Workspace._WorldOrigin.Locations["Frozen Village"].CFrame end },
-    { Name = "Fountain City", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Fountain City") and Workspace._WorldOrigin.Locations["Fountain City"].CFrame end },
-    { Name = "Jungle", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Jungle") and Workspace._WorldOrigin.Locations.Jungle.CFrame end },
-    { Name = "Marine Starter", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Marine Starter") and Workspace._WorldOrigin.Locations["Marine Starter"].CFrame end },
-    { Name = "Pirate Starter", GetCFrame = function() return Workspace:FindFirstChild("Pirate Starter") and Workspace["Pirate Starter"].CFrame end }
-}
-
-local IslandLocationsSea2 = {
-    { Name = "Kingdom of Rose", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Kingdom of Rose") and Workspace._WorldOrigin.Locations["Kingdom of Rose"].CFrame end },
-    { Name = "Graveyard Island", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Graveyard Island") and Workspace._WorldOrigin.Locations["Graveyard Island"].CFrame end },
-    { Name = "Snow Mountain", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Snow Mountain") and Workspace._WorldOrigin.Locations["Snow Mountain"].CFrame end },
-    { Name = "Ice Castle", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Ice Castle") and Workspace._WorldOrigin.Locations["Ice Castle"].CFrame end },
-    { Name = "Hot and Cold", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Hot  and Cold") and Workspace._WorldOrigin.Locations["Hot  and Cold"].CFrame end },
-    { Name = "Forgotten Island", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Forgotten Island") and Workspace._WorldOrigin.Locations["Forgotten Island"].CFrame end },
-    { Name = "Dark Arena", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Dark Arena") and Workspace._WorldOrigin.Locations["Dark Arena"].CFrame end }
-}
-
-local IslandLocationsSea3 = {
-    { Name = "Floating Turtle", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Floating Turtle") and Workspace._WorldOrigin.Locations["Floating Turtle"].CFrame end },
-    { Name = "Haunted Castle", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Haunted Castle") and Workspace._WorldOrigin.Locations["Haunted Castle"].CFrame end },
-    { Name = "Tiki Outpost", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Tiki Outpost") and Workspace._WorldOrigin.Locations["Tiki Outpost"].CFrame end },
-    { Name = "Sea of Treats", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Sea of Treats") and Workspace._WorldOrigin.Locations["Sea of Treats"].CFrame end },
-    { Name = "Port Town", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Port Town") and Workspace._WorldOrigin.Locations["Port Town"].CFrame end },
-    { Name = "Hydra Island", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Hydra Island") and Workspace._WorldOrigin.Locations["Hydra Island"].CFrame end },
-    { Name = "Great Tree", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Great Tree") and Workspace._WorldOrigin.Locations["Great Tree"].CFrame end },
-    { Name = "Castle on the Sea", GetCFrame = function() return Workspace._WorldOrigin:FindFirstChild("Castle on the Sea") and Workspace._WorldOrigin["Castle on the Sea"].CFrame or (Workspace._WorldOrigin.Locations:FindFirstChild("Castle on the Sea") and Workspace._WorldOrigin.Locations["Castle on the Sea"].CFrame) end }
-}
-
-local function getCurrentSea()
-    local pId = game.PlaceId
-    if pId == 2753915549 or pId == 7449423635 or pId == 100117331123089 then
-        return 1
-    elseif pId == 4442272183 or pId == 79091703265657 then
-        return 2
-    elseif pId == 73130107255152 or pId == 7449423635 then
-        return 3
-    end
-    return 1
-end
-
-local function getIslandsForCurrentSea()
-    local sea = getCurrentSea()
-    if sea == 1 then
-        return IslandLocationsSea1
-    elseif sea == 2 then
-        return IslandLocationsSea2
-    elseif sea == 3 then
-        return IslandLocationsSea3
-    end
-    return IslandLocationsSea1
-end
-
-local function getCurrentIsland()
-    local myRoot = humanoidRootPart
-    if not myRoot then return nil end
-    local islands = getIslandsForCurrentSea()
-    local currentIsland = nil
-    local shortestDist = math.huge
-
-    for i = 1, #islands do
-        local island = islands[i]
-        local cf = island.GetCFrame()
-        if cf then
-            local dist = (cf.Position - myRoot.Position).Magnitude
-            if dist < shortestDist then
-                shortestDist = dist
-                currentIsland = island
-            end
-        end
-    end
-    if shortestDist <= 500 then
-        return currentIsland
-    end
-    return nil
-end
-
-local function getNearestIsland(excludeIslandName)
-    local myRoot = humanoidRootPart
-    if not myRoot then return nil end
-
-    local islands = getIslandsForCurrentSea()
-    local nearestIsland = nil
-    local shortestDist = math.huge
-
-    for i = 1, #islands do
-        local island = islands[i]
-        if not excludeIslandName or island.Name ~= excludeIslandName then
-            local cf = island.GetCFrame()
-            if cf then
-                local dist = (cf.Position - myRoot.Position).Magnitude
-                if dist < shortestDist then
-                    shortestDist = dist
-                    nearestIsland = island
-                end
-            end
-        end
-    end
-
-    if not nearestIsland and excludeIslandName then
-        return getNearestIsland(nil)
-    end
-
-    return nearestIsland
-end
-
-local function getSkylandsLocations()
-    local locs = {}
-    local base = Workspace._WorldOrigin.Locations:FindFirstChild("Skylands")
-    if base then table.insert(locs, base.CFrame) end
-    local children = Workspace._WorldOrigin.Locations:GetChildren()
-    if children[6] then table.insert(locs, children[6].CFrame) end
-    if children[12] then table.insert(locs, children[12].CFrame) end
-    return locs
-end
-
-local function getTreatsSubLocations()
-    local locs = {}
-    local base = Workspace._WorldOrigin.Locations:FindFirstChild("Sea of Treats")
-    if base then table.insert(locs, base.CFrame) end
-    local children = Workspace._WorldOrigin.Locations:GetChildren()
-    if children[16] then table.insert(locs, children[16].CFrame) end
-    if children[17] then table.insert(locs, children[17].CFrame) end
-    return locs
-end
-
-local function getClosestChestInMap()
-    local myRoot = humanoidRootPart
-    if not myRoot then return nil end
-
-    local bestChest, shortestDist = nil, math.huge
-
-    local function checkContainer(folder)
-        if not folder then return end
-        local children = folder:GetChildren()
-        for i = 1, #children do
-            local obj = children[i]
-            local name = obj.Name:lower()
-            if name:find("chest") then
-                local targetPart = obj:IsA("Model") and (obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")) or (obj:IsA("BasePart") and obj)
-                if targetPart and targetPart.Parent then
-                    local dist = (targetPart.Position - myRoot.Position).Magnitude
-                    if dist < shortestDist then
-                        shortestDist = dist
-                        bestChest = targetPart
-                    end
-                end
-            end
-        end
-    end
-
-    checkContainer(Workspace:FindFirstChild("ChestModels"))
-    checkContainer(Workspace)
-
-    return bestChest
-end
-
-local function getNearestChestInIsland(centerCF, maxDist)
-    local myRoot = humanoidRootPart
-    if not myRoot then return nil end
-
-    local bestChest, shortestDist = nil, math.huge
-    maxDist = maxDist or 3000
-
-    local function checkContainer(folder)
-        if not folder then return end
-        local children = folder:GetChildren()
-        for i = 1, #children do
-            local obj = children[i]
-            local name = obj.Name:lower()
-            if name:find("chest") then
-                local targetPart = obj:IsA("Model") and (obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")) or (obj:IsA("BasePart") and obj)
-                if targetPart and targetPart.Parent then
-                    local distFromIsland = centerCF and (targetPart.Position - centerCF.Position).Magnitude or 0
-                    if not centerCF or distFromIsland <= maxDist then
-                        local distFromMe = (targetPart.Position - myRoot.Position).Magnitude
-                        if distFromMe < shortestDist then
-                            shortestDist = distFromMe
-                            bestChest = targetPart
-                        end
-                    end
-                end
-            end
-        end
-    end
-
-    checkContainer(Workspace:FindFirstChild("ChestModels"))
-    checkContainer(Workspace)
-
-    return bestChest
-end
-
-local function safeTweenTo(targetCFrame, speed)
-    local myRoot = humanoidRootPart
-    if not myRoot then return end
-
-    local startPos = myRoot.Position
-    local endPos = targetCFrame.Position
-    
-    local safeY = math.max(startPos.Y, endPos.Y, 95)
-    local highPos1 = Vector3.new(startPos.X, safeY + 45, startPos.Z)
-    local highPos2 = Vector3.new(endPos.X, safeY + 45, endPos.Z)
-
-    myRoot.CFrame = CFrame.new(highPos1)
-    task.wait(0.05)
-
-    local dist = (highPos2 - highPos1).Magnitude
-    local timeDuration = math.clamp(dist / speed, 0.6, 20)
-
-    if activeChestTween then activeChestTween:Cancel() end
-    activeChestTween = TweenService:Create(myRoot, TweenInfo.new(timeDuration, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
-        CFrame = CFrame.new(highPos2)
-    })
-    activeChestTween:Play()
-    activeChestTween.Completed:Wait()
-
-    local finalDist = (endPos - myRoot.Position).Magnitude
-    local finalDuration = math.clamp(finalDist / speed, 0.3, 5)
-
-    if activeChestTween then activeChestTween:Cancel() end
-    activeChestTween = TweenService:Create(myRoot, TweenInfo.new(finalDuration, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
-        CFrame = targetCFrame
-    })
-    activeChestTween:Play()
-    activeChestTween.Completed:Wait()
-end
-
-task.spawn(function()
-    while true do
-        task.wait(0.12)
-        if Config.ChestFarm then
-            pcall(function()
-                local myRoot = humanoidRootPart
-                if not myRoot then return end
-
-                local activeIsland = getCurrentIsland()
-                if activeIsland then
-                    lastIslandName = activeIsland.Name
-                end
-
-                local nearbyChest = getClosestChestInMap()
-                if nearbyChest and (nearbyChest.Position - myRoot.Position).Magnitude <= 450 then
-                    currentTargetChest = nearbyChest
-                end
-
-                if currentTargetChest and currentTargetChest.Parent then
-                    local destCFrame = currentTargetChest.CFrame + Vector3.new(0, 3, 0)
-                    local dist = (destCFrame.Position - myRoot.Position).Magnitude
-                    local speed = math.clamp(Config.ChestFarmSpeed or 160, 60, 300)
-                    
-                    if dist > 20 then
-                        safeTweenTo(destCFrame, speed)
-                    elseif dist > 4 then
-                        local timeDuration = math.clamp(dist / speed, 0.3, 2.0)
-                        if activeChestTween then activeChestTween:Cancel() end
-                        activeChestTween = TweenService:Create(myRoot, TweenInfo.new(timeDuration, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
-                            CFrame = destCFrame
-                        })
-                        activeChestTween:Play()
-                        activeChestTween.Completed:Wait()
-                    else
-                        currentTargetChest = nil
-                        task.wait(0.3)
-                    end
-                else
-                    currentTargetChest = nil
-                end
-
-                if not currentTargetIsland then
-                    currentTargetIsland = getNearestIsland(lastIslandName)
-                end
-
-                if currentTargetIsland then
-                    local islandName = currentTargetIsland.Name
-                    local targetChestInIsland = nil
-
-                    if islandName == "Skylands" then
-                        local skylandsLocs = getSkylandsLocations()
-                        for i = 1, #skylandsLocs do
-                            targetChestInIsland = getNearestChestInIsland(skylandsLocs[i], 2000)
-                            if targetChestInIsland then break end
-                        end
-                    elseif islandName == "Sea of Treats" then
-                        local treatsLocs = getTreatsSubLocations()
-                        for i = 1, #treatsLocs do
-                            targetChestInIsland = getNearestChestInIsland(treatsLocs[i], 2000)
-                            if targetChestInIsland then break end
-                        end
-                    elseif islandName == "Whirlpool" then
-                        local whirlpoolCF = currentTargetIsland.GetCFrame()
-                        if whirlpoolCF then
-                            local distToWhirlpool = (whirlpoolCF.Position - myRoot.Position).Magnitude
-                            if distToWhirlpool > 30 then
-                                local speed = math.clamp(Config.ChestFarmSpeed or 160, 60, 300)
-                                safeTweenTo(whirlpoolCF + Vector3.new(0, 5, 0), speed)
-                                return
-                            else
-                                pcall(function()
-                                    local soundCutscene = ReplicatedStorage:FindFirstChild("Storage") and ReplicatedStorage.Storage:FindFirstChild("Sound") and ReplicatedStorage.Storage.Sound:FindFirstChild("UnderwaterCityBonusMoments") and ReplicatedStorage.Storage.Sound.UnderwaterCityBonusMoments:FindFirstChild("Bubble_Teleport_Whirlpool_Cutscene_01")
-                                    if soundCutscene then soundCutscene:Play() end
-                                    CommF:InvokeServer("requestEntrance", Vector3.new(61163, 11, 1819))
-                                end)
-                                task.wait(0.8)
-                                targetChestInIsland = getNearestChestInIsland(myRoot.CFrame, 3000)
-                            end
-                        end
-                    else
-                        local islandCF = currentTargetIsland.GetCFrame()
-                        if islandCF then
-                            targetChestInIsland = getNearestChestInIsland(islandCF, 3200)
-                        end
-                    end
-
-                    if targetChestInIsland then
-                        currentTargetChest = targetChestInIsland
-                    else
-                        lastIslandName = currentTargetIsland.Name
-                        local islandCF = currentTargetIsland.GetCFrame()
-                        if islandCF then
-                            local distToIsland = (islandCF.Position - myRoot.Position).Magnitude
-                            if distToIsland > 100 then
-                                local speed = math.clamp(Config.ChestFarmSpeed or 160, 60, 300)
-                                safeTweenTo(islandCF + Vector3.new(0, 10, 0), speed)
-                            else
-                                currentTargetIsland = nil
-                            end
-                        else
-                            currentTargetIsland = nil
-                        end
-                    end
-                end
-            end)
-        else
-            currentTargetChest = nil
-            currentTargetIsland = nil
-            lastIslandName = nil
-            if activeChestTween then
-                activeChestTween:Cancel()
-                activeChestTween = nil
-            end
-        end
-    end
-end)
 
 task.spawn(function()
     while true do
@@ -2522,11 +2163,11 @@ BoostButton.MouseButton1Click:Connect(function()
     end)
 end)
 
-HomeTab:Paragraph({ Title = "Miisery Hub - Blox Fruits", Desc = "Welcome to Miisery Hub v1.0" })
+HomeTab:Paragraph({ Title = "Miisery Hub - Blox Fruits PvP", Desc = "Welcome to Miisery Hub v1.0" })
 
 local availableAssetIds = {
     "+18",
-    "99252039787371",
+    "None",
     "114065885540477",
     "85256255221310",
     "106006243046634",
@@ -2547,7 +2188,7 @@ HomeTab:Dropdown({
         SaveConfig()
         setupBackground(selectedCustomId)
         pcall(function()
-            if selectedCustomId ~= "+18" then
+            if selectedCustomId ~= "+18" and selectedCustomId ~= "None" then
                 local formattedUri = "rbxassetid://" .. selectedCustomId
                 if SidebarLogo then SidebarLogo.Image = formattedUri end
                 if BadgeLogo then BadgeLogo.Image = formattedUri end
@@ -2603,12 +2244,6 @@ MainTab:Toggle({ Title = "Attack NPCs", Value = Config.FAMobs, Callback = functi
 MainTab:Slider({ Title = "FA Range", Value = { Min = 50, Max = 5000, Default = Config.FARange }, Callback = function(v) Config.FARange = v SaveConfig() end })
 MainTab:Toggle({ Title = "Bring Mobs", Value = Config.BringMobs, Callback = function(v) Config.BringMobs = v SaveConfig() end })
 MainTab:Slider({ Title = "Bring Range", Value = { Min = 50, Max = 5000, Default = Config.BringRange }, Callback = function(v) Config.BringRange = v SaveConfig() end })
-
-local FarmTab = MiiseryLibraryObj:CreateTab("Farm")
-FarmTab:Paragraph({ Title = "Auto Farm", Desc = "Automatic Sea Detection & Smart Chest Farm" })
-
-FarmTab:Toggle({ Title = "Activate", Value = Config.ChestFarm, Callback = function(v) Config.ChestFarm = v SaveConfig() end })
-FarmTab:Slider({ Title = "Speed", Value = { Min = 50, Max = 500, Default = Config.ChestFarmSpeed }, Callback = function(v) Config.ChestFarmSpeed = v SaveConfig() end })
 
 local AimTab = MiiseryLibraryObj:CreateTab("Aim")
 AimTab:Toggle({ Title = "Silent Aim Players", Value = Config.SilentPlayer, Callback = function(v) Config.SilentPlayer = v SilentAimModule:SetPlayerSilentAim(v) SaveConfig() end })
@@ -2700,38 +2335,6 @@ MiscTab:Button({ Title = "Join Pirates", Callback = function() pcall(function() 
 MiscTab:Button({ Title = "Reset Stats", Callback = function() pcall(function() CommF:InvokeServer("BlackbeardReward", "Refund", "2") end) pcall(function() CommF:InvokeServer("ResetStats") end) Notify("Miisery Hub", "Reset Stats sent", 2) end })
 MiscTab:Button({ Title = "Reroll Race", Callback = function() pcall(function() CommF:InvokeServer("BlackbeardReward", "Reroll", "2") end) Notify("Miisery Hub", "Reroll sent", 2) end })
 MiscTab:Button({ Title = "Save Config Now", Callback = function() SaveConfig() Notify("Miisery Hub", "Config saved", 2) end })
-
-local InfoTab = MiiseryLibraryObj:CreateTab("Information")
-
-local infoDescParagraph = InfoTab:Paragraph({
-    Title = "Script Guide & Functions",
-    Desc = "• Main: Fast Attack, Bring Mobs and combat options.\n• Farm: Smart island detection and automatic chest looting.\n• Aim & Trackers: Silent aim, FOV customization and player tracking.\n• Movement: Fly, Noclip, Speed Hack and utility movement modifiers.\n• Blacklist: Exclude specific skill keys per weapon category."
-})
-
-local bugFixParagraph = InfoTab:Paragraph({
-    Title = "Bug Fixes & Updates",
-    Desc = "0"
-})
-
-InfoTab:Dropdown({
-    Title = "Language / Idioma / Idioma",
-    Values = {"English", "Español", "Português"},
-    Value = Config.Language or "English",
-    Callback = function(v)
-        Config.Language = v
-        SaveConfig()
-        if v == "Español" then
-            infoDescParagraph:Update("Guía y Funciones del Script", "• Main: Ataque rápido, atraer NPCs y opciones de combate.\n• Farm: Detección inteligente de islas y recolección de cofres.\n• Aim & Trackers: Apuntado silencioso, FOV y rastreo de jugadores.\n• Movement: Vuelo, Noclip, velocidad y modificadores de movimiento.\n• Blacklist: Excluir habilidades específicas por categoría de arma.")
-            bugFixParagraph:Update("Corrección de Errores y Actualizaciones", "0")
-        elseif v == "Português" then
-            infoDescParagraph:Update("Guia e Funções do Script", "• Main: Ataque rápido, puxar mobs e opções de combate.\n• Farm: Detecção inteligente de ilhas e coleta de baús.\n• Aim & Trackers: Mira silenciosa, FOV e rastreamento de jogadores.\n• Movement: Voo, Noclip, velocidade e modificadores de movimento.\n• Blacklist: Excluir habilidades específicas por categoria de arma.")
-            bugFixParagraph:Update("Correções de Bugs e Atualizações", "0")
-        else
-            infoDescParagraph:Update("Script Guide & Functions", "• Main: Fast Attack, Bring Mobs and combat options.\n• Farm: Smart island detection and automatic chest looting.\n• Aim & Trackers: Silent aim, FOV customization and player tracking.\n• Movement: Fly, Noclip, Speed Hack and utility movement modifiers.\n• Blacklist: Exclude specific skill keys per weapon category.")
-            bugFixParagraph:Update("Bug Fixes & Updates", "0")
-        end
-    end
-})
 
 pcall(function()
     local initialUri = "rbxassetid://" .. tostring(Config.CustomAssetID ~= "+18" and Config.CustomAssetID or "114190662442676")

@@ -1,1 +1,2755 @@
+repeat task.wait() until game:IsLoaded()
 
+local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+local UserInputService = UIS
+local Workspace = game:GetService("Workspace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RS = ReplicatedStorage
+local HttpService = game:GetService("HttpService")
+local Lighting = game:GetService("Lighting")
+local TweenService = game:GetService("TweenService")
+
+local lp = Players.LocalPlayer
+local playerGui = lp:WaitForChild("PlayerGui")
+local Camera = Workspace.CurrentCamera
+local CommF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
+local CommE = ReplicatedStorage:WaitForChild("Remotes"):FindFirstChild("CommE")
+local Net = ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Net")
+
+local registerAttack = Net:FindFirstChild("RE/RegisterAttack")
+local registerHit
+pcall(function()
+    registerHit = require(ReplicatedStorage.Modules.Net):RemoteEvent("RegisterHit", true)
+end)
+if not registerHit then
+    registerHit = Net:FindFirstChild("RE/RegisterHit")
+end
+local ShootGunEvent = Net:FindFirstChild("Remotes") and Net.Remotes:FindFirstChild("ShootGunEvent") or Net:FindFirstChild("RE/ShootGunEvent")
+local Validator2 = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Validator2")
+
+pcall(function()
+    if CoreGui:FindFirstChild("MiiseryLib_UI") then CoreGui.MiiseryLib_UI:Destroy() end
+    if playerGui:FindFirstChild("MiiseryLib_UI") then playerGui.MiiseryLib_UI:Destroy() end
+    if playerGui:FindFirstChild("MiiseryStatsGui") then playerGui.MiiseryStatsGui:Destroy() end
+    if Workspace:FindFirstChild("MiiserySilentAimTracer") then Workspace.MiiserySilentAimTracer:Destroy() end
+    if Workspace:FindFirstChild("MiiseryWaterPlatform") then Workspace.MiiseryWaterPlatform:Destroy() end
+    if CoreGui:FindFirstChild("Miisery_FOV") then CoreGui.Miisery_FOV:Destroy() end
+    if playerGui:FindFirstChild("Miisery_FOV") then playerGui.Miisery_FOV:Destroy() end
+end)
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "MiiseryLib_UI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = (gethui and gethui()) or CoreGui or playerGui
+
+local Config = {
+    FastAttack = false, FAPlayers = true, FAMobs = true, FARange = 1000,
+    BringMobs = false, BringRange = 3000,
+    SafeGun = false, SafeMobs = true, SafePlayers = true, SafeSea = true, SafeRange = 500,
+    SuperGun = false, SuperMobs = true, SuperPlayers = true, SuperSea = true, SuperRange = 500,
+    Disappear = false, AutoV3 = false, AutoV4 = false, AutoPvP = false,
+    InfiniteZoom = false, AntiAFK = true, Notifications = true,
+    Fly = false, FlySpeed = 250, FlyVertical = 180, FlySmooth = true,
+    WalkOnWater = false, AntiLava = false, SpeedEnabled = false, SpeedMode = "CFrame", SpeedValue = 50,
+    TrackerFly = false, TrackerFlySpeed = 275, TrackerOrbitRadius = 50,
+    AutoFlee = false, AutoFleeHP = 30,
+    TweenNearest = false, TweenToPlayer = false, TweenSpeed = 350,
+    TweenOX = 0, TweenOY = 1.5, TweenOZ = 3.5, InstaTP = false, Spectate = false,
+    SelectedTrackPlayer = "Nearest", PredictionStrength = 0.1,
+    M1Extender = false, M1Range = 50, GunClickSL = false,
+    SilentPlayer = false, SilentNPC = false, AimMode = "360", AimPriority = "Nearest",
+    ShowFOV = false, FOVMode = "V1", FOVRadius = 150, AimMaxRange = 2000,
+    Tracer = false, TracerColor = "Red",
+    BypassTpNpc = false, BypassTpRange = 500, BypassTpMode = "Nearest", BypassTpAbove = true, BypassTpHeight = 12,
+    LowGraphics = false, DisableShadows = false, NoFog = false, NoGfxMode = "Off",
+    BL_Melee_Z = false, BL_Melee_X = false, BL_Melee_C = false, BL_Melee_V = false, BL_Melee_F = false,
+    BL_Sword_Z = false, BL_Sword_X = false, BL_Sword_C = false, BL_Sword_V = false, BL_Sword_F = false,
+    BL_Fruit_Z = false, BL_Fruit_X = false, BL_Fruit_C = false, BL_Fruit_V = false, BL_Fruit_F = false, BL_Fruit_TAP = false,
+    BL_Gun_Z = false, BL_Gun_X = false, BL_Gun_C = false, BL_Gun_V = false, BL_Gun_F = false,
+    ChestFarm = false, ChestFarmSpeed = 160,
+    Language = "English",
+    CustomAssetID = "114065885540477",
+    CurrentBackground = "+18",
+    StreamProof = false
+}
+
+local CONFIG_FILE = "MiiseryHub_Config.json"
+
+local function Notify(title, content, duration)
+    if not Config.Notifications then return end
+    pcall(function() print("[MiiseryNotify] " .. tostring(title) .. " - " .. tostring(content)) end)
+end
+
+local function SaveConfig()
+    if not writefile then return false end
+    pcall(function()
+        local data = {}
+        for k, v in pairs(Config) do
+            if type(v) == "boolean" or type(v) == "number" or type(v) == "string" then
+                data[k] = v
+            end
+        end
+        local encoded = HttpService:JSONEncode(data)
+        writefile(CONFIG_FILE, encoded)
+    end)
+end
+
+local function LoadConfig()
+    pcall(function()
+        if not (isfile and readfile and isfile(CONFIG_FILE)) then return end
+        local raw = readfile(CONFIG_FILE)
+        if not raw or raw == "" then return end
+        local data = HttpService:JSONDecode(raw)
+        if type(data) ~= "table" then return end
+        for k, v in pairs(data) do
+            if Config[k] ~= nil and type(Config[k]) == type(v) then
+                Config[k] = v
+            end
+        end
+    end)
+end
+
+LoadConfig()
+
+local ASSET_ID = "rbxassetid://" .. tostring(Config.CustomAssetID or "114065885540477")
+
+local OriginalSize = UDim2.new(0, 545, 0, 330)
+local ExpandedSize = UDim2.new(0, 680, 0, 410)
+
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Name = "MainFrame"
+MainFrame.Size = OriginalSize
+MainFrame.Position = UDim2.new(0.5, -272, 0.5, -180)
+MainFrame.BackgroundColor3 = Color3.fromRGB(8, 8, 10)
+MainFrame.ClipsDescendants = true
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.Parent = ScreenGui
+
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
+
+local MainStroke = Instance.new("UIStroke", MainFrame)
+MainStroke.Color = Color3.fromRGB(255, 255, 255)
+MainStroke.Thickness = 1.5
+MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+-- Definición de Fondos (incluyendo el nuevo "+18" de 12 partes exactas)
+local BackgroundPresets = {
+    ["+18"] = {
+        "114190662442676", "120046269451482", "140082597612823", "129273225975036",
+        "80024750464714",  "88842229046939",  "79539639499471",  "91763108447180",
+        "99723228983167",  "128087290942098", "80565014387441",  "109823947239244"
+    }
+}
+
+local BackgroundHolder = Instance.new("Frame", MainFrame)
+BackgroundHolder.Name = "BackgroundHolder"
+BackgroundHolder.Size = UDim2.new(1, 0, 1, 0)
+BackgroundHolder.BackgroundTransparency = 1
+BackgroundHolder.ClipsDescendants = true
+BackgroundHolder.ZIndex = 1
+
+Instance.new("UICorner", BackgroundHolder).CornerRadius = UDim.new(0, 10)
+
+local BackgroundPartImages = {}
+local function setupBackground(presetName)
+    for i = 1, #BackgroundPartImages do
+        if BackgroundPartImages[i] then BackgroundPartImages[i]:Destroy() end
+    end
+    BackgroundPartImages = {}
+
+    local preset = BackgroundPresets[presetName]
+    if preset and #preset == 12 then
+        local totalParts = 12
+        for i = 1, totalParts do
+            local partImage = Instance.new("ImageLabel", BackgroundHolder)
+            partImage.Name = "BackgroundPart_" .. tostring(i)
+            local heightScale = 1 / totalParts
+            local posYScale = (i - 1) * heightScale
+            partImage.Size = UDim2.new(1, 0, heightScale + 0.002, 0)
+            partImage.Position = UDim2.new(0, 0, posYScale, 0)
+            partImage.BackgroundTransparency = 1
+            partImage.BorderSizePixel = 0
+            partImage.Image = "rbxassetid://" .. tostring(preset[i])
+            partImage.ScaleType = Enum.ScaleType.Stretch
+            partImage.ZIndex = 1
+            table.insert(BackgroundPartImages, partImage)
+        end
+    else
+        local BackgroundImage = Instance.new("ImageLabel", BackgroundHolder)
+        BackgroundImage.Name = "BackgroundImage"
+        BackgroundImage.Size = UDim2.new(1, 0, 1, 0)
+        BackgroundImage.BackgroundTransparency = 0.15
+        BackgroundImage.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+        BackgroundImage.Image = ASSET_ID
+        BackgroundImage.ScaleType = Enum.ScaleType.Crop
+        BackgroundImage.ZIndex = 1
+        Instance.new("UICorner", BackgroundImage).CornerRadius = UDim.new(0, 10)
+        table.insert(BackgroundPartImages, BackgroundImage)
+    end
+end
+
+setupBackground(Config.CurrentBackground or "+18")
+
+local ToggleButton = Instance.new("Frame", ScreenGui)
+ToggleButton.Name = "WindUIPillToggle"
+ToggleButton.Size = UDim2.new(0, 175, 0, 36)
+ToggleButton.Position = UDim2.new(0.5, -87, 0, 15)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
+ToggleButton.BackgroundTransparency = 0.1
+ToggleButton.Visible = false
+ToggleButton.Active = true
+ToggleButton.ZIndex = 200
+
+Instance.new("UICorner", ToggleButton).CornerRadius = UDim.new(1, 0)
+
+local ToggleStroke = Instance.new("UIStroke", ToggleButton)
+ToggleStroke.Color = Color3.fromRGB(255, 255, 255)
+ToggleStroke.Thickness = 1.4
+
+local DragArea = Instance.new("Frame", ToggleButton)
+DragArea.Name = "DragArea"
+DragArea.Size = UDim2.new(0, 36, 1, 0)
+DragArea.Position = UDim2.new(0, 0, 0, 0)
+DragArea.BackgroundTransparency = 1
+DragArea.ZIndex = 201
+
+local StarIcon = Instance.new("TextLabel", DragArea)
+StarIcon.Size = UDim2.new(1, 0, 1, 0)
+StarIcon.BackgroundTransparency = 1
+StarIcon.Text = "☆"
+StarIcon.TextColor3 = Color3.fromRGB(255, 255, 255)
+StarIcon.Font = Enum.Font.GothamBold
+StarIcon.TextSize = 16
+StarIcon.ZIndex = 202
+
+local Separator = Instance.new("Frame", ToggleButton)
+Separator.Size = UDim2.new(0, 1, 1, -12)
+Separator.Position = UDim2.new(0, 36, 0, 6)
+Separator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+Separator.ZIndex = 201
+
+local BadgeLogo = Instance.new("ImageLabel", ToggleButton)
+BadgeLogo.Name = "BadgeLogo"
+BadgeLogo.Size = UDim2.new(0, 20, 0, 20)
+BadgeLogo.Position = UDim2.new(0, 45, 0.5, -10)
+BadgeLogo.BackgroundTransparency = 1
+BadgeLogo.Image = ASSET_ID
+BadgeLogo.ZIndex = 201
+
+Instance.new("UICorner", BadgeLogo).CornerRadius = UDim.new(1, 0)
+
+local BadgeText = Instance.new("TextLabel", ToggleButton)
+BadgeText.Size = UDim2.new(1, -72, 1, 0)
+BadgeText.Position = UDim2.new(0, 70, 0, 0)
+BadgeText.BackgroundTransparency = 1
+BadgeText.Text = "Miisery Hub"
+BadgeText.TextColor3 = Color3.fromRGB(255, 255, 255)
+BadgeText.Font = Enum.Font.GothamBold
+BadgeText.TextSize = 11
+BadgeText.TextXAlignment = Enum.TextXAlignment.Left
+BadgeText.ZIndex = 201
+
+local ClickArea = Instance.new("TextButton", ToggleButton)
+ClickArea.Size = UDim2.new(1, -36, 1, 0)
+ClickArea.Position = UDim2.new(0, 36, 0, 0)
+ClickArea.BackgroundTransparency = 1
+ClickArea.Text = ""
+ClickArea.ZIndex = 203
+
+local dragging = false
+local dragStart, startPos
+
+DragArea.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = ToggleButton.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStart
+        ToggleButton.Position = UDim2.new(
+            startPos.X.Scale, 
+            startPos.X.Offset + delta.X, 
+            startPos.Y.Scale, 
+            startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+local StreamProofSwitchBtn = nil
+
+local function ToggleStreamProof(active)
+    Config.StreamProof = active
+    ScreenGui.Enabled = not active
+    if StreamProofSwitchBtn then
+        StreamProofSwitchBtn.BackgroundColor3 = active and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40)
+    end
+end
+
+local function OnChatted(message)
+    if string.lower(message) == "-open-" then
+        ToggleStreamProof(false)
+    end
+end
+
+lp.Chatted:Connect(OnChatted)
+
+local LeftSidebar = Instance.new("Frame", MainFrame)
+LeftSidebar.Name = "LeftSidebar"
+LeftSidebar.Size = UDim2.new(0, 130, 1, -12)
+LeftSidebar.Position = UDim2.new(0, 6, 0, 6)
+LeftSidebar.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
+LeftSidebar.BackgroundTransparency = 0.25
+LeftSidebar.ZIndex = 2
+
+Instance.new("UICorner", LeftSidebar).CornerRadius = UDim.new(0, 8)
+
+local SidebarStroke = Instance.new("UIStroke", LeftSidebar)
+SidebarStroke.Color = Color3.fromRGB(200, 200, 200)
+SidebarStroke.Thickness = 0.8
+
+local SidebarLogo = Instance.new("ImageLabel", LeftSidebar)
+SidebarLogo.Name = "SidebarLogo"
+SidebarLogo.Size = UDim2.new(0, 22, 0, 22)
+SidebarLogo.Position = UDim2.new(0, 8, 0, 7)
+SidebarLogo.BackgroundTransparency = 1
+SidebarLogo.Image = ASSET_ID
+SidebarLogo.ZIndex = 3
+
+Instance.new("UICorner", SidebarLogo).CornerRadius = UDim.new(1, 0)
+
+local HubTitle = Instance.new("TextLabel", LeftSidebar)
+HubTitle.Size = UDim2.new(1, -36, 0, 16)
+HubTitle.Position = UDim2.new(0, 34, 0, 4)
+HubTitle.BackgroundTransparency = 1
+HubTitle.Text = "Miisery Hub"
+HubTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+HubTitle.Font = Enum.Font.GothamBold
+HubTitle.TextSize = 11
+HubTitle.TextXAlignment = Enum.TextXAlignment.Left
+HubTitle.ZIndex = 3
+
+local AuthorSubTitle = Instance.new("TextLabel", LeftSidebar)
+AuthorSubTitle.Size = UDim2.new(1, -36, 0, 12)
+AuthorSubTitle.Position = UDim2.new(0, 34, 0, 20)
+AuthorSubTitle.BackgroundTransparency = 1
+AuthorSubTitle.Text = "by DementeMental"
+AuthorSubTitle.TextColor3 = Color3.fromRGB(180, 180, 180)
+AuthorSubTitle.Font = Enum.Font.Gotham
+AuthorSubTitle.TextSize = 8
+AuthorSubTitle.TextXAlignment = Enum.TextXAlignment.Left
+AuthorSubTitle.ZIndex = 3
+
+local NavScroll = Instance.new("ScrollingFrame", LeftSidebar)
+NavScroll.Name = "NavScroll"
+NavScroll.Size = UDim2.new(1, -8, 1, -45)
+NavScroll.Position = UDim2.new(0, 4, 0, 38)
+NavScroll.BackgroundTransparency = 1
+NavScroll.ScrollBarThickness = 0
+NavScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+NavScroll.ZIndex = 3
+
+local NavList = Instance.new("UIListLayout", NavScroll)
+NavList.Padding = UDim.new(0, 4)
+NavList.SortOrder = Enum.SortOrder.LayoutOrder
+NavList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    NavScroll.CanvasSize = UDim2.new(0, 0, 0, NavList.AbsoluteContentSize.Y + 10)
+end)
+
+local PagesFolder = Instance.new("Folder", MainFrame)
+PagesFolder.Name = "PagesFolder"
+
+local RightPanel = Instance.new("Frame", MainFrame)
+RightPanel.Name = "RightPanel"
+RightPanel.Size = UDim2.new(0, 80, 0, 24)
+RightPanel.Position = UDim2.new(1, -86, 0, 6)
+RightPanel.BackgroundTransparency = 1
+RightPanel.ZIndex = 10
+
+local PanelLayout = Instance.new("UIListLayout", RightPanel)
+PanelLayout.FillDirection = Enum.FillDirection.Horizontal
+PanelLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+PanelLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+PanelLayout.Padding = UDim.new(0, 4)
+
+local MinimizeBtn = Instance.new("TextButton", RightPanel)
+MinimizeBtn.Name = "MinimizeButton"
+MinimizeBtn.Size = UDim2.new(0, 22, 0, 22)
+MinimizeBtn.BackgroundTransparency = 1
+MinimizeBtn.Text = "-"
+MinimizeBtn.TextColor3 = Color3.fromRGB(0, 255, 200)
+MinimizeBtn.Font = Enum.Font.GothamBold
+MinimizeBtn.TextSize = 16
+MinimizeBtn.ZIndex = 11
+
+local ExpandBtn = Instance.new("TextButton", RightPanel)
+ExpandBtn.Name = "ExpandButton"
+ExpandBtn.Size = UDim2.new(0, 22, 0, 22)
+ExpandBtn.BackgroundTransparency = 1
+ExpandBtn.Text = "□"
+ExpandBtn.TextColor3 = Color3.fromRGB(255, 220, 0)
+ExpandBtn.Font = Enum.Font.GothamBold
+ExpandBtn.TextSize = 14
+ExpandBtn.ZIndex = 11
+
+local CloseBtn = Instance.new("TextButton", RightPanel)
+CloseBtn.Name = "CloseButton"
+CloseBtn.Size = UDim2.new(0, 22, 0, 22)
+CloseBtn.BackgroundTransparency = 1
+CloseBtn.Text = "×"
+CloseBtn.TextColor3 = Color3.fromRGB(255, 140, 0)
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.TextSize = 18
+CloseBtn.ZIndex = 11
+
+local function AddHover(btn, hoverColor, defaultColor)
+    btn.MouseEnter:Connect(function() btn.TextColor3 = hoverColor end)
+    btn.MouseLeave:Connect(function() btn.TextColor3 = defaultColor end)
+end
+AddHover(MinimizeBtn, Color3.fromRGB(255, 255, 255), Color3.fromRGB(0, 255, 200))
+AddHover(ExpandBtn, Color3.fromRGB(255, 255, 255), Color3.fromRGB(255, 220, 0))
+AddHover(CloseBtn, Color3.fromRGB(255, 255, 255), Color3.fromRGB(255, 140, 0))
+
+local isMinimized = false
+local function MinimizeUI()
+    if isMinimized then return end
+    isMinimized = true
+    
+    TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        Size = UDim2.new(0, 0, 0, 0),
+        Position = MainFrame.Position + UDim2.new(0, 272, 0, 180)
+    }):Play()
+    
+    task.wait(0.2)
+    MainFrame.Visible = false
+    
+    ToggleButton.Size = UDim2.new(0, 0, 0, 36)
+    ToggleButton.Visible = true
+    TweenService:Create(ToggleButton, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Size = UDim2.new(0, 175, 0, 36)
+    }):Play()
+end
+
+local function RestoreUI()
+    if not isMinimized then return end
+    
+    TweenService:Create(ToggleButton, TweenInfo.new(0.15, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+        Size = UDim2.new(0, 0, 0, 36)
+    }):Play()
+    
+    task.wait(0.15)
+    ToggleButton.Visible = false
+    
+    MainFrame.Size = UDim2.new(0, 0, 0, 0)
+    MainFrame.Visible = true
+    
+    TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Size = OriginalSize,
+        Position = UDim2.new(0.5, -272, 0.5, -180)
+    }):Play()
+    
+    task.wait(0.3)
+    isMinimized = false
+end
+
+local isExpanded = false
+ExpandBtn.MouseButton1Click:Connect(function()
+    isExpanded = not isExpanded
+    local targetSize = isExpanded and ExpandedSize or OriginalSize
+    local targetPos = isExpanded and UDim2.new(0.5, -340, 0.5, -205) or UDim2.new(0.5, -272, 0.5, -180)
+    
+    TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        Size = targetSize,
+        Position = targetPos
+    }):Play()
+end)
+
+MinimizeBtn.MouseButton1Click:Connect(MinimizeUI)
+ClickArea.MouseButton1Click:Connect(RestoreUI)
+CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
+
+local firstTab = true
+local tabCounter = 0
+
+local MiiseryLibraryObj = {
+    CreateTab = function(self, tabName)
+        tabCounter = tabCounter + 1
+        local currentOrder = tabCounter
+        local tabObj = {}
+
+        local TabBtn = Instance.new("TextButton", NavScroll)
+        TabBtn.Name = tabName .. "TabButton"
+        TabBtn.LayoutOrder = currentOrder
+        TabBtn.Size = UDim2.new(1, 0, 0, 26)
+        TabBtn.BackgroundColor3 = firstTab and Color3.fromRGB(25, 25, 30) or Color3.fromRGB(12, 12, 15)
+        TabBtn.BackgroundTransparency = 0.2
+        TabBtn.Text = "  " .. tabName
+        TabBtn.TextColor3 = firstTab and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(170, 170, 170)
+        TabBtn.Font = Enum.Font.GothamMedium
+        TabBtn.TextSize = 10
+        TabBtn.TextXAlignment = Enum.TextXAlignment.Left
+        TabBtn.ZIndex = 3
+
+        Instance.new("UICorner", TabBtn).CornerRadius = UDim.new(0, 6)
+
+        local TabStroke = Instance.new("UIStroke", TabBtn)
+        TabStroke.Color = firstTab and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(60, 60, 60)
+        TabStroke.Thickness = 0.8
+
+        local Page = Instance.new("ScrollingFrame", PagesFolder)
+        Page.Name = tabName .. "Page"
+        Page.Size = UDim2.new(1, -150, 1, -42)
+        Page.Position = UDim2.new(0, 142, 0, 36)
+        Page.BackgroundTransparency = 1
+        Page.ScrollBarThickness = 2
+        Page.CanvasSize = UDim2.new(0, 0, 0, 0)
+        Page.Visible = firstTab
+        Page.ZIndex = 2
+        Page.ClipsDescendants = true
+
+        local PageLayout = Instance.new("UIListLayout", Page)
+        PageLayout.Padding = UDim.new(0, 6)
+        PageLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+            Page.CanvasSize = UDim2.new(0, 0, 0, PageLayout.AbsoluteContentSize.Y + 15)
+        end)
+
+        TabBtn.MouseButton1Click:Connect(function()
+            for _, child in ipairs(PagesFolder:GetChildren()) do child.Visible = false end
+            for _, child in ipairs(NavScroll:GetChildren()) do
+                if child:IsA("TextButton") then
+                    child.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
+                    child.TextColor3 = Color3.fromRGB(170, 170, 170)
+                    local str = child:FindFirstChildOfClass("UIStroke")
+                    if str then str.Color = Color3.fromRGB(60, 60, 60) end
+                end
+            end
+            Page.Visible = true
+            TabBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+            TabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            TabStroke.Color = Color3.fromRGB(255, 255, 255)
+        end)
+
+        firstTab = false
+
+        function tabObj:Toggle(data)
+            local titleText = data.Title or "Toggle"
+            local defaultState = data.Value or false
+            local callback = data.Callback or function() end
+            local toggled = defaultState
+
+            local frame = Instance.new("Frame", Page)
+            frame.Size = UDim2.new(1, -6, 0, 30)
+            frame.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
+            frame.BackgroundTransparency = 0.25
+            frame.ZIndex = 3
+            Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
+            
+            local stroke = Instance.new("UIStroke", frame)
+            stroke.Color = Color3.fromRGB(80, 80, 80)
+            stroke.Thickness = 0.8
+            
+            local title = Instance.new("TextLabel", frame)
+            title.Size = UDim2.new(1, -45, 1, 0)
+            title.Position = UDim2.new(0, 10, 0, 0)
+            title.BackgroundTransparency = 1
+            title.Text = titleText
+            title.TextColor3 = Color3.fromRGB(255, 255, 255)
+            title.Font = Enum.Font.GothamMedium
+            title.TextSize = 10
+            title.TextXAlignment = Enum.TextXAlignment.Left
+            title.ZIndex = 4
+            
+            local switch = Instance.new("TextButton", frame)
+            switch.Size = UDim2.new(0, 26, 0, 14)
+            switch.Position = UDim2.new(1, -34, 0.5, -7)
+            switch.BackgroundColor3 = toggled and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40)
+            switch.Text = ""
+            switch.ZIndex = 4
+            Instance.new("UICorner", switch).CornerRadius = UDim.new(1, 0)
+            
+            switch.MouseButton1Click:Connect(function()
+                toggled = not toggled
+                switch.BackgroundColor3 = toggled and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40)
+                pcall(callback, toggled)
+            end)
+        end
+
+        function tabObj:Button(data)
+            local titleText = data.Title or "Button"
+            local callback = data.Callback or function() end
+
+            local btn = Instance.new("TextButton", Page)
+            btn.Size = UDim2.new(1, -6, 0, 30)
+            btn.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
+            btn.BackgroundTransparency = 0.25
+            btn.Text = "  " .. titleText
+            btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            btn.Font = Enum.Font.GothamMedium
+            btn.TextSize = 10
+            btn.TextXAlignment = Enum.TextXAlignment.Left
+            btn.ZIndex = 3
+            Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+            
+            local stroke = Instance.new("UIStroke", btn)
+            stroke.Color = Color3.fromRGB(80, 80, 80)
+            stroke.Thickness = 0.8
+
+            btn.MouseButton1Click:Connect(function()
+                pcall(callback)
+            end)
+        end
+
+        function tabObj:Paragraph(data)
+            local titleText = data.Title or ""
+            local descText = data.Desc or ""
+
+            local frame = Instance.new("Frame", Page)
+            frame.Size = UDim2.new(1, -6, 0, 60)
+            frame.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
+            frame.BackgroundTransparency = 0.4
+            frame.ZIndex = 3
+            Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
+
+            local tLabel = Instance.new("TextLabel", frame)
+            tLabel.Size = UDim2.new(1, -12, 0, 16)
+            tLabel.Position = UDim2.new(0, 8, 0, 4)
+            tLabel.BackgroundTransparency = 1
+            tLabel.Text = titleText
+            tLabel.TextColor3 = Color3.fromRGB(240, 240, 240)
+            tLabel.Font = Enum.Font.GothamBold
+            tLabel.TextSize = 10
+            tLabel.TextXAlignment = Enum.TextXAlignment.Left
+            tLabel.ZIndex = 4
+
+            local dLabel = Instance.new("TextLabel", frame)
+            dLabel.Size = UDim2.new(1, -16, 0, 36)
+            dLabel.Position = UDim2.new(0, 8, 0, 20)
+            dLabel.BackgroundTransparency = 1
+            dLabel.Text = descText
+            dLabel.TextColor3 = Color3.fromRGB(170, 170, 170)
+            dLabel.Font = Enum.Font.Gotham
+            dLabel.TextSize = 8.5
+            dLabel.TextWrapped = true
+            dLabel.TextXAlignment = Enum.TextXAlignment.Left
+            dLabel.TextYAlignment = Enum.TextYAlignment.Top
+            dLabel.ZIndex = 4
+
+            local paragraphObj = {}
+            function paragraphObj:Update(newTitle, newDesc)
+                if newTitle then tLabel.Text = newTitle end
+                if newDesc then dLabel.Text = newDesc end
+            end
+            return paragraphObj
+        end
+
+        function tabObj:Slider(data)
+            local titleText = data.Title or "Slider"
+            local min = data.Value and data.Value.Min or 0
+            local max = data.Value and data.Value.Max or 100
+            local default = data.Value and data.Value.Default or min
+            local callback = data.Callback or function() end
+
+            local frame = Instance.new("Frame", Page)
+            frame.Size = UDim2.new(1, -6, 0, 40)
+            frame.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
+            frame.BackgroundTransparency = 0.25
+            frame.ZIndex = 3
+            Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
+
+            local title = Instance.new("TextLabel", frame)
+            title.Size = UDim2.new(1, -12, 0, 16)
+            title.Position = UDim2.new(0, 10, 0, 4)
+            title.BackgroundTransparency = 1
+            title.Text = titleText .. ": " .. tostring(default)
+            title.TextColor3 = Color3.fromRGB(255, 255, 255)
+            title.Font = Enum.Font.GothamMedium
+            title.TextSize = 10
+            title.TextXAlignment = Enum.TextXAlignment.Left
+            title.ZIndex = 4
+
+            local sliderBg = Instance.new("Frame", frame)
+            sliderBg.Size = UDim2.new(1, -20, 0, 6)
+            sliderBg.Position = UDim2.new(0, 10, 0, 26)
+            sliderBg.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+            sliderBg.ZIndex = 4
+            Instance.new("UICorner", sliderBg).CornerRadius = UDim.new(1, 0)
+
+            local sliderFill = Instance.new("Frame", sliderBg)
+            sliderFill.Size = UDim2.new((default - min)/(max - min), 0, 1, 0)
+            sliderFill.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            sliderFill.ZIndex = 5
+            Instance.new("UICorner", sliderFill).CornerRadius = UDim.new(1, 0)
+
+            local draggingSlider = false
+            local function updateInput(input)
+                local pos = math.clamp((input.Position.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X, 0, 1)
+                local val = math.floor(min + (max - min) * pos)
+                sliderFill.Size = UDim2.new(pos, 0, 1, 0)
+                title.Text = titleText .. ": " .. tostring(val)
+                pcall(callback, val)
+            end
+
+            sliderBg.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                    draggingSlider = true
+                    updateInput(input)
+                end
+            end)
+            UIS.InputEnded:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                    draggingSlider = false
+                end
+            end)
+            UIS.InputChanged:Connect(function(input)
+                if draggingSlider and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+                    updateInput(input)
+                end
+            end)
+        end
+
+        function tabObj:Dropdown(data)
+            local titleText = data.Title or "Dropdown"
+            local values = data.Values or {}
+            local currentVal = data.Value or values[1] or "None"
+            local callback = data.Callback or function() end
+            local idx = 1
+            for i, v in ipairs(values) do
+                if v == currentVal then idx = i break end
+            end
+
+            local btn = Instance.new("TextButton", Page)
+            btn.Size = UDim2.new(1, -6, 0, 30)
+            btn.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
+            btn.BackgroundTransparency = 0.25
+            btn.Text = "  " .. titleText .. ": " .. tostring(currentVal)
+            btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            btn.Font = Enum.Font.GothamMedium
+            btn.TextSize = 10
+            btn.TextXAlignment = Enum.TextXAlignment.Left
+            btn.ZIndex = 3
+            Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+
+            local stroke = Instance.new("UIStroke", btn)
+            stroke.Color = Color3.fromRGB(80, 80, 80)
+            stroke.Thickness = 0.8
+
+            btn.MouseButton1Click:Connect(function()
+                if #values == 0 then return end
+                idx = idx + 1
+                if idx > #values then idx = 1 end
+                local choice = values[idx]
+                btn.Text = "  " .. titleText .. ": " .. tostring(choice)
+                pcall(callback, choice)
+            end)
+
+            local dropdownObj = {}
+            function dropdownObj:Refresh(newValues)
+                values = newValues or {}
+                idx = 1
+                currentVal = values[1] or "None"
+                btn.Text = "  " .. titleText .. ": " .. tostring(currentVal)
+            end
+            return dropdownObj
+        end
+
+        return tabObj
+    end
+}
+
+local character = lp.Character or lp.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+lp.CharacterAdded:Connect(function(c)
+    character = c
+    humanoidRootPart = c:WaitForChild("HumanoidRootPart")
+end)
+local savedZoom = lp.CameraMaxZoomDistance
+
+local activeChestTween = nil
+local currentTargetChest = nil
+local currentTargetIsland = nil
+local lastIslandName = nil
+
+local IslandLocationsSea1 = {
+    { Name = "Skylands", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Skylands") and Workspace._WorldOrigin.Locations.Skylands.CFrame end },
+    { Name = "Desert", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Desert") and Workspace._WorldOrigin.Locations.Desert.CFrame end },
+    { Name = "Whirlpool", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Whirlpool") and Workspace._WorldOrigin.Locations.Whirlpool.CFrame end },
+    { Name = "Colosseum", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Colosseum") and Workspace._WorldOrigin.Locations.Colosseum.CFrame end },
+    { Name = "Marine Fortress", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Marine Fortress") and Workspace._WorldOrigin.Locations["Marine Fortress"].CFrame end },
+    { Name = "Middle Town", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Middle Town") and Workspace._WorldOrigin.Locations["Middle Town"].CFrame end },
+    { Name = "Pirate Village", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Pirate Village") and Workspace._WorldOrigin.Locations["Pirate Village"].CFrame end },
+    { Name = "Magma Village", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Magma Village") and Workspace._WorldOrigin.Locations["Magma Village"].CFrame end },
+    { Name = "Frozen Village", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Frozen Village") and Workspace._WorldOrigin.Locations["Frozen Village"].CFrame end },
+    { Name = "Fountain City", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Fountain City") and Workspace._WorldOrigin.Locations["Fountain City"].CFrame end },
+    { Name = "Jungle", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Jungle") and Workspace._WorldOrigin.Locations.Jungle.CFrame end },
+    { Name = "Marine Starter", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Marine Starter") and Workspace._WorldOrigin.Locations["Marine Starter"].CFrame end },
+    { Name = "Pirate Starter", GetCFrame = function() return Workspace:FindFirstChild("Pirate Starter") and Workspace["Pirate Starter"].CFrame end }
+}
+
+local IslandLocationsSea2 = {
+    { Name = "Kingdom of Rose", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Kingdom of Rose") and Workspace._WorldOrigin.Locations["Kingdom of Rose"].CFrame end },
+    { Name = "Graveyard Island", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Graveyard Island") and Workspace._WorldOrigin.Locations["Graveyard Island"].CFrame end },
+    { Name = "Snow Mountain", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Snow Mountain") and Workspace._WorldOrigin.Locations["Snow Mountain"].CFrame end },
+    { Name = "Ice Castle", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Ice Castle") and Workspace._WorldOrigin.Locations["Ice Castle"].CFrame end },
+    { Name = "Hot and Cold", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Hot  and Cold") and Workspace._WorldOrigin.Locations["Hot  and Cold"].CFrame end },
+    { Name = "Forgotten Island", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Forgotten Island") and Workspace._WorldOrigin.Locations["Forgotten Island"].CFrame end },
+    { Name = "Dark Arena", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Dark Arena") and Workspace._WorldOrigin.Locations["Dark Arena"].CFrame end }
+}
+
+local IslandLocationsSea3 = {
+    { Name = "Floating Turtle", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Floating Turtle") and Workspace._WorldOrigin.Locations["Floating Turtle"].CFrame end },
+    { Name = "Haunted Castle", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Haunted Castle") and Workspace._WorldOrigin.Locations["Haunted Castle"].CFrame end },
+    { Name = "Tiki Outpost", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Tiki Outpost") and Workspace._WorldOrigin.Locations["Tiki Outpost"].CFrame end },
+    { Name = "Sea of Treats", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Sea of Treats") and Workspace._WorldOrigin.Locations["Sea of Treats"].CFrame end },
+    { Name = "Port Town", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Port Town") and Workspace._WorldOrigin.Locations["Port Town"].CFrame end },
+    { Name = "Hydra Island", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Hydra Island") and Workspace._WorldOrigin.Locations["Hydra Island"].CFrame end },
+    { Name = "Great Tree", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Great Tree") and Workspace._WorldOrigin.Locations["Great Tree"].CFrame end },
+    { Name = "Castle on the Sea", GetCFrame = function() return Workspace._WorldOrigin:FindFirstChild("Castle on the Sea") and Workspace._WorldOrigin["Castle on the Sea"].CFrame or (Workspace._WorldOrigin.Locations:FindFirstChild("Castle on the Sea") and Workspace._WorldOrigin.Locations["Castle on the Sea"].CFrame) end }
+}
+
+local function getCurrentSea()
+    local pId = game.PlaceId
+    if pId == 2753915549 or pId == 7449423635 or pId == 100117331123089 then
+        return 1
+    elseif pId == 4442272183 or pId == 79091703265657 then
+        return 2
+    elseif pId == 73130107255152 or pId == 7449423635 then
+        return 3
+    end
+    return 1
+end
+
+local function getIslandsForCurrentSea()
+    local sea = getCurrentSea()
+    if sea == 1 then
+        return IslandLocationsSea1
+    elseif sea == 2 then
+        return IslandLocationsSea2
+    elseif sea == 3 then
+        return IslandLocationsSea3
+    end
+    return IslandLocationsSea1
+end
+
+local function getCurrentIsland()
+    local myRoot = humanoidRootPart
+    if not myRoot then return nil end
+    local islands = getIslandsForCurrentSea()
+    local currentIsland = nil
+    local shortestDist = math.huge
+
+    for i = 1, #islands do
+        local island = islands[i]
+        local cf = island.GetCFrame()
+        if cf then
+            local dist = (cf.Position - myRoot.Position).Magnitude
+            if dist < shortestDist then
+                shortestDist = dist
+                currentIsland = island
+            end
+        end
+    end
+    if shortestDist <= 500 then
+        return currentIsland
+    end
+    return nil
+end
+
+local function getNearestIsland(excludeIslandName)
+    local myRoot = humanoidRootPart
+    if not myRoot then return nil end
+
+    local islands = getIslandsForCurrentSea()
+    local nearestIsland = nil
+    local shortestDist = math.huge
+
+    for i = 1, #islands do
+        local island = islands[i]
+        if not excludeIslandName or island.Name ~= excludeIslandName then
+            local cf = island.GetCFrame()
+            if cf then
+                local dist = (cf.Position - myRoot.Position).Magnitude
+                if dist < shortestDist then
+                    shortestDist = dist
+                    nearestIsland = island
+                end
+            end
+        end
+    end
+
+    if not nearestIsland and excludeIslandName then
+        return getNearestIsland(nil)
+    end
+
+    return nearestIsland
+end
+
+local function getSkylandsLocations()
+    local locs = {}
+    local base = Workspace._WorldOrigin.Locations:FindFirstChild("Skylands")
+    if base then table.insert(locs, base.CFrame) end
+    local children = Workspace._WorldOrigin.Locations:GetChildren()
+    if children[6] then table.insert(locs, children[6].CFrame) end
+    if children[12] then table.insert(locs, children[12].CFrame) end
+    return locs
+end
+
+local function getTreatsSubLocations()
+    local locs = {}
+    local base = Workspace._WorldOrigin.Locations:FindFirstChild("Sea of Treats")
+    if base then table.insert(locs, base.CFrame) end
+    local children = Workspace._WorldOrigin.Locations:GetChildren()
+    if children[16] then table.insert(locs, children[16].CFrame) end
+    if children[17] then table.insert(locs, children[17].CFrame) end
+    return locs
+end
+
+local function getClosestChestInMap()
+    local myRoot = humanoidRootPart
+    if not myRoot then return nil end
+
+    local bestChest, shortestDist = nil, math.huge
+
+    local function checkContainer(folder)
+        if not folder then return end
+        local children = folder:GetChildren()
+        for i = 1, #children do
+            local obj = children[i]
+            local name = obj.Name:lower()
+            if name:find("chest") then
+                local targetPart = obj:IsA("Model") and (obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")) or (obj:IsA("BasePart") and obj)
+                if targetPart and targetPart.Parent then
+                    local dist = (targetPart.Position - myRoot.Position).Magnitude
+                    if dist < shortestDist then
+                        shortestDist = dist
+                        bestChest = targetPart
+                    end
+                end
+            end
+        end
+    end
+
+    checkContainer(Workspace:FindFirstChild("ChestModels"))
+    checkContainer(Workspace)
+
+    return bestChest
+end
+
+local function getNearestChestInIsland(centerCF, maxDist)
+    local myRoot = humanoidRootPart
+    if not myRoot then return nil end
+
+    local bestChest, shortestDist = nil, math.huge
+    maxDist = maxDist or 3000
+
+    local function checkContainer(folder)
+        if not folder then return end
+        local children = folder:GetChildren()
+        for i = 1, #children do
+            local obj = children[i]
+            local name = obj.Name:lower()
+            if name:find("chest") then
+                local targetPart = obj:IsA("Model") and (obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")) or (obj:IsA("BasePart") and obj)
+                if targetPart and targetPart.Parent then
+                    local distFromIsland = centerCF and (targetPart.Position - centerCF.Position).Magnitude or 0
+                    if not centerCF or distFromIsland <= maxDist then
+                        local distFromMe = (targetPart.Position - myRoot.Position).Magnitude
+                        if distFromMe < shortestDist then
+                            shortestDist = distFromMe
+                            bestChest = targetPart
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    checkContainer(Workspace:FindFirstChild("ChestModels"))
+    checkContainer(Workspace)
+
+    return bestChest
+end
+
+local function safeTweenTo(targetCFrame, speed)
+    local myRoot = humanoidRootPart
+    if not myRoot then return end
+
+    local startPos = myRoot.Position
+    local endPos = targetCFrame.Position
+    
+    local safeY = math.max(startPos.Y, endPos.Y, 95)
+    local highPos1 = Vector3.new(startPos.X, safeY + 45, startPos.Z)
+    local highPos2 = Vector3.new(endPos.X, safeY + 45, endPos.Z)
+
+    myRoot.CFrame = CFrame.new(highPos1)
+    task.wait(0.05)
+
+    local dist = (highPos2 - highPos1).Magnitude
+    local timeDuration = math.clamp(dist / speed, 0.6, 20)
+
+    if activeChestTween then activeChestTween:Cancel() end
+    activeChestTween = TweenService:Create(myRoot, TweenInfo.new(timeDuration, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+        CFrame = CFrame.new(highPos2)
+    })
+    activeChestTween:Play()
+    activeChestTween.Completed:Wait()
+
+    local finalDist = (endPos - myRoot.Position).Magnitude
+    local finalDuration = math.clamp(finalDist / speed, 0.3, 5)
+
+    if activeChestTween then activeChestTween:Cancel() end
+    activeChestTween = TweenService:Create(myRoot, TweenInfo.new(finalDuration, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+        CFrame = targetCFrame
+    })
+    activeChestTween:Play()
+    activeChestTween.Completed:Wait()
+end
+
+task.spawn(function()
+    while true do
+        task.wait(0.12)
+        if Config.ChestFarm then
+            pcall(function()
+                local myRoot = humanoidRootPart
+                if not myRoot then return end
+
+                local activeIsland = getCurrentIsland()
+                if activeIsland then
+                    lastIslandName = activeIsland.Name
+                end
+
+                local nearbyChest = getClosestChestInMap()
+                if nearbyChest and (nearbyChest.Position - myRoot.Position).Magnitude <= 450 then
+                    currentTargetChest = nearbyChest
+                end
+
+                if currentTargetChest and currentTargetChest.Parent then
+                    local destCFrame = currentTargetChest.CFrame + Vector3.new(0, 3, 0)
+                    local dist = (destCFrame.Position - myRoot.Position).Magnitude
+                    local speed = math.clamp(Config.ChestFarmSpeed or 160, 60, 300)
+                    
+                    if dist > 20 then
+                        safeTweenTo(destCFrame, speed)
+                    elseif dist > 4 then
+                        local timeDuration = math.clamp(dist / speed, 0.3, 2.0)
+                        if activeChestTween then activeChestTween:Cancel() end
+                        activeChestTween = TweenService:Create(myRoot, TweenInfo.new(timeDuration, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+                            CFrame = destCFrame
+                        })
+                        activeChestTween:Play()
+                        activeChestTween.Completed:Wait()
+                    else
+                        currentTargetChest = nil
+                        task.wait(0.3)
+                    end
+                else
+                    currentTargetChest = nil
+                end
+
+                if not currentTargetIsland then
+                    currentTargetIsland = getNearestIsland(lastIslandName)
+                end
+
+                if currentTargetIsland then
+                    local islandName = currentTargetIsland.Name
+                    local targetChestInIsland = nil
+
+                    if islandName == "Skylands" then
+                        local skylandsLocs = getSkylandsLocations()
+                        for i = 1, #skylandsLocs do
+                            targetChestInIsland = getNearestChestInIsland(skylandsLocs[i], 2000)
+                            if targetChestInIsland then break end
+                        end
+                    elseif islandName == "Sea of Treats" then
+                        local treatsLocs = getTreatsSubLocations()
+                        for i = 1, #treatsLocs do
+                            targetChestInIsland = getNearestChestInIsland(treatsLocs[i], 2000)
+                            if targetChestInIsland then break end
+                        end
+                    elseif islandName == "Whirlpool" then
+                        local whirlpoolCF = currentTargetIsland.GetCFrame()
+                        if whirlpoolCF then
+                            local distToWhirlpool = (whirlpoolCF.Position - myRoot.Position).Magnitude
+                            if distToWhirlpool > 30 then
+                                local speed = math.clamp(Config.ChestFarmSpeed or 160, 60, 300)
+                                safeTweenTo(whirlpoolCF + Vector3.new(0, 5, 0), speed)
+                                return
+                            else
+                                pcall(function()
+                                    local soundCutscene = ReplicatedStorage:FindFirstChild("Storage") and ReplicatedStorage.Storage:FindFirstChild("Sound") and ReplicatedStorage.Storage.Sound:FindFirstChild("UnderwaterCityBonusMoments") and ReplicatedStorage.Storage.Sound.UnderwaterCityBonusMoments:FindFirstChild("Bubble_Teleport_Whirlpool_Cutscene_01")
+                                    if soundCutscene then soundCutscene:Play() end
+                                    CommF:InvokeServer("requestEntrance", Vector3.new(61163, 11, 1819))
+                                end)
+                                task.wait(0.8)
+                                targetChestInIsland = getNearestChestInIsland(myRoot.CFrame, 3000)
+                            end
+                        end
+                    else
+                        local islandCF = currentTargetIsland.GetCFrame()
+                        if islandCF then
+                            targetChestInIsland = getNearestChestInIsland(islandCF, 3200)
+                        end
+                    end
+
+                    if targetChestInIsland then
+                        currentTargetChest = targetChestInIsland
+                    else
+                        lastIslandName = currentTargetIsland.Name
+                        local islandCF = currentTargetIsland.GetCFrame()
+                        if islandCF then
+                            local distToIsland = (islandCF.Position - myRoot.Position).Magnitude
+                            if distToIsland > 100 then
+                                local speed = math.clamp(Config.ChestFarmSpeed or 160, 60, 300)
+                                safeTweenTo(islandCF + Vector3.new(0, 10, 0), speed)
+                            else
+                                currentTargetIsland = nil
+                            end
+                        else
+                            currentTargetIsland = nil
+                        end
+                    end
+                end
+            end)
+        else
+            currentTargetChest = nil
+            currentTargetIsland = nil
+            lastIslandName = nil
+            if activeChestTween then
+                activeChestTween:Cancel()
+                activeChestTween = nil
+            end
+        end
+    end
+end)
+
+task.spawn(function()
+    while true do
+        task.wait(0.08)
+        if not Config.FastAttack then continue end
+        pcall(function()
+            local char = lp.Character
+            if not char then return end
+            local myHRP = char:FindFirstChild("HumanoidRootPart")
+            if not myHRP then return end
+            local Mod = RS:FindFirstChild("Modules")
+            local Net2 = Mod and Mod:FindFirstChild("Net")
+            local RA2 = Net2 and Net2:FindFirstChild("RE/RegisterAttack")
+            local RH2 = Net2 and Net2:FindFirstChild("RE/RegisterHit")
+            if not RA2 or not RH2 then return end
+            local myPos = myHRP.Position
+            local all = {}
+            if Config.FAPlayers then
+                local players = Players:GetPlayers()
+                for i = 1, #players do
+                    local p = players[i]
+                    if p ~= lp and p.Character then
+                        local pH = p.Character:FindFirstChildOfClass("Humanoid")
+                        local pR = p.Character:FindFirstChild("HumanoidRootPart")
+                        local pHd = p.Character:FindFirstChild("Head")
+                        if pH and pR and pHd and pH.Health > 0 and (pR.Position - myPos).Magnitude <= Config.FARange then
+                            all[#all + 1] = { p.Character, pHd }
+                        end
+                    end
+                end
+            end
+            if Config.FAMobs then
+                local en = workspace:FindFirstChild("Enemies")
+                if en then
+                    local children = en:GetChildren()
+                    for i = 1, #children do
+                        local n = children[i]
+                        local nH = n:FindFirstChildOfClass("Humanoid")
+                        local nR = n:FindFirstChild("HumanoidRootPart")
+                        local nHd = n:FindFirstChild("Head")
+                        if nH and nR and nHd and nH.Health > 0 and (nR.Position - myPos).Magnitude <= Config.FARange then
+                            all[#all + 1] = { n, nHd }
+                        end
+                    end
+                end
+            end
+            if #all > 0 then
+                RA2:FireServer(0)
+                for i = 1, #all do
+                    local t = all[i]
+                    pcall(function() RH2:FireServer(t[2], all) end)
+                end
+            end
+        end)
+    end
+end)
+
+RunService.Heartbeat:Connect(function()
+    if not Config.BringMobs then return end
+    pcall(function()
+        local hrp = humanoidRootPart
+        if not hrp then return end
+        if sethiddenproperty then pcall(function() sethiddenproperty(lp, "SimulationRadius", math.huge) end) end
+        local targetPos = hrp.Position
+        local enemies = Workspace:FindFirstChild("Enemies")
+        if not enemies then return end
+        local children = enemies:GetChildren()
+        for i = 1, #children do
+            local enemy = children[i]
+            if enemy:IsA("Model") then
+                local eHum = enemy:FindFirstChildOfClass("Humanoid")
+                local eRoot = enemy:FindFirstChild("HumanoidRootPart")
+                if eHum and eRoot and eHum.Health > 0 then
+                    if (eRoot.Position - targetPos).Magnitude <= Config.BringRange then
+                        eRoot.CFrame = CFrame.new(targetPos.X, targetPos.Y - 18, targetPos.Z)
+                        eRoot.CanCollide = false
+                        eHum.WalkSpeed = 0
+                        eHum.JumpPower = 0
+                    end
+                end
+            end
+        end
+    end)
+end)
+
+local trackerConn = nil
+local function StartTrackerFly()
+    if trackerConn then return end
+    trackerConn = RunService.Heartbeat:Connect(function()
+        if not Config.TrackerFly then return end
+        local hrp = humanoidRootPart
+        if not hrp then return end
+        local closest, dist = nil, math.huge
+        local players = Players:GetPlayers()
+        for i = 1, #players do
+            local p = players[i]
+            if p ~= lp and p.Character then
+                local r = p.Character:FindFirstChild("HumanoidRootPart")
+                local h = p.Character:FindFirstChildOfClass("Humanoid")
+                if r and h and h.Health > 0 then
+                    local d = (r.Position - hrp.Position).Magnitude
+                    if d < dist then dist = d; closest = r end
+                end
+            end
+        end
+        if closest and dist > 8 then
+            local dir = (closest.Position - hrp.Position)
+            if dir.Magnitude > 0 then
+                local step = math.min(Config.TrackerFlySpeed * 0.03, dir.Magnitude - Config.TrackerOrbitRadius)
+                if step > 0 then hrp.CFrame = hrp.CFrame + dir.Unit * step end
+            end
+        end
+    end)
+end
+local function StopTrackerFly()
+    if trackerConn then trackerConn:Disconnect(); trackerConn = nil end
+end
+
+local activeTrackTween = nil
+local function getTrackTargetHRP()
+    local name = Config.SelectedTrackPlayer or "Nearest"
+    if name ~= "Nearest" then
+        local p = Players:FindFirstChild(name)
+        if p and p.Character then return p.Character:FindFirstChild("HumanoidRootPart"), p end
+        return nil, nil
+    end
+    local my = humanoidRootPart
+    if not my then return nil, nil end
+    local best, bd, bp = nil, math.huge, nil
+    local players = Players:GetPlayers()
+    for i = 1, #players do
+        local p = players[i]
+        if p ~= lp and p.Character then
+            local r = p.Character:FindFirstChild("HumanoidRootPart")
+            local h = p.Character:FindFirstChildOfClass("Humanoid")
+            if r and h and h.Health > 0 then
+                local d = (r.Position - my.Position).Magnitude
+                if d < bd then bd = d; best = r; bp = p end
+            end
+        end
+    end
+    return best, bp
+end
+
+RunService.Heartbeat:Connect(function()
+    if not (Config.TweenNearest or Config.TweenToPlayer or Config.InstaTP) then return end
+    pcall(function()
+        local hrp = humanoidRootPart
+        if not hrp then return end
+        local targetHRP, _ = getTrackTargetHRP()
+        if not targetHRP then return end
+        local ox, oy, oz = Config.TweenOX or 0, Config.TweenOY or 1.5, Config.TweenOZ or 3.5
+        local pred = targetHRP.Position + (targetHRP.AssemblyLinearVelocity * (Config.PredictionStrength or 0.1))
+        local dest = CFrame.new(pred) * CFrame.new(ox, oy, oz)
+        if Config.InstaTP then
+            hrp.CFrame = dest
+            hrp.AssemblyLinearVelocity = Vector3.zero
+        elseif Config.TweenNearest or Config.TweenToPlayer then
+            local dist = (dest.Position - hrp.Position).Magnitude
+            local speed = Config.TweenSpeed or 350
+            if activeTrackTween then activeTrackTween:Cancel() end
+            activeTrackTween = TweenService:Create(hrp, TweenInfo.new(math.max(dist / speed, 0.05), Enum.EasingStyle.Linear), { CFrame = dest })
+            activeTrackTween:Play()
+        end
+    end)
+end)
+
+RunService.RenderStepped:Connect(function()
+    if not Config.Spectate then return end
+    pcall(function()
+        local _, plr = getTrackTargetHRP()
+        if plr and plr.Character then
+            local hum = plr.Character:FindFirstChildOfClass("Humanoid")
+            if hum then Workspace.CurrentCamera.CameraSubject = hum end
+        end
+    end)
+end)
+
+local fleeConnection = nil
+local fleeTeleported = false
+local FLEE_Y, FLEE_Z = 530, 300
+local function GetFleeDestination()
+    local pid = game.PlaceId
+    if pid == 4442272183 or pid == 79091703265657 then return Vector3.new(923, 126, 32852)
+    elseif pid == 7449423635 or pid == 100117331123089 then return Vector3.new(-5027.03, 316.43, -3206.07) end
+    return nil
+end
+local function RestoreFleeState()
+    pcall(function()
+        local char = lp.Character
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        if hrp then hrp.AssemblyLinearVelocity = Vector3.zero hrp.AssemblyAngularVelocity = Vector3.zero end
+        if hum then hum.PlatformStand = false hum:ChangeState(Enum.HumanoidStateType.GettingUp) hum:ChangeState(Enum.HumanoidStateType.Running) end
+    end)
+end
+local function StartAutoFlee()
+    if fleeConnection then return end
+    fleeConnection = task.spawn(function()
+        while Config.AutoFlee do
+            task.wait()
+            pcall(function()
+                if not Config.AutoFlee then return end
+                local char = lp.Character
+                local hum = char and char:FindFirstChildOfClass("Humanoid")
+                local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                if not hum or not hrp or hum.Health <= 0 then return end
+                local hpPercent = (hum.Health / hum.MaxHealth) * 100
+                if hpPercent <= Config.AutoFleeHP then
+                    if not fleeTeleported then
+                        fleeTeleported = true
+                        local dest = GetFleeDestination()
+                        if dest then pcall(function() ReplicatedStorage.Remotes.CommF_:InvokeServer("requestEntrance", dest) end) end
+                    end
+                    local deltaTime = task.wait()
+                    local newPosition = hrp.Position + Vector3.new(0, FLEE_Y * deltaTime, FLEE_Z * deltaTime)
+                    hrp.AssemblyLinearVelocity = Vector3.zero
+                    hrp.AssemblyAngularVelocity = Vector3.zero
+                    hum:ChangeState(Enum.HumanoidStateType.Physics)
+                    hrp.CFrame = CFrame.new(newPosition) * (hrp.CFrame - hrp.Position)
+                elseif fleeTeleported then
+                    fleeTeleported = false
+                    RestoreFleeState()
+                end
+            end)
+        end
+        fleeConnection = nil
+        fleeTeleported = false
+        RestoreFleeState()
+    end)
+end
+local function StopAutoFlee()
+    Config.AutoFlee = false
+    fleeConnection = nil
+    fleeTeleported = false
+    RestoreFleeState()
+end
+
+task.spawn(function()
+    while true do
+        task.wait(1)
+        if Config.AutoV3 and CommE then pcall(function() CommE:FireServer("ActivateAbility") end) end
+    end
+end)
+task.spawn(function()
+    while true do
+        task.wait(0.5)
+        if Config.AutoV4 then
+            pcall(function()
+                local aw = (lp.Character and lp.Character:FindFirstChild("Awakening")) or (lp.Backpack and lp.Backpack:FindFirstChild("Awakening"))
+                if aw then
+                    local rf = aw:FindFirstChildWhichIsA("RemoteFunction")
+                    if rf then rf:InvokeServer(true) end
+                end
+            end)
+        end
+    end
+end)
+task.spawn(function()
+    while true do
+        task.wait(30)
+        if Config.AutoPvP then pcall(function() CommF:InvokeServer("EnablePvp") end) end
+    end
+end)
+
+local statsScreen, statsLabel, statsConn, statsFrame
+local statsFpsCount, statsFpsLast, statsFpsValue = 0, tick(), 60
+pcall(function()
+    statsScreen = Instance.new("ScreenGui")
+    statsScreen.Name = "MiiseryStatsGui"
+    statsScreen.ResetOnSpawn = false
+    statsScreen.Enabled = false
+    statsScreen.Parent = playerGui
+    statsFrame = Instance.new("Frame", statsScreen)
+    statsFrame.Size = UDim2.new(0, 160, 0, 24)
+    statsFrame.Position = UDim2.new(0.5, -80, 0, 6)
+    statsFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
+    statsFrame.BackgroundTransparency = 0.25
+    statsFrame.Active = true
+    statsFrame.Draggable = true
+    Instance.new("UICorner", statsFrame).CornerRadius = UDim.new(0, 6)
+    local stroke = Instance.new("UIStroke", statsFrame)
+    stroke.Color = Color3.fromRGB(255, 255, 255)
+    stroke.Thickness = 1
+    
+    statsLabel = Instance.new("TextLabel", statsFrame)
+    statsLabel.Size = UDim2.new(1, 0, 1, 0)
+    statsLabel.BackgroundTransparency = 1
+    statsLabel.Font = Enum.Font.GothamBold
+    statsLabel.TextSize = 11
+    statsLabel.TextColor3 = Color3.fromRGB(240, 240, 240)
+    statsLabel.Text = "FPS: -- | Ping: --"
+end)
+local function setStatsGui(on)
+    Config.StatsGui = on
+    if statsScreen then statsScreen.Enabled = on end
+    if statsConn then statsConn:Disconnect() statsConn = nil end
+    if not on then return end
+    statsConn = RunService.Heartbeat:Connect(function()
+        statsFpsCount = statsFpsCount + 1
+        local now = tick()
+        if now - statsFpsLast >= 1 then
+            statsFpsValue = statsFpsCount / (now - statsFpsLast)
+            statsFpsCount = 0
+            statsFpsLast = now
+        end
+        local ping = math.floor(lp:GetNetworkPing() * 1000)
+        local fps = math.floor(statsFpsValue)
+        if statsLabel then statsLabel.Text = string.format("FPS: %d | Ping: %dms", fps, ping) end
+    end)
+end
+
+local flyBV, flyBG, flyConn
+local holdUp, holdDown = false, false
+local noclipParts = {}
+local function setNoclip(on)
+    local char = lp.Character
+    if not char then return end
+    local descendants = char:GetDescendants()
+    for i = 1, #descendants do
+        local part = descendants[i]
+        if part:IsA("BasePart") then
+            if on then
+                if noclipParts[part] == nil then noclipParts[part] = part.CanCollide end
+                part.CanCollide = false
+            else
+                if noclipParts[part] ~= nil then part.CanCollide = noclipParts[part] end
+            end
+        end
+    end
+    if not on then noclipParts = {} end
+end
+local function destroyFlyMovers()
+    pcall(function() if flyBV then flyBV:Destroy() end end)
+    pcall(function() if flyBG then flyBG:Destroy() end end)
+    flyBV, flyBG = nil, nil
+end
+local function cleanupFly()
+    if flyConn then flyConn:Disconnect() flyConn = nil end
+    destroyFlyMovers()
+    setNoclip(false)
+    local hum = lp.Character and lp.Character:FindFirstChildOfClass("Humanoid")
+    if hum then pcall(function() hum.PlatformStand = false end) end
+end
+local function ensureFlyMovers(hrp)
+    if not hrp then return end
+    if not flyBV or not flyBV.Parent then
+        flyBV = Instance.new("BodyVelocity")
+        flyBV.Name = "MiiseryFlyBV"
+        flyBV.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+        flyBV.Velocity = Vector3.zero
+        flyBV.Parent = hrp
+    end
+    if not flyBG or not flyBG.Parent then
+        flyBG = Instance.new("BodyGyro")
+        flyBG.Name = "MiiseryFlyBG"
+        flyBG.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
+        flyBG.P = 3e4
+        flyBG.Parent = hrp
+    end
+end
+local function startFly()
+    cleanupFly()
+    local hrp = humanoidRootPart
+    local hum = lp.Character and lp.Character:FindFirstChildOfClass("Humanoid")
+    if not hrp or not hum then return end
+    Config.Fly = true
+    hum.PlatformStand = true
+    setNoclip(true)
+    ensureFlyMovers(hrp)
+    flyConn = RunService.Heartbeat:Connect(function(dt)
+        if not Config.Fly then return end
+        hrp = humanoidRootPart
+        hum = lp.Character and lp.Character:FindFirstChildOfClass("Humanoid")
+        if not hrp or not hum or hum.Health <= 0 then return end
+        ensureFlyMovers(hrp)
+        hum.PlatformStand = true
+        setNoclip(true)
+        local camCF = Camera.CFrame
+        local look, right = camCF.LookVector, camCF.RightVector
+        local md = hum.MoveDirection
+        local move = Vector3.zero
+        if md.Magnitude > 0.08 then
+            local flatLook = Vector3.new(look.X, 0, look.Z)
+            local flatRight = Vector3.new(right.X, 0, right.Z)
+            if flatLook.Magnitude > 0.01 then flatLook = flatLook.Unit end
+            if flatRight.Magnitude > 0.01 then flatRight = flatRight.Unit end
+            local flatMd = Vector3.new(md.X, 0, md.Z)
+            local fwd, str = 0, 0
+            if flatMd.Magnitude > 0.01 then
+                flatMd = flatMd.Unit
+                fwd = flatMd:Dot(flatLook)
+                str = flatMd:Dot(flatRight)
+            end
+            move = look * fwd + right * str
+            if move.Magnitude > 0.01 then move = move.Unit * math.clamp(md.Magnitude, 0, 1) end
+        end
+        if holdUp then move = move + Vector3.new(0, 1, 0) end
+        if holdDown then move = move - Vector3.new(0, 1, 0) end
+        local targetVel = Vector3.zero
+        if move.Magnitude > 0.05 then
+            move = move.Unit
+            targetVel = Vector3.new(move.X * Config.FlySpeed, move.Y * Config.FlyVertical, move.Z * Config.FlySpeed)
+        end
+        if Config.FlySmooth then
+            flyBV.Velocity = flyBV.Velocity:Lerp(targetVel, math.clamp(dt * 12, 0.1, 0.5))
+        else
+            flyBV.Velocity = targetVel
+        end
+        flyBG.CFrame = CFrame.lookAt(hrp.Position, hrp.Position + look)
+    end)
+end
+local function stopFly()
+    Config.Fly = false
+    cleanupFly()
+end
+UIS.InputBegan:Connect(function(input, gpe)
+    if gpe then return end
+    if input.KeyCode == Enum.KeyCode.Space then holdUp = true
+    elseif input.KeyCode == Enum.KeyCode.LeftShift then holdDown = true end
+end)
+UIS.InputEnded:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.Space then holdUp = false
+    elseif input.KeyCode == Enum.KeyCode.LeftShift then holdDown = false end
+end)
+lp.CharacterAdded:Connect(function()
+    destroyFlyMovers()
+    noclipParts = {}
+    task.wait(0.6)
+    if Config.Fly then startFly() end
+end)
+
+pcall(function()
+    lp.Idled:Connect(function()
+        if not Config.AntiAFK then return end
+        local vu = game:GetService("VirtualUser")
+        if vu then vu:CaptureController(); vu:ClickButton2(Vector2.zero) end
+    end)
+end)
+
+local waterPart
+task.spawn(function()
+    while true do
+        task.wait(0.15)
+        if Config.WalkOnWater then
+            local hrp = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart")
+            if not waterPart or not waterPart.Parent then
+                waterPart = Instance.new("Part")
+                waterPart.Size = Vector3.new(200, 1, 200)
+                waterPart.Transparency = 1
+                waterPart.Anchored = true
+                waterPart.CanCollide = false
+                waterPart.Name = "MiiseryWaterPlatform"
+                waterPart.Parent = Workspace
+            end
+            if hrp and hrp.Position.Y >= 9.5 then
+                waterPart.Position = Vector3.new(hrp.Position.X, 9.2, hrp.Position.Z)
+                waterPart.CanCollide = true
+            else
+                waterPart.CanCollide = false
+            end
+        elseif waterPart then
+            waterPart.CanCollide = false
+        end
+    end
+end)
+
+local antiLavaConn
+local function startAntiLava()
+    if antiLavaConn then antiLavaConn:Disconnect() end
+    local t = 0
+    antiLavaConn = RunService.Stepped:Connect(function(_, dt)
+        t = t + dt
+        if t < 0.2 then return end
+        t = 0
+        local char = lp.Character
+        if not (char and Config.AntiLava) then return end
+        local descendants = char:GetDescendants()
+        for i = 1, #descendants do
+            local part = descendants[i]
+            if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" and part.Name ~= "Head" and part.Name ~= "Torso" and part.Name ~= "UpperTorso" and part.Name ~= "LowerTorso" then
+                pcall(function() part.CanTouch = false end)
+            end
+        end
+    end)
+end
+local function stopAntiLava()
+    if antiLavaConn then antiLavaConn:Disconnect() antiLavaConn = nil end
+end
+
+RunService.Heartbeat:Connect(function()
+    if not Config.SpeedEnabled then return end
+    local char = lp.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if not hrp or not hum then return end
+    local md = hum.MoveDirection
+    if Config.SpeedMode == "WalkSpeed" then
+        hum.WalkSpeed = Config.SpeedValue
+    elseif Config.SpeedMode == "CFrame" and md.Magnitude > 0 then
+        hrp.CFrame = hrp.CFrame + md * (Config.SpeedValue / 100)
+    elseif Config.SpeedMode == "Velocity" and md.Magnitude > 0 then
+        hrp.AssemblyLinearVelocity = Vector3.new(md.X * Config.SpeedValue, hrp.AssemblyLinearVelocity.Y, md.Z * Config.SpeedValue)
+    end
+end)
+
+local mouse = lp:GetMouse()
+local SilentAimModule = (function()
+    local module = {}
+    local player = lp
+    local camera = Workspace.CurrentCamera
+
+    local SilentAimPlayersEnabled = false
+    local SilentAimNPCsEnabled = false
+    local PredictionEnabled = true
+    local PredictionAmount = 0.12
+    local ZSkillorM1 = true
+    local ShowFOVCircle = false
+    local FOVRadius = 150
+    local FOVMode = "V1"
+    local AimMode = "360"
+    local TargetPriority = "Nearest"
+    local maxRange = 2000
+
+    local TracerEnabled = false
+    local TracerColor = "Red"
+    local tracerModel, tracerAttachment0, tracerAttachment1, tracerBeam = nil, nil, nil, nil
+
+    local renderConnection, heartbeatConnection = nil, nil
+    local currentTool, currentToolCategory = nil, "Melee"
+    local PlayersPosition, NPCPosition = nil, nil
+    local Selectedplayer = nil
+    local characterConnections = {}
+    local Skills = {"X"}
+    local BlacklistedKeys = {
+        Melee = { Z = false, X = false, C = false, V = false, F = false },
+        Sword = { Z = false, X = false, C = false, V = false, F = false },
+        Fruit = { Z = false, X = false, C = false, V = false, F = false, TAP = false },
+        Gun   = { Z = false, X = false, C = false, V = false, F = false },
+    }
+    local currentSkillKey = nil
+    local SKILL_KEYS = {"Z", "X", "C", "V", "F", "TAP"}
+    local lastSkillTime = 0
+    local OverrideGodhumanSanguineEnabled = true
+
+    local FOVGui = Instance.new("ScreenGui")
+    FOVGui.Name = "Miisery_FOV"
+    FOVGui.ResetOnSpawn = false
+    FOVGui.IgnoreGuiInset = true
+    pcall(function() if syn and syn.protect_gui then syn.protect_gui(FOVGui) end end)
+    FOVGui.Parent = (gethui and gethui()) or CoreGui or playerGui
+
+    local FOVFrame = Instance.new("Frame")
+    FOVFrame.Name = "FOVCircle"
+    FOVFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+    FOVFrame.BackgroundTransparency = 1
+    FOVFrame.Visible = false
+    FOVFrame.Parent = FOVGui
+    local UIStroke = Instance.new("UIStroke")
+    UIStroke.Color = Color3.fromRGB(255, 255, 255)
+    UIStroke.Thickness = 2
+    UIStroke.Parent = FOVFrame
+    Instance.new("UICorner", FOVFrame).CornerRadius = UDim.new(1, 0)
+
+    local function getToolCategory(tool)
+        if not tool then return "Melee" end
+        local name = string.lower(tool.Name)
+        local tip = tool.ToolTip or ""
+        if tip == "Gun" or name:find("guitar") or name:find("rifle") or name:find("gun") or name:find("bow") or name:find("kabucha") then
+            return "Gun"
+        end
+        local meleeNames = {"claw", "godhuman", "superhuman", "talon", "step", "karate", "breath", "kung fu", "combat", "fist", "sanguine", "electric"}
+        for i = 1, #meleeNames do if name:find(meleeNames[i]) then return "Melee" end end
+        if tip == "Blox Fruit" or name:find("fruit") or name:find("-") then return "Fruit" end
+        if tip == "Sword" then return "Sword" end
+        return "Sword"
+    end
+
+    local function isOverrideTool(tool)
+        if not tool then return false end
+        local name = string.lower(tool.Name)
+        if name == "godhuman" or name:find("sanguine") or name:find("yama") then return true end
+        if currentToolCategory == "Sword" then return true end
+        if currentToolCategory == "Melee" and (name:find("godhuman") or name:find("sanguine")) then return true end
+        return false
+    end
+
+    local function isKeyCurrentlyBlacklisted(key)
+        if not key then return false end
+        local cat = currentToolCategory or "Melee"
+        if BlacklistedKeys[cat] and BlacklistedKeys[cat][key] ~= nil then
+            return BlacklistedKeys[cat][key] == true
+        end
+        return false
+    end
+
+    local function getHRP(model) return model and model:FindFirstChild("HumanoidRootPart") end
+
+    local function faceTarget(targetPos)
+        if not targetPos then return end
+        local char = player.Character
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        if not hrp then return end
+        local currentPos = hrp.Position
+        local lookVector = (Vector3.new(targetPos.X, currentPos.Y, targetPos.Z) - currentPos)
+        if lookVector.Magnitude < 0.001 then return end
+        lookVector = lookVector.Unit
+        hrp.CFrame = CFrame.lookAt(currentPos, currentPos + lookVector, Vector3.new(0, 1, 0))
+    end
+
+    local function setCurrentSkillKey(key)
+        currentSkillKey = key
+        lastSkillTime = os.clock()
+        if SilentAimPlayersEnabled or SilentAimNPCsEnabled then
+            local targetPos = PlayersPosition or NPCPosition
+            if targetPos then task.spawn(function() faceTarget(targetPos) end) end
+        end
+        task.spawn(function()
+            local myTime = lastSkillTime
+            task.wait(1.5)
+            if lastSkillTime == myTime and currentSkillKey == key then currentSkillKey = nil end
+        end)
+    end
+
+    local lastDirection = nil
+    local function predicted(hrp)
+        if not hrp then return nil end
+        local hum = hrp.Parent and hrp.Parent:FindFirstChildOfClass("Humanoid")
+        if not hum or hum.Health <= 0 then return hrp.Position end
+        if not PredictionEnabled then return hrp.Position end
+        local vel = hrp.AssemblyLinearVelocity or hrp.Velocity or Vector3.zero
+        local speed = vel.Magnitude
+        if speed < 5 then lastDirection = nil return hrp.Position end
+        local currentDirection = vel.Unit
+        if lastDirection and lastDirection:Dot(currentDirection) < 0.7 then lastDirection = nil return hrp.Position end
+        lastDirection = currentDirection
+        local ping = 0
+        pcall(function() ping = player:GetNetworkPing() end)
+        ping = math.clamp(ping, 0, 0.35)
+        local factor = PredictionAmount + ping
+        if speed > 100 then factor = math.min(factor, 0.15) end
+        return hrp.Position + vel * factor
+    end
+
+    local function isAllyWithMe(targetplayer)
+        local myGui = player:FindFirstChild("PlayerGui")
+        if not myGui then return false end
+        local scrolling = myGui:FindFirstChild("Main") and myGui.Main:FindFirstChild("Allies") and myGui.Main.Allies:FindFirstChild("Container") and myGui.Main.Allies.Container:FindFirstChild("Allies") and myGui.Main.Allies.Container.Allies:FindFirstChild("ScrollingFrame")
+        if scrolling then
+            local descendants = scrolling:GetDescendants()
+            for i = 1, #descendants do
+                local frame = descendants[i]
+                if frame:IsA("ImageButton") and frame.Name == targetplayer.Name then return true end
+            end
+        end
+        return false
+    end
+
+    local function isTargetProtected(targetPlayer)
+        if not targetPlayer then return false end
+        local char = targetPlayer.Character
+        if not char then return false end
+        if char:GetAttribute("SafeZone") == true or char:GetAttribute("PvpDisabled") == true or char:GetAttribute("CombatProtected") == true or char:GetAttribute("PVP") == false then return true end
+        if char:FindFirstChildWhichIsA("ForceField") then return true end
+        return false
+    end
+
+    local function isEnemy(targetplayer)
+        if not targetplayer or targetplayer == player then return false end
+        if isTargetProtected(targetplayer) then return false end
+        local myTeam, targetTeam = player.Team, targetplayer.Team
+        if myTeam and targetTeam then
+            if myTeam.Name == "Pirates" and targetTeam.Name == "Marines" then return true end
+            if myTeam.Name == "Marines" and targetTeam.Name == "Pirates" then return true end
+            if myTeam.Name == "Pirates" and targetTeam.Name == "Pirates" then return not isAllyWithMe(targetplayer) end
+            if myTeam.Name == "Marines" and targetTeam.Name == "Marines" then return false end
+        end
+        return true
+    end
+
+    local function getFOVCenter(mode)
+        if mode == "V2" then return UIS:GetMouseLocation() end
+        camera = Workspace.CurrentCamera
+        return camera.ViewportSize / 2
+    end
+
+    local function isTargetValid(hrp, lpHRP, aimMode, fovRadius, fovType)
+        if not hrp or not lpHRP then return false end
+        if aimMode == "180" then
+            local dir = (hrp.Position - lpHRP.Position).Unit
+            if lpHRP.CFrame.LookVector:Dot(dir) < 0 then return false end
+        elseif aimMode == "FOV" then
+            local screenPos, onScreen = camera:WorldToViewportPoint(hrp.Position)
+            if not onScreen then return false end
+            local center = getFOVCenter(fovType)
+            if (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude > fovRadius then return false end
+        end
+        return true
+    end
+
+    local function getClosestplayer(lpHRP)
+        if not lpHRP then return nil end
+        if TargetPriority == "Lock Player" then
+            if Selectedplayer and Selectedplayer.Character and Selectedplayer.Character.Parent then
+                if isTargetProtected(Selectedplayer) then return nil end
+                local hum = Selectedplayer.Character:FindFirstChildWhichIsA("Humanoid")
+                local hrp = getHRP(Selectedplayer.Character)
+                if hum and hum.Health > 0 and hrp and isTargetValid(hrp, lpHRP, AimMode, FOVRadius, FOVMode) and (hrp.Position - lpHRP.Position).Magnitude <= maxRange then
+                    return Selectedplayer
+                end
+            end
+            return nil
+        end
+        local valid = {}
+        local players = Players:GetPlayers()
+        for i = 1, #players do
+            local pl = players[i]
+            if pl ~= player and isEnemy(pl) and pl.Character and pl.Character.Parent then
+                local hum = pl.Character:FindFirstChildWhichIsA("Humanoid")
+                local hrp = getHRP(pl.Character)
+                if hum and hum.Health > 0 and hrp and isTargetValid(hrp, lpHRP, AimMode, FOVRadius, FOVMode) then
+                    local dist = (hrp.Position - lpHRP.Position).Magnitude
+                    if dist <= maxRange then table.insert(valid, { Player = pl, Humanoid = hum, HRP = hrp, Distance = dist }) end
+                end
+            end
+        end
+        if #valid == 0 then return nil end
+        if AimMode == "360" or AimMode == "180" then
+            if TargetPriority == "Nearest" then table.sort(valid, function(a, b) return a.Distance < b.Distance end)
+            elseif TargetPriority == "Low HP" or TargetPriority == "LowestHP" then table.sort(valid, function(a, b) return a.Humanoid.Health < b.Humanoid.Health end)
+            elseif TargetPriority == "HighestHP" then table.sort(valid, function(a, b) return a.Humanoid.Health > b.Humanoid.Health end)
+            elseif TargetPriority == "Looking At Me" then
+                table.sort(valid, function(a, b)
+                    local dirA = (lpHRP.Position - a.HRP.Position).Unit
+                    local dirB = (lpHRP.Position - b.HRP.Position).Unit
+                    return a.HRP.CFrame.LookVector:Dot(dirA) > b.HRP.CFrame.LookVector:Dot(dirB)
+                end)
+            else table.sort(valid, function(a, b) return a.Distance < b.Distance end) end
+        else
+            local center = getFOVCenter(FOVMode)
+            table.sort(valid, function(a, b)
+                local pA = camera:WorldToViewportPoint(a.HRP.Position)
+                local pB = camera:WorldToViewportPoint(b.HRP.Position)
+                return (Vector2.new(pA.X, pA.Y) - center).Magnitude < (Vector2.new(pB.X, pB.Y) - center).Magnitude
+            end)
+        end
+        return valid[1].Player
+    end
+
+    local function getClosestNPC(lpHRP)
+        if not lpHRP then return nil end
+        local enemiesFolder = Workspace:FindFirstChild("Enemies")
+        if not enemiesFolder then return nil end
+        local closest, closestDist = nil, math.huge
+        local children = enemiesFolder:GetChildren()
+        for i = 1, #children do
+            local npc = children[i]
+            if npc:IsA("Model") then
+                local hum = npc:FindFirstChildWhichIsA("Humanoid")
+                local hrp = getHRP(npc)
+                if hum and hum.Health > 0 and hrp and isTargetValid(hrp, lpHRP, AimMode, FOVRadius, FOVMode) then
+                    local dist = (hrp.Position - lpHRP.Position).Magnitude
+                    if dist <= maxRange and dist < closestDist then closestDist = dist closest = npc end
+                end
+            end
+        end
+        return closest
+    end
+
+    local function updateTracerColor()
+        if not tracerBeam then return end
+        local colorMap = { Red = Color3.fromRGB(240, 240, 240), Green = Color3.fromRGB(200, 200, 200), Blue = Color3.fromRGB(150, 150, 150), Yellow = Color3.fromRGB(220, 220, 220), White = Color3.fromRGB(255, 255, 255) }
+        tracerBeam.Color = ColorSequence.new(colorMap[TracerColor] or colorMap.Red)
+    end
+    local function createTracer()
+        if tracerModel then return end
+        tracerModel = Instance.new("Model")
+        tracerModel.Name = "MiiserySilentAimTracer"
+        tracerModel.Parent = Workspace
+        tracerAttachment0 = Instance.new("Attachment", tracerModel)
+        tracerAttachment1 = Instance.new("Attachment", tracerModel)
+        tracerBeam = Instance.new("Beam", tracerModel)
+        tracerBeam.Attachment0 = tracerAttachment0
+        tracerBeam.Attachment1 = tracerAttachment1
+        tracerBeam.Width0 = 0.1
+        tracerBeam.Width1 = 0.1
+        tracerBeam.FaceCamera = true
+        updateTracerColor()
+    end
+    local function destroyTracer()
+        if tracerModel then tracerModel:Destroy() end
+        tracerModel, tracerAttachment0, tracerAttachment1, tracerBeam = nil, nil, nil, nil
+    end
+
+    pcall(function()
+        local MouseModuleInstance = RS:FindFirstChild("Mouse")
+        if not MouseModuleInstance then return end
+        local MouseModule = require(MouseModuleInstance)
+        if not MouseModule or type(MouseModule) ~= "table" then return end
+        local realStore = { Hit = rawget(MouseModule, "Hit"), Target = rawget(MouseModule, "Target") }
+        local mmt = getrawmetatable(MouseModule)
+        if mmt then setreadonly(mmt, false) else mmt = {}; setmetatable(MouseModule, mmt) end
+        rawset(MouseModule, "Hit", nil)
+        rawset(MouseModule, "Target", nil)
+        mmt.__index = function(self, key)
+            if key == "Hit" then
+                if OverrideGodhumanSanguineEnabled and (SilentAimPlayersEnabled or SilentAimNPCsEnabled) and (PlayersPosition or NPCPosition) and isOverrideTool(currentTool) and currentSkillKey == "Z" and not isKeyCurrentlyBlacklisted(currentSkillKey) then
+                    local pos = PlayersPosition or NPCPosition
+                    if pos then return CFrame.new(pos) end
+                end
+                return realStore.Hit
+            elseif key == "Target" then
+                if OverrideGodhumanSanguineEnabled and (SilentAimPlayersEnabled or SilentAimNPCsEnabled) and (PlayersPosition or NPCPosition) and isOverrideTool(currentTool) and currentSkillKey == "Z" and not isKeyCurrentlyBlacklisted(currentSkillKey) then
+                    return nil
+                end
+                return realStore.Target
+            end
+            return rawget(self, key)
+        end
+        mmt.__newindex = function(self, key, value)
+            if key == "Hit" or key == "Target" then realStore[key] = value else rawset(self, key, value) end
+        end
+        setreadonly(mt, true)
+    end)
+
+    UIS.InputBegan:Connect(function(input, gp)
+        if gp then return end
+        local keyMap = { [Enum.KeyCode.Z] = "Z", [Enum.KeyCode.X] = "X", [Enum.KeyCode.C] = "C", [Enum.KeyCode.V] = "V", [Enum.KeyCode.F] = "F" }
+        local key = keyMap[input.KeyCode]
+        if key then setCurrentSkillKey(key) end
+    end)
+
+    local function getSkillKeyFromArgs(args)
+        for i = 1, #args do
+            local arg = args[i]
+            if type(arg) == "string" and table.find(SKILL_KEYS, arg) then return arg end
+        end
+        return nil
+    end
+
+    local function startRenderLoop()
+        if not renderConnection then
+            renderConnection = RunService.RenderStepped:Connect(function()
+                camera = Workspace.CurrentCamera
+                if ShowFOVCircle then
+                    local center = getFOVCenter(FOVMode)
+                    FOVFrame.Position = UDim2.fromOffset(center.X, center.Y)
+                    FOVFrame.Size = UDim2.fromOffset(FOVRadius * 2, FOVRadius * 2)
+                    FOVFrame.Visible = true
+                else
+                    FOVFrame.Visible = false
+                end
+                pcall(function()
+                    local lpChar = player.Character
+                    if not lpChar then return end
+                    local lpHRP = lpChar:FindFirstChild("HumanoidRootPart")
+                    if not lpHRP then return end
+                    if not SilentAimPlayersEnabled and not SilentAimNPCsEnabled then
+                        if TracerEnabled and tracerBeam then tracerBeam.Enabled = false end
+                        PlayersPosition = nil
+                        NPCPosition = nil
+                        return
+                    end
+                    if SilentAimPlayersEnabled then
+                        local targetplayer = getClosestplayer(lpHRP)
+                        if targetplayer and targetplayer.Character then PlayersPosition = predicted(getHRP(targetplayer.Character)) else PlayersPosition = nil end
+                    else
+                        PlayersPosition = nil
+                    end
+                    if SilentAimNPCsEnabled then
+                        local npc = getClosestNPC(lpHRP)
+                        if npc then NPCPosition = predicted(getHRP(npc)) else NPCPosition = nil end
+                    else
+                        NPCPosition = nil
+                    end
+                    if TracerEnabled and tracerBeam and tracerAttachment0 and tracerAttachment1 then
+                        local targetPos = PlayersPosition or NPCPosition
+                        if lpHRP and targetPos then
+                            tracerAttachment0.WorldPosition = lpHRP.Position
+                            tracerAttachment1.WorldPosition = targetPos
+                            tracerBeam.Enabled = true
+                        else
+                            tracerBeam.Enabled = false
+                        end
+                    end
+                end)
+            end)
+        end
+        if not heartbeatConnection then
+            heartbeatConnection = RunService.Heartbeat:Connect(function()
+                if not ZSkillorM1 or (not SilentAimPlayersEnabled and not SilentAimNPCsEnabled) then return end
+                if currentSkillKey and isKeyCurrentlyBlacklisted(currentSkillKey) then return end
+                if currentTool then
+                    local n = string.lower(currentTool.Name)
+                    if n:find("portal") or n:find("lightning") then return end
+                end
+                if not OverrideGodhumanSanguineEnabled or not isOverrideTool(currentTool) or currentSkillKey ~= "Z" then return end
+                local targetPos = PlayersPosition or NPCPosition
+                if targetPos then
+                    pcall(function() mouse.Hit = CFrame.new(targetPos) end)
+                end
+            end)
+        end
+    end
+
+    local function stopRenderLoop()
+        if renderConnection then renderConnection:Disconnect(); renderConnection = nil end
+        if heartbeatConnection then heartbeatConnection:Disconnect(); heartbeatConnection = nil end
+        FOVFrame.Visible = false
+        destroyTracer()
+        PlayersPosition = nil
+        NPCPosition = nil
+    end
+
+    pcall(function()
+        local mt = getrawmetatable(game)
+        if not mt then return end
+        local oldNamecall = mt.__namecall
+        setreadonly(mt, false)
+        mt.__namecall = newcclosure(function(self, ...)
+            local Method = getnamecallmethod()
+            local args = {...}
+            if args[1] == "TAP" then return oldNamecall(self, ...) end
+            local skillKey = getSkillKeyFromArgs(args)
+            if skillKey then
+                if SilentAimPlayersEnabled or SilentAimNPCsEnabled then
+                    local targetPos = PlayersPosition or NPCPosition
+                    if targetPos then task.spawn(function() faceTarget(targetPos) end) end
+                end
+                setCurrentSkillKey(skillKey)
+            end
+            local skip = false
+            if skillKey and isKeyCurrentlyBlacklisted(skillKey) then skip = true
+            elseif not skillKey and currentSkillKey and isKeyCurrentlyBlacklisted(skillKey) then skip = true end
+            if not skip then
+                if Method == "FireServer" and typeof(args[1]) == "Vector3" then
+                    if SilentAimPlayersEnabled and PlayersPosition then args[1] = PlayersPosition
+                    elseif SilentAimNPCsEnabled and NPCPosition then args[1] = NPCPosition end
+                elseif Method == "InvokeServer" and currentTool and currentTool.Name == "Buddy Sword" then
+                    if type(args[1]) == "string" and table.find(Skills, args[1]) then
+                        if SilentAimPlayersEnabled and PlayersPosition then args[2] = PlayersPosition
+                        elseif SilentAimNPCsEnabled and NPCPosition then args[2] = NPCPosition end
+                    end
+                end
+            end
+            return oldNamecall(self, unpack(args))
+        end)
+        setreadonly(mt, true)
+    end)
+
+    local function clearConnections()
+        for i = 1, #characterConnections do pcall(function() characterConnections[i]:Disconnect() end) end
+        characterConnections = {}
+    end
+
+    local function onCharacterAdded(char)
+        clearConnections()
+        currentTool = nil
+        currentToolCategory = "Melee"
+        local children = char:GetChildren()
+        for i = 1, #children do
+            local child = children[i]
+            if child:IsA("Tool") then currentTool = child; currentToolCategory = getToolCategory(child) end
+        end
+        table.insert(characterConnections, char.ChildAdded:Connect(function(child)
+            if child:IsA("Tool") then currentTool = child; currentToolCategory = getToolCategory(child); currentSkillKey = nil end
+        end))
+        table.insert(characterConnections, char.ChildRemoved:Connect(function(child)
+            if child == currentTool then currentTool = nil; currentToolCategory = "Melee" end
+        end))
+    end
+    player.CharacterAdded:Connect(onCharacterAdded)
+    if player.Character then onCharacterAdded(player.Character) end
+
+    function module:SetPlayerSilentAim(state) SilentAimPlayersEnabled = state if state then startRenderLoop() elseif not SilentAimNPCsEnabled then stopRenderLoop() end end
+    function module:SetNPCSilentAim(state) SilentAimNPCsEnabled = state if state then startRenderLoop() elseif not SilentAimPlayersEnabled then stopRenderLoop() end end
+    function module:SetBlacklistKey(cat, key, state) if BlacklistedKeys[cat] and BlacklistedKeys[cat][key] ~= nil then BlacklistedKeys[cat][key] = state end end
+    function module:SetAimMode(mode) AimMode = mode end
+    function module:SetTargetPriority(prio) TargetPriority = prio end
+    function module:SetShowFOVCircle(state) ShowFOVCircle = state if state then startRenderLoop() end end
+    function module:SetFOVRadius(num) FOVRadius = num end
+    function module:SetFOVMode(mode) FOVMode = mode end
+    function module:SetDistanceLimit(num) if type(num) == "number" then maxRange = num end end
+    function module:SetSelectedPlayer(playerName) Selectedplayer = (playerName and playerName ~= "" and playerName ~= "None" and playerName ~= "Nearest") and Players:FindFirstChild(playerName) or nil end
+    function module:SetTracerEnabled(state) TracerEnabled = state if state then createTracer() else destroyTracer() end end
+    function module:SetTracerColor(color) TracerColor = color; updateTracerColor() end
+    return module
+end)()
+
+SilentAimModule:SetPlayerSilentAim(Config.SilentPlayer == true)
+SilentAimModule:SetNPCSilentAim(Config.SilentNPC == true)
+SilentAimModule:SetAimMode(Config.AimMode or "360")
+SilentAimModule:SetTargetPriority(Config.AimPriority or "Nearest")
+SilentAimModule:SetShowFOVCircle(Config.ShowFOV == true)
+SilentAimModule:SetFOVMode(Config.FOVMode or "V1")
+SilentAimModule:SetFOVRadius(Config.FOVRadius or 150)
+SilentAimModule:SetDistanceLimit(Config.AimMaxRange or 2000)
+
+local categories = {"Melee", "Sword", "Fruit", "Gun"}
+for i = 1, #categories do
+    local cat = categories[i]
+    local keys = {"Z", "X", "C", "V", "F", "TAP"}
+    for j = 1, #keys do
+        local key = keys[j]
+        local ck = "BL_" .. cat .. "_" .. key
+        if Config[ck] == true then SilentAimModule:SetBlacklistKey(cat, key, true) end
+    end
+end
+
+local M1ExtenderMod = (function()
+    local M = {}
+    local active = false
+    local maxRange = 50
+    UIS.InputBegan:Connect(function(input, processed)
+        if processed or not active then return end
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            local myChar = lp.Character
+            local myRoot = myChar and myChar:FindFirstChild("HumanoidRootPart")
+            if not myRoot then return end
+            local target, shortestDist = nil, maxRange
+            local folders = { Workspace:FindFirstChild("Enemies"), Workspace:FindFirstChild("Characters") }
+            for f = 1, #folders do
+                local folder = folders[f]
+                if folder then
+                    local children = folder:GetChildren()
+                    for c = 1, #children do
+                        local v = children[c]
+                        local eRoot = v:FindFirstChild("HumanoidRootPart")
+                        local eHum = v:FindFirstChildOfClass("Humanoid")
+                        if v ~= myChar and eRoot and eHum and eHum.Health > 0 then
+                            local dist = (eRoot.Position - myRoot.Position).Magnitude
+                            if dist < shortestDist then shortestDist = dist target = v end
+                        end
+                    end
+                end
+            end
+            if target then
+                local head = target:FindFirstChild("Head") or target:FindFirstChild("HumanoidRootPart")
+                if head then
+                    pcall(function()
+                        local RA = registerAttack or (Net and Net:FindFirstChild("RE/RegisterAttack"))
+                        local RH = registerHit or (Net and Net:FindFirstChild("RE/RegisterHit"))
+                        if RA then RA:FireServer() end
+                        if RH then
+                            local hitData = {}
+                            local children = target:GetChildren()
+                            for i = 1, #children do
+                                local part = children[i]
+                                if part:IsA("BasePart") then table.insert(hitData, { target, part }) end
+                            end
+                            RH:FireServer(head, hitData)
+                        end
+                    end)
+                end
+            end
+        end
+    end)
+    function M:Toggle(v) active = v end
+    function M:SetRange(v) maxRange = v end
+    return M
+end)()
+M1ExtenderMod:Toggle(Config.M1Extender == true)
+M1ExtenderMod:SetRange(Config.M1Range or 50)
+
+local GunClickSLMod = (function()
+    local enabled = false
+    local aimPos = nil
+    local hookInstalled = false
+    local function installHook()
+        if hookInstalled then return end
+        hookInstalled = true
+        local mt = getrawmetatable(game)
+        local oldNamecall = mt.__namecall
+        setreadonly(mt, false)
+        mt.__namecall = newcclosure(function(self, ...)
+            local args = {...}
+            local method = getnamecallmethod()
+            if enabled and aimPos and method == "FireServer" and tostring(self.Name or self):find("ShootGun") then
+                if typeof(args[1]) == "Vector3" then args[1] = aimPos.Position end
+                if typeof(args[2]) == "table" then args[2] = { aimPos } end
+                return oldNamecall(self, unpack(args))
+            end
+            return oldNamecall(self, ...)
+        end)
+        setreadonly(mt, true)
+    end
+    local M = {}
+    function M:SetEnabled(state)
+        if state == enabled then return end
+        enabled = state
+        if state then
+            aimPos = nil
+            installHook()
+            task.spawn(function()
+                while enabled do
+                    local char = lp.Character
+                    local root = char and char:FindFirstChild("HumanoidRootPart")
+                    if root then
+                        local closest, dist = nil, math.huge
+                        local players = Players:GetPlayers()
+                        for i = 1, #players do
+                            local player = players[i]
+                            if player ~= lp and player.Character then
+                                local targetPart = player.Character:FindFirstChild("HumanoidRootPart")
+                                local hum = player.Character:FindFirstChildOfClass("Humanoid")
+                                if targetPart and hum and hum.Health > 0 then
+                                    local d = (targetPart.Position - root.Position).Magnitude
+                                    if d < dist then dist = d closest = targetPart end
+                                end
+                            end
+                        end
+                        aimPos = closest
+                    end
+                    task.wait(0.05)
+                end
+            end)
+        else aimPos = nil end
+    end
+    return M
+end)()
+if Config.GunClickSL then GunClickSLMod:SetEnabled(true) end
+
+local MovementState = { Noclip = false, InfiniteJump = false, SuperJump = false, SuperJumpPower = 100, BunnyHop = false, NoFallDamage = false, DashDistance = false, DashLength = 50, HipHeight = false, HipHeightValue = 2 }
+local noclipConn, jumpConn, bhopConn, fallConn, dashConn, hipConn
+
+local function StartNoclip()
+    if noclipConn then return end
+    MovementState.Noclip = true
+    noclipConn = RunService.Stepped:Connect(function()
+        if not MovementState.Noclip then return end
+        local char = lp.Character
+        if char then
+            local descendants = char:GetDescendants()
+            for i = 1, #descendants do
+                local p = descendants[i]
+                if p:IsA("BasePart") then p.CanCollide = false end
+            end
+        end
+    end)
+end
+local function StopNoclip()
+    MovementState.Noclip = false
+    if noclipConn then noclipConn:Disconnect() noclipConn = nil end
+    local char = lp.Character
+    if char then
+        local descendants = char:GetDescendants()
+        for i = 1, #descendants do
+            local p = descendants[i]
+            if p:IsA("BasePart") then p.CanCollide = true end
+        end
+    end
+end
+
+local function StartInfiniteJump()
+    if jumpConn then return end
+    MovementState.InfiniteJump = true
+    jumpConn = UIS.JumpRequest:Connect(function()
+        if not MovementState.InfiniteJump then return end
+        local hum = lp.Character and lp.Character:FindFirstChildOfClass("Humanoid")
+        if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end
+    end)
+end
+local function StopInfiniteJump() MovementState.InfiniteJump = false if jumpConn then jumpConn:Disconnect() jumpConn = nil end end
+
+do
+    local sjConn
+    task.spawn(function()
+        sjConn = RunService.Heartbeat:Connect(function()
+            if not MovementState.SuperJump then return end
+            local char = lp.Character
+            local hum = char and char:FindFirstChildOfClass("Humanoid")
+            local hrp = char and char:FindFirstChild("HumanoidRootPart")
+            if not hum or not hrp then return end
+            if hum.Jump and hum:GetState() == Enum.HumanoidStateType.Jumping then
+                local v = hrp.AssemblyLinearVelocity
+                if v.Y > 0 and v.Y < MovementState.SuperJumpPower then
+                    hrp.AssemblyLinearVelocity = Vector3.new(v.X, MovementState.SuperJumpPower, v.Z)
+                end
+            end
+        end)
+    end)
+end
+
+local function StartBunnyHop()
+    if bhopConn then return end
+    MovementState.BunnyHop = true
+    bhopConn = RunService.Heartbeat:Connect(function()
+        if not MovementState.BunnyHop then return end
+        local char = lp.Character
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        if not hum or not hrp then return end
+        if hum.FloorMaterial ~= Enum.Material.Air then
+            hum.Jump = true
+            local md = hum.MoveDirection
+            if md.Magnitude > 0.1 then
+                local speed = math.max(hum.WalkSpeed, Config.SpeedValue or 50)
+                hrp.AssemblyLinearVelocity = Vector3.new(md.X * speed * 1.2, hrp.AssemblyLinearVelocity.Y, md.Z * speed * 1.2)
+            end
+        end
+    end)
+end
+local function StopBunnyHop() MovementState.BunnyHop = false if bhopConn then bhopConn:Disconnect() bhopConn = nil end end
+
+local function StartNoFall()
+    if fallConn then return end
+    MovementState.NoFallDamage = true
+    fallConn = RunService.Heartbeat:Connect(function()
+        if not MovementState.NoFallDamage then return end
+        local hum = lp.Character and lp.Character:FindFirstChildOfClass("Humanoid")
+        if hum then hum:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false) hum:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false) end
+        local char = lp.Character
+        if char then pcall(function() char:SetAttribute("FallDamage", 0) end) end
+    end)
+end
+local function StopNoFall() MovementState.NoFallDamage = false if fallConn then fallConn:Disconnect() fallConn = nil end end
+
+local function StartDashDistance()
+    if dashConn then return end
+    MovementState.DashDistance = true
+    dashConn = RunService.Heartbeat:Connect(function()
+        if not MovementState.DashDistance then return end
+        local char = lp.Character
+        if not char then return end
+        pcall(function() char:SetAttribute("DashLength", MovementState.DashLength) char:SetAttribute("DashDistance", MovementState.DashLength) end)
+    end)
+end
+local function StopDashDistance() MovementState.DashDistance = false if dashConn then dashConn:Disconnect() dashConn = nil end end
+
+local function StartHipHeight()
+    if hipConn then return end
+    MovementState.HipHeight = true
+    hipConn = RunService.Heartbeat:Connect(function()
+        if not MovementState.HipHeight then return end
+        local hum = lp.Character and lp.Character:FindFirstChildOfClass("Humanoid")
+        if hum then hum.HipHeight = MovementState.HipHeightValue end
+    end)
+end
+local function StopHipHeight()
+    MovementState.HipHeight = false
+    if hipConn then hipConn:Disconnect() hipConn = nil end
+    local hum = lp.Character and lp.Character:FindFirstChildOfClass("Humanoid")
+    if hum then hum.HipHeight = 2 end
+end
+
+local HomeTab = MiiseryLibraryObj:CreateTab("Home")
+
+local HomeHeaderContainer = Instance.new("Frame", PagesFolder:FindFirstChild("HomePage"))
+HomeHeaderContainer.Size = UDim2.new(1, -6, 0, 115)
+HomeHeaderContainer.BackgroundTransparency = 1
+HomeHeaderContainer.ZIndex = 3
+
+local ProfileCard = Instance.new("Frame", HomeHeaderContainer)
+ProfileCard.Size = UDim2.new(0.68, -3, 1, 0)
+ProfileCard.Position = UDim2.new(0, 0, 0, 0)
+ProfileCard.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
+ProfileCard.BackgroundTransparency = 0.25
+ProfileCard.ZIndex = 3
+Instance.new("UICorner", ProfileCard).CornerRadius = UDim.new(0, 8)
+
+local ProfileStroke = Instance.new("UIStroke", ProfileCard)
+ProfileStroke.Color = Color3.fromRGB(200, 200, 200)
+ProfileStroke.Thickness = 0.9
+
+local AvatarImg = Instance.new("ImageLabel", ProfileCard)
+AvatarImg.Size = UDim2.new(0, 80, 0, 80)
+AvatarImg.Position = UDim2.new(0, 8, 0.5, -40)
+AvatarImg.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
+AvatarImg.Image = Players:GetUserThumbnailAsync(lp.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+AvatarImg.ZIndex = 4
+Instance.new("UICorner", AvatarImg).CornerRadius = UDim.new(0, 8)
+
+local AvatarStroke = Instance.new("UIStroke", AvatarImg)
+AvatarStroke.Color = Color3.fromRGB(255, 255, 255)
+AvatarStroke.Thickness = 0.8
+
+local NameLabel = Instance.new("TextLabel", ProfileCard)
+NameLabel.Size = UDim2.new(1, -96, 0, 18)
+NameLabel.Position = UDim2.new(0, 94, 0, 12)
+NameLabel.BackgroundTransparency = 1
+NameLabel.Text = "User: " .. lp.Name
+NameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+NameLabel.Font = Enum.Font.GothamBold
+NameLabel.TextSize = 10
+NameLabel.TextXAlignment = Enum.TextXAlignment.Left
+NameLabel.ZIndex = 4
+
+local BountyLabel = Instance.new("TextLabel", ProfileCard)
+BountyLabel.Size = UDim2.new(1, -96, 0, 16)
+BountyLabel.Position = UDim2.new(0, 94, 0, 34)
+BountyLabel.BackgroundTransparency = 1
+BountyLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
+BountyLabel.Font = Enum.Font.GothamMedium
+BountyLabel.TextSize = 9.5
+BountyLabel.TextXAlignment = Enum.TextXAlignment.Left
+BountyLabel.ZIndex = 4
+
+local LevelLabel = Instance.new("TextLabel", ProfileCard)
+LevelLabel.Size = UDim2.new(1, -96, 0, 16)
+LevelLabel.Position = UDim2.new(0, 94, 0, 54)
+LevelLabel.BackgroundTransparency = 1
+LevelLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
+LevelLabel.Font = Enum.Font.GothamMedium
+LevelLabel.TextSize = 9.5
+LevelLabel.TextXAlignment = Enum.TextXAlignment.Left
+LevelLabel.ZIndex = 4
+
+local TeamLabel = Instance.new("TextLabel", ProfileCard)
+TeamLabel.Size = UDim2.new(1, -96, 0, 16)
+TeamLabel.Position = UDim2.new(0, 94, 0, 74)
+TeamLabel.BackgroundTransparency = 1
+TeamLabel.Text = "Team: None"
+TeamLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
+TeamLabel.Font = Enum.Font.GothamMedium
+TeamLabel.TextSize = 9.5
+TeamLabel.TextXAlignment = Enum.TextXAlignment.Left
+TeamLabel.ZIndex = 4
+
+local StreamCard = Instance.new("Frame", HomeHeaderContainer)
+StreamCard.Size = UDim2.new(0.32, -3, 1, 0)
+StreamCard.Position = UDim2.new(0.68, 3, 0, 0)
+StreamCard.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
+StreamCard.BackgroundTransparency = 0.25
+StreamCard.ZIndex = 3
+Instance.new("UICorner", StreamCard).CornerRadius = UDim.new(0, 8)
+
+local StreamStroke = Instance.new("UIStroke", StreamCard)
+StreamStroke.Color = Color3.fromRGB(200, 200, 200)
+StreamStroke.Thickness = 0.9
+
+local StreamTitle = Instance.new("TextLabel", StreamCard)
+StreamTitle.Size = UDim2.new(1, -10, 0, 22)
+StreamTitle.Position = UDim2.new(0, 5, 0, 10)
+StreamTitle.BackgroundTransparency = 1
+StreamTitle.Text = "Stream Proof"
+StreamTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+StreamTitle.Font = Enum.Font.GothamBold
+StreamTitle.TextSize = 10
+StreamTitle.ZIndex = 4
+
+local StreamDesc = Instance.new("TextLabel", StreamCard)
+StreamDesc.Size = UDim2.new(1, -12, 0, 32)
+StreamDesc.Position = UDim2.new(0, 6, 0, 34)
+StreamDesc.BackgroundTransparency = 1
+StreamDesc.Text = "Type \"-open-\" in chat to restore UI"
+StreamDesc.TextColor3 = Color3.fromRGB(170, 170, 170)
+StreamDesc.Font = Enum.Font.Gotham
+StreamDesc.TextSize = 8
+StreamDesc.TextWrapped = true
+StreamDesc.ZIndex = 4
+
+StreamProofSwitchBtn = Instance.new("TextButton", StreamCard)
+StreamProofSwitchBtn.Size = UDim2.new(0, 32, 0, 18)
+StreamProofSwitchBtn.Position = UDim2.new(0.5, -16, 1, -28)
+StreamProofSwitchBtn.BackgroundColor3 = Config.StreamProof and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40)
+StreamProofSwitchBtn.Text = ""
+StreamProofSwitchBtn.ZIndex = 4
+Instance.new("UICorner", StreamProofSwitchBtn).CornerRadius = UDim.new(1, 0)
+
+StreamProofSwitchBtn.MouseButton1Click:Connect(function()
+    ToggleStreamProof(not Config.StreamProof)
+end)
+
+local BoostButton = Instance.new("TextButton", PagesFolder:FindFirstChild("HomePage"))
+BoostButton.Size = UDim2.new(1, -6, 0, 34)
+BoostButton.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
+BoostButton.BackgroundTransparency = 0.2
+BoostButton.Text = "  Miisery Boost"
+BoostButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+BoostButton.Font = Enum.Font.GothamBold
+BoostButton.TextSize = 10
+BoostButton.TextXAlignment = Enum.TextXAlignment.Left
+BoostButton.ZIndex = 3
+
+Instance.new("UICorner", BoostButton).CornerRadius = UDim.new(0, 6)
+
+local BoostStroke = Instance.new("UIStroke", BoostButton)
+BoostStroke.Color = Color3.fromRGB(200, 200, 200)
+BoostStroke.Thickness = 0.9
+
+BoostButton.MouseButton1Click:Connect(function()
+    pcall(function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/ChaosXiter/MiiseryHub/refs/heads/main/Boost"))()
+    end)
+end)
+
+HomeTab:Paragraph({ Title = "Miisery Hub - Blox Fruits", Desc = "Welcome to Miisery Hub v1.0" })
+
+local availableAssetIds = {
+    "+18",
+    "99252039787371",
+    "114065885540477",
+    "85256255221310",
+    "106006243046634",
+    "76375726192743",
+    "88932447826978",
+    "100480019494922"
+}
+local selectedCustomId = Config.CustomAssetID or "+18"
+
+HomeTab:Dropdown({
+    Title = "UI Background / Logo ID",
+    Values = availableAssetIds,
+    Value = selectedCustomId,
+    Callback = function(v)
+        selectedCustomId = tostring(v)
+    end
+})
+
+HomeTab:Button({
+    Title = "Change & Apply UI Image",
+    Callback = function()
+        Config.CustomAssetID = selectedCustomId
+        Config.CurrentBackground = selectedCustomId
+        SaveConfig()
+        setupBackground(selectedCustomId)
+        local formattedUri = "rbxassetid://" .. selectedCustomId
+        pcall(function()
+            if selectedCustomId ~= "+18" then
+                if SidebarLogo then SidebarLogo.Image = formattedUri end
+                if BadgeLogo then BadgeLogo.Image = formattedUri end
+            end
+        end)
+        Notify("Miisery Hub", "UI Background successfully updated and applied!", 2)
+    end
+})
+
+task.spawn(function()
+    while task.wait(1) do
+        pcall(function()
+            local leaderstats = lp:FindFirstChild("leaderstats") or (lp.Character and lp.Character:FindFirstChild("leaderstats"))
+            local bountyVal = nil
+            if leaderstats then
+                local bStat = leaderstats:FindFirstChild("Bounty/Honor") or leaderstats:FindFirstChild("Bounty") or leaderstats:FindFirstChild("Honor")
+                if bStat then bountyVal = bStat.Value end
+            end
+            if not bountyVal and lp:FindFirstChild("Data") and lp.Data:FindFirstChild("Bounty") then bountyVal = lp.Data.Bounty.Value end
+            if bountyVal and type(bountyVal) == "number" then
+                if bountyVal >= 1000000 then BountyLabel.Text = string.format("Bounty/Honor: %.2fM", bountyVal / 1000000)
+                else BountyLabel.Text = "Bounty/Honor: " .. tostring(bountyVal) end
+            else BountyLabel.Text = "Bounty/Honor: N/A" end
+
+            local levelVal = nil
+            if leaderstats and leaderstats:FindFirstChild("Level") then levelVal = leaderstats.Level.Value
+            elseif lp:FindFirstChild("Data") and lp.Data:FindFirstChild("Level") then levelVal = lp.Data.Level.Value
+            elseif lp:FindFirstChild("Data") and lp.Data:FindFirstChild("Stats") and lp.Data.Stats:FindFirstChild("Defense") and lp.Data.Stats.Defense:FindFirstChild("Level") then
+                levelVal = lp.Data.Stats.Defense.Level.Value end
+            if levelVal then LevelLabel.Text = "Level: " .. tostring(levelVal) else LevelLabel.Text = "Level: N/A" end
+
+            if lp.Team then
+                TeamLabel.Text = "Team: " .. tostring(lp.Team.Name)
+                TeamLabel.TextColor3 = lp.TeamColor.Color
+            elseif lp:FindFirstChild("Data") and lp.Data:FindFirstChild("Team") then
+                local teamName = tostring(lp.Data.Team.Value)
+                TeamLabel.Text = "Team: " .. teamName
+                if teamName:lower():find("pirate") then TeamLabel.TextColor3 = Color3.fromRGB(240, 70, 70)
+                elseif teamName:lower():find("marine") then TeamLabel.TextColor3 = Color3.fromRGB(70, 130, 240)
+                else TeamLabel.TextColor3 = Color3.fromRGB(220, 220, 220) end
+            else TeamLabel.Text = "Team: None" TeamLabel.TextColor3 = Color3.fromRGB(220, 220, 220) end
+        end)
+    end
+end)
+
+local MainTab = MiiseryLibraryObj:CreateTab("Main")
+MainTab:Toggle({ Title = "Fast Attack", Value = Config.FastAttack, Callback = function(v) Config.FastAttack = v SaveConfig() end })
+MainTab:Toggle({ Title = "Attack Players", Value = Config.FAPlayers, Callback = function(v) Config.FAPlayers = v SaveConfig() end })
+MainTab:Toggle({ Title = "Attack NPCs", Value = Config.FAMobs, Callback = function(v) Config.FAMobs = v SaveConfig() end })
+MainTab:Slider({ Title = "FA Range", Value = { Min = 50, Max = 5000, Default = Config.FARange }, Callback = function(v) Config.FARange = v SaveConfig() end })
+MainTab:Toggle({ Title = "Bring Mobs", Value = Config.BringMobs, Callback = function(v) Config.BringMobs = v SaveConfig() end })
+MainTab:Slider({ Title = "Bring Range", Value = { Min = 50, Max = 5000, Default = Config.BringRange }, Callback = function(v) Config.BringRange = v SaveConfig() end })
+
+local FarmTab = MiiseryLibraryObj:CreateTab("Farm")
+FarmTab:Paragraph({ Title = "Auto Farm", Desc = "Automatic Sea Detection & Smart Chest Farm" })
+
+FarmTab:Toggle({ Title = "Activate", Value = Config.ChestFarm, Callback = function(v) Config.ChestFarm = v SaveConfig() end })
+FarmTab:Slider({ Title = "Speed", Value = { Min = 50, Max = 500, Default = Config.ChestFarmSpeed }, Callback = function(v) Config.ChestFarmSpeed = v SaveConfig() end })
+
+local AimTab = MiiseryLibraryObj:CreateTab("Aim")
+AimTab:Toggle({ Title = "Silent Aim Players", Value = Config.SilentPlayer, Callback = function(v) Config.SilentPlayer = v SilentAimModule:SetPlayerSilentAim(v) SaveConfig() end })
+AimTab:Toggle({ Title = "Silent Aim NPCs", Value = Config.SilentNPC, Callback = function(v) Config.SilentNPC = v SilentAimModule:SetNPCSilentAim(v) SaveConfig() end })
+AimTab:Dropdown({ Title = "Aim Mode", Values = {"360", "180", "FOV"}, Value = Config.AimMode or "360", Callback = function(v) Config.AimMode = v SilentAimModule:SetAimMode(v) SaveConfig() end })
+AimTab:Dropdown({ Title = "Priority", Values = {"Nearest", "Low HP", "HighestHP", "Looking At Me", "Lock Player"}, Value = Config.AimPriority or "Nearest", Callback = function(v) Config.AimPriority = v SilentAimModule:SetTargetPriority(v) SaveConfig() end })
+AimTab:Dropdown({ Title = "FOV Mode", Values = {"V1", "V2"}, Value = Config.FOVMode or "V1", Callback = function(v) Config.FOVMode = v SilentAimModule:SetFOVMode(v) SaveConfig() end })
+AimTab:Toggle({ Title = "Show FOV Circle", Value = Config.ShowFOV, Callback = function(v) Config.ShowFOV = v SilentAimModule:SetShowFOVCircle(v) SaveConfig() end })
+AimTab:Slider({ Title = "FOV Radius", Value = { Min = 10, Max = 2000, Default = Config.FOVRadius or 150 }, Callback = function(v) Config.FOVRadius = v SilentAimModule:SetFOVRadius(v) SaveConfig() end })
+AimTab:Slider({ Title = "Max Range", Value = { Min = 50, Max = 10000, Default = Config.AimMaxRange or 2000 }, Callback = function(v) Config.AimMaxRange = v SilentAimModule:SetDistanceLimit(v) SaveConfig() end })
+AimTab:Toggle({ Title = "M1 Extender (Range Only)", Value = Config.M1Extender, Callback = function(v) Config.M1Extender = v M1ExtenderMod:Toggle(v) SaveConfig() end })
+AimTab:Slider({ Title = "M1 Range", Value = { Min = 10, Max = 300, Default = Config.M1Range or 50 }, Callback = function(v) Config.M1Range = v M1ExtenderMod:SetRange(v) SaveConfig() end })
+AimTab:Toggle({ Title = "Gun Click SL", Value = Config.GunClickSL, Callback = function(v) Config.GunClickSL = v GunClickSLMod:SetEnabled(v) SaveConfig() end })
+AimTab:Toggle({ Title = "Tracer", Value = Config.Tracer, Callback = function(v) Config.Tracer = v SilentAimModule:SetTracerEnabled(v) SaveConfig() end })
+
+local TrackersTab = MiiseryLibraryObj:CreateTab("Trackers")
+local function getPlayerList()
+    local list = {"Nearest"}
+    local players = Players:GetPlayers()
+    for i = 1, #players do
+        local p = players[i]
+        if p ~= lp then table.insert(list, p.Name) end
+    end
+    return list
+end
+local targetPlayerDropdown = TrackersTab:Dropdown({ Title = "Target Player", Values = getPlayerList(), Value = Config.SelectedTrackPlayer or "Nearest", Callback = function(v) Config.SelectedTrackPlayer = v SaveConfig() end })
+TrackersTab:Button({ Title = "Refresh Player List", Callback = function() pcall(function() targetPlayerDropdown:Refresh(getPlayerList()) end) Notify("Miisery Hub", "Player list updated", 2) end })
+TrackersTab:Toggle({ Title = "Tween Nearest", Value = Config.TweenNearest, Callback = function(v) Config.TweenNearest = v if v then Config.TweenToPlayer = false end SaveConfig() end })
+TrackersTab:Toggle({ Title = "Tween To Player", Value = Config.TweenToPlayer, Callback = function(v) Config.TweenToPlayer = v if v then Config.TweenNearest = false end SaveConfig() end })
+TrackersTab:Toggle({ Title = "Insta TP", Value = Config.InstaTP, Callback = function(v) Config.InstaTP = v SaveConfig() end })
+TrackersTab:Slider({ Title = "Tween Speed", Value = { Min = 50, Max = 800, Default = Config.TweenSpeed or 350 }, Callback = function(v) Config.TweenSpeed = v SaveConfig() end })
+TrackersTab:Slider({ Title = "Offset X", Value = { Min = -20, Max = 20, Default = Config.TweenOX or 0 }, Callback = function(v) Config.TweenOX = v SaveConfig() end })
+TrackersTab:Slider({ Title = "Offset Y", Value = { Min = -20, Max = 50, Default = Config.TweenOY or 1.5 }, Callback = function(v) Config.TweenOY = v SaveConfig() end })
+TrackersTab:Slider({ Title = "Offset Z", Value = { Min = -20, Max = 20, Default = Config.TweenOZ or 3.5 }, Callback = function(v) Config.TweenOZ = v SaveConfig() end })
+TrackersTab:Toggle({ Title = "Tracker Orbit / Fly", Value = Config.TrackerFly, Callback = function(v) Config.TrackerFly = v if v then StartTrackerFly() else StopTrackerFly() end SaveConfig() end })
+TrackersTab:Slider({ Title = "Tracker Speed", Value = { Min = 50, Max = 500, Default = Config.TrackerFlySpeed }, Callback = function(v) Config.TrackerFlySpeed = v SaveConfig() end })
+TrackersTab:Slider({ Title = "Orbit Radius", Value = { Min = 5, Max = 150, Default = Config.TrackerOrbitRadius }, Callback = function(v) Config.TrackerOrbitRadius = v SaveConfig() end })
+TrackersTab:Toggle({ Title = "Auto Flee", Value = Config.AutoFlee, Callback = function(v) Config.AutoFlee = v if v then StartAutoFlee() else StopAutoFlee() end SaveConfig() end })
+TrackersTab:Slider({ Title = "Auto Flee HP %", Value = { Min = 5, Max = 80, Default = Config.AutoFleeHP }, Callback = function(v) Config.AutoFleeHP = v SaveConfig() end })
+TrackersTab:Toggle({ Title = "Spectate Target", Value = Config.Spectate, Callback = function(v) Config.Spectate = v if not v then pcall(function() Workspace.CurrentCamera.CameraSubject = lp.Character:FindFirstChildOfClass("Humanoid") end) end SaveConfig() end })
+
+local MovementTab = MiiseryLibraryObj:CreateTab("Movement")
+MovementTab:Toggle({ Title = "Fly", Value = Config.Fly, Callback = function(v) Config.Fly = v if v then startFly() else stopFly() end SaveConfig() end })
+MovementTab:Slider({ Title = "Fly Speed", Value = { Min = 50, Max = 500, Default = Config.FlySpeed or 250 }, Callback = function(v) Config.FlySpeed = v SaveConfig() end })
+MovementTab:Toggle({ Title = "Noclip", Value = false, Callback = function(v) if v then StartNoclip() else StopNoclip() end SaveConfig() end })
+MovementTab:Toggle({ Title = "Infinite Jump", Value = false, Callback = function(v) if v then StartInfiniteJump() else StopInfiniteJump() end SaveConfig() end })
+MovementTab:Toggle({ Title = "Super Jump", Value = false, Callback = function(v) MovementState.SuperJump = v SaveConfig() end })
+MovementTab:Slider({ Title = "Super Jump Power", Value = { Min = 50, Max = 300, Default = 100 }, Callback = function(v) MovementState.SuperJumpPower = v SaveConfig() end })
+MovementTab:Toggle({ Title = "Bunny Hop", Value = false, Callback = function(v) if v then StartBunnyHop() else StopBunnyHop() end SaveConfig() end })
+MovementTab:Toggle({ Title = "No Fall Damage", Value = false, Callback = function(v) if v then StartNoFall() else StopNoFall() end SaveConfig() end })
+MovementTab:Toggle({ Title = "Dash Distance", Value = false, Callback = function(v) if v then StartDashDistance() else StopDashDistance() end SaveConfig() end })
+MovementTab:Slider({ Title = "Dash Length", Value = { Min = 10, Max = 200, Default = 50 }, Callback = function(v) MovementState.DashLength = v SaveConfig() end })
+MovementTab:Toggle({ Title = "Custom Hip Height", Value = false, Callback = function(v) if v then StartHipHeight() else StopHipHeight() end SaveConfig() end })
+MovementTab:Slider({ Title = "Hip Height Value", Value = { Min = 0, Max = 20, Default = 2 }, Callback = function(v) MovementState.HipHeightValue = v SaveConfig() end })
+
+local BlacklistTab = MiiseryLibraryObj:CreateTab("Blacklist")
+local function blToggle(cat, key)
+    local ck = "BL_" .. cat .. "_" .. key
+    BlacklistTab:Toggle({ Title = cat .. ": Blacklist " .. key, Value = Config[ck] == true, Callback = function(v) Config[ck] = v SilentAimModule:SetBlacklistKey(cat, key, v) SaveConfig() end })
+end
+BlacklistTab:Paragraph({ Title = "MELEES", Desc = "Z / X / C" })
+local meleeKeys = {"Z", "X", "C"}
+for i = 1, #meleeKeys do blToggle("Melee", meleeKeys[i]) end
+BlacklistTab:Paragraph({ Title = "FRUITS", Desc = "Z / X / C / V / F / TAP" })
+local fruitKeys = {"Z", "X", "C", "V", "F", "TAP"}
+for i = 1, #fruitKeys do blToggle("Fruit", fruitKeys[i]) end
+BlacklistTab:Paragraph({ Title = "SWORDS", Desc = "Z / X" })
+local swordKeys = {"Z", "X"}
+for i = 1, #swordKeys do blToggle("Sword", swordKeys[i]) end
+BlacklistTab:Paragraph({ Title = "GUNS", Desc = "Z / X" })
+local gunKeys = {"Z", "X"}
+for i = 1, #gunKeys do blToggle("Gun", gunKeys[i]) end
+
+local MiscTab = MiiseryLibraryObj:CreateTab("Misc")
+MiscTab:Toggle({ Title = "Notifications", Value = Config.Notifications, Callback = function(v) Config.Notifications = v SaveConfig() end })
+MiscTab:Toggle({ Title = "Anti AFK", Value = Config.AntiAFK, Callback = function(v) Config.AntiAFK = v SaveConfig() end })
+MiscTab:Toggle({ Title = "Auto V3", Value = Config.AutoV3, Callback = function(v) Config.AutoV3 = v SaveConfig() end })
+MiscTab:Toggle({ Title = "Auto V4", Value = Config.AutoV4, Callback = function(v) Config.AutoV4 = v SaveConfig() end })
+MiscTab:Toggle({ Title = "Auto PvP", Value = Config.AutoPvP, Callback = function(v) Config.AutoPvP = v SaveConfig() end })
+MiscTab:Toggle({ Title = "Infinite Zoom", Value = Config.InfiniteZoom, Callback = function(v) Config.InfiniteZoom = v lp.CameraMaxZoomDistance = v and math.huge or savedZoom SaveConfig() end })
+MiscTab:Toggle({ Title = "Stats Gui", Value = Config.StatsGui, Callback = function(v) setStatsGui(v) SaveConfig() end })
+MiscTab:Toggle({ Title = "Walk on Water", Value = Config.WalkOnWater, Callback = function(v) Config.WalkOnWater = v SaveConfig() end })
+MiscTab:Toggle({ Title = "Anti Lava", Value = Config.AntiLava, Callback = function(v) Config.AntiLava = v if v then startAntiLava() else stopAntiLava() end SaveConfig() end })
+MiscTab:Toggle({ Title = "Speed Hack", Value = Config.SpeedEnabled, Callback = function(v) Config.SpeedEnabled = v if not v then local hum = lp.Character and lp.Character:FindFirstChildOfClass("Humanoid") if hum then hum.WalkSpeed = 16 end end SaveConfig() end })
+MiscTab:Dropdown({ Title = "Speed Mode", Values = {"WalkSpeed","CFrame","Velocity"}, Value = Config.SpeedMode, Callback = function(v) Config.SpeedMode = v SaveConfig() end })
+MiscTab:Slider({ Title = "Speed Value", Value = { Min = 16, Max = 500, Default = Config.SpeedValue }, Callback = function(v) Config.SpeedValue = v SaveConfig() end })
+MiscTab:Button({ Title = "Join Marines", Callback = function() pcall(function() CommF:InvokeServer("SetTeam", "Marines") end) Notify("Miisery Hub", "Joined Marines", 2) end })
+MiscTab:Button({ Title = "Join Pirates", Callback = function() pcall(function() CommF:InvokeServer("SetTeam", "Pirates") end) Notify("Miisery Hub", "Joined Pirates", 2) end })
+MiscTab:Button({ Title = "Reset Stats", Callback = function() pcall(function() CommF:InvokeServer("BlackbeardReward", "Refund", "2") end) pcall(function() CommF:InvokeServer("ResetStats") end) Notify("Miisery Hub", "Reset Stats sent", 2) end })
+MiscTab:Button({ Title = "Reroll Race", Callback = function() pcall(function() CommF:InvokeServer("BlackbeardReward", "Reroll", "2") end) Notify("Miisery Hub", "Reroll sent", 2) end })
+MiscTab:Button({ Title = "Save Config Now", Callback = function() SaveConfig() Notify("Miisery Hub", "Config saved", 2) end })
+
+local InfoTab = MiiseryLibraryObj:CreateTab("Information")
+
+local infoDescParagraph = InfoTab:Paragraph({
+    Title = "Script Guide & Functions",
+    Desc = "• Main: Fast Attack, Bring Mobs and combat options.\n• Farm: Smart island detection and automatic chest looting.\n• Aim & Trackers: Silent aim, FOV customization and player tracking.\n• Movement: Fly, Noclip, Speed Hack and utility movement modifiers.\n• Blacklist: Exclude specific skill keys per weapon category."
+})
+
+local bugFixParagraph = InfoTab:Paragraph({
+    Title = "Bug Fixes & Updates",
+    Desc = "0"
+})
+
+InfoTab:Dropdown({
+    Title = "Language / Idioma / Idioma",
+    Values = {"English", "Español", "Português"},
+    Value = Config.Language or "English",
+    Callback = function(v)
+        Config.Language = v
+        SaveConfig()
+        if v == "Español" then
+            infoDescParagraph:Update("Guía y Funciones del Script", "• Main: Ataque rápido, atraer NPCs y opciones de combate.\n• Farm: Detección inteligente de islas y recolección de cofres.\n• Aim & Trackers: Apuntado silencioso, FOV y rastreo de jugadores.\n• Movement: Vuelo, Noclip, velocidad y modificadores de movimiento.\n• Blacklist: Excluir habilidades específicas por categoría de arma.")
+            bugFixParagraph:Update("Corrección de Errores y Actualizaciones", "0")
+        elseif v == "Português" then
+            infoDescParagraph:Update("Guia e Funções do Script", "• Main: Ataque rápido, puxar mobs e opções de combate.\n• Farm: Detecção inteligente de ilhas e coleta de baús.\n• Aim & Trackers: Mira silenciosa, FOV e rastreamento de jogadores.\n• Movement: Voo, Noclip, velocidade e modificadores de movimento.\n• Blacklist: Excluir habilidades específicas por categoria de arma.")
+            bugFixParagraph:Update("Correções de Bugs e Atualizações", "0")
+        else
+            infoDescParagraph:Update("Script Guide & Functions", "• Main: Fast Attack, Bring Mobs and combat options.\n• Farm: Smart island detection and automatic chest looting.\n• Aim & Trackers: Silent aim, FOV customization and player tracking.\n• Movement: Fly, Noclip, Speed Hack and utility movement modifiers.\n• Blacklist: Exclude specific skill keys per weapon category.")
+            bugFixParagraph:Update("Bug Fixes & Updates", "0")
+        end
+    end
+})
+
+pcall(function()
+    local initialUri = "rbxassetid://" .. tostring(Config.CustomAssetID or "114065885540477")
+    if Config.CurrentBackground ~= "+18" then
+        if SidebarLogo then SidebarLogo.Image = initialUri end
+        if BadgeLogo then BadgeLogo.Image = initialUri end
+    end
+end)
+
+task.defer(function()
+    if Config.Fly then startFly() end
+    if Config.AntiLava then startAntiLava() end
+    if Config.InfiniteZoom then lp.CameraMaxZoomDistance = math.huge end
+    if Config.StatsGui then setStatsGui(true) end
+    if Config.TrackerFly then StartTrackerFly() end
+    if Config.AutoFlee then StartAutoFlee() end
+    if Config.GunClickSL then GunClickSLMod:SetEnabled(true) end
+    if Config.StreamProof then ToggleStreamProof(true) end
+end)
+
+Notify("Miisery Hub", "Loaded successfully!", 3)

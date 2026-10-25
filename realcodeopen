@@ -72,6 +72,8 @@ local Config = {
     ChestFarm = false, ChestFarmSpeed = 160,
     Language = "English",
     CustomAssetID = "114065885540477",
+    CustomInputURL = "",
+    ColorTheme = "Darling",
     StreamProof = false
 }
 
@@ -113,6 +115,23 @@ end
 
 LoadConfig()
 
+local Themes = {
+    Darling = { MainBg = Color3.fromRGB(8, 8, 10), PanelBg = Color3.fromRGB(12, 12, 15), Stroke = Color3.fromRGB(255, 255, 255) },
+    Amber = { MainBg = Color3.fromRGB(30, 20, 10), PanelBg = Color3.fromRGB(45, 30, 15), Stroke = Color3.fromRGB(255, 170, 50) },
+    CottonCandy = { MainBg = Color3.fromRGB(20, 15, 30), PanelBg = Color3.fromRGB(30, 22, 45), Stroke = Color3.fromRGB(255, 150, 220) },
+    Crimson = { MainBg = Color3.fromRGB(25, 8, 8), PanelBg = Color3.fromRGB(40, 12, 12), Stroke = Color3.fromRGB(255, 80, 80) },
+    Dark = { MainBg = Color3.fromRGB(5, 5, 5), PanelBg = Color3.fromRGB(10, 10, 10), Stroke = Color3.fromRGB(100, 100, 100) },
+    Emerald = { MainBg = Color3.fromRGB(8, 25, 15), PanelBg = Color3.fromRGB(12, 38, 22), Stroke = Color3.fromRGB(50, 255, 130) },
+    Indigo = { MainBg = Color3.fromRGB(12, 12, 30), PanelBg = Color3.fromRGB(18, 18, 45), Stroke = Color3.fromRGB(100, 150, 255) },
+    Light = { MainBg = Color3.fromRGB(230, 230, 230), PanelBg = Color3.fromRGB(245, 245, 245), Stroke = Color3.fromRGB(50, 50, 50) },
+    Mellowsi = { MainBg = Color3.fromRGB(20, 20, 25), PanelBg = Color3.fromRGB(30, 30, 38), Stroke = Color3.fromRGB(200, 200, 200) },
+    Midnight = { MainBg = Color3.fromRGB(2, 5, 15), PanelBg = Color3.fromRGB(5, 10, 25), Stroke = Color3.fromRGB(50, 100, 255) }
+}
+
+local function GetThemeColors()
+    return Themes[Config.ColorTheme] or Themes.Darling
+end
+
 local ASSET_ID = "rbxassetid://" .. tostring(Config.CustomAssetID or "114065885540477")
 
 local OriginalSize = UDim2.new(0, 545, 0, 330)
@@ -122,7 +141,8 @@ local MainFrame = Instance.new("Frame", ScreenGui)
 MainFrame.Name = "MainFrame"
 MainFrame.Size = OriginalSize
 MainFrame.Position = UDim2.new(0.5, -272, 0.5, -180)
-MainFrame.BackgroundColor3 = Color3.fromRGB(8, 8, 10)
+local currentThemeColors = GetThemeColors()
+MainFrame.BackgroundColor3 = currentThemeColors.MainBg
 MainFrame.ClipsDescendants = true
 MainFrame.Active = true
 MainFrame.Draggable = true
@@ -131,7 +151,7 @@ MainFrame.Parent = ScreenGui
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
 
 local MainStroke = Instance.new("UIStroke", MainFrame)
-MainStroke.Color = Color3.fromRGB(255, 255, 255)
+MainStroke.Color = currentThemeColors.Stroke
 MainStroke.Thickness = 1.5
 MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
@@ -139,7 +159,7 @@ local BackgroundImage = Instance.new("ImageLabel", MainFrame)
 BackgroundImage.Name = "BackgroundImage"
 BackgroundImage.Size = UDim2.new(1, 0, 1, 0)
 BackgroundImage.BackgroundTransparency = 0.15
-BackgroundImage.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+BackgroundImage.BackgroundColor3 = currentThemeColors.MainBg
 BackgroundImage.Image = ASSET_ID
 BackgroundImage.ScaleType = Enum.ScaleType.Crop
 BackgroundImage.ZIndex = 1
@@ -150,7 +170,7 @@ local ToggleButton = Instance.new("Frame", ScreenGui)
 ToggleButton.Name = "WindUIPillToggle"
 ToggleButton.Size = UDim2.new(0, 175, 0, 36)
 ToggleButton.Position = UDim2.new(0.5, -87, 0, 15)
-ToggleButton.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
+ToggleButton.BackgroundColor3 = currentThemeColors.PanelBg
 ToggleButton.BackgroundTransparency = 0.1
 ToggleButton.Visible = false
 ToggleButton.Active = true
@@ -159,7 +179,7 @@ ToggleButton.ZIndex = 200
 Instance.new("UICorner", ToggleButton).CornerRadius = UDim.new(1, 0)
 
 local ToggleStroke = Instance.new("UIStroke", ToggleButton)
-ToggleStroke.Color = Color3.fromRGB(255, 255, 255)
+ToggleStroke.Color = currentThemeColors.Stroke
 ToggleStroke.Thickness = 1.4
 
 local DragArea = Instance.new("Frame", ToggleButton)
@@ -173,7 +193,7 @@ local StarIcon = Instance.new("TextLabel", DragArea)
 StarIcon.Size = UDim2.new(1, 0, 1, 0)
 StarIcon.BackgroundTransparency = 1
 StarIcon.Text = "☆"
-StarIcon.TextColor3 = Color3.fromRGB(255, 255, 255)
+StarIcon.TextColor3 = currentThemeColors.Stroke
 StarIcon.Font = Enum.Font.GothamBold
 StarIcon.TextSize = 16
 StarIcon.ZIndex = 202
@@ -199,7 +219,7 @@ BadgeText.Size = UDim2.new(1, -72, 1, 0)
 BadgeText.Position = UDim2.new(0, 70, 0, 0)
 BadgeText.BackgroundTransparency = 1
 BadgeText.Text = "Miisery Hub"
-BadgeText.TextColor3 = Color3.fromRGB(255, 255, 255)
+BadgeText.TextColor3 = currentThemeColors.Stroke
 BadgeText.Font = Enum.Font.GothamBold
 BadgeText.TextSize = 11
 BadgeText.TextXAlignment = Enum.TextXAlignment.Left
@@ -263,14 +283,14 @@ local LeftSidebar = Instance.new("Frame", MainFrame)
 LeftSidebar.Name = "LeftSidebar"
 LeftSidebar.Size = UDim2.new(0, 130, 1, -12)
 LeftSidebar.Position = UDim2.new(0, 6, 0, 6)
-LeftSidebar.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
+LeftSidebar.BackgroundColor3 = currentThemeColors.PanelBg
 LeftSidebar.BackgroundTransparency = 0.25
 LeftSidebar.ZIndex = 2
 
 Instance.new("UICorner", LeftSidebar).CornerRadius = UDim.new(0, 8)
 
 local SidebarStroke = Instance.new("UIStroke", LeftSidebar)
-SidebarStroke.Color = Color3.fromRGB(200, 200, 200)
+SidebarStroke.Color = currentThemeColors.Stroke
 SidebarStroke.Thickness = 0.8
 
 local SidebarLogo = Instance.new("ImageLabel", LeftSidebar)
@@ -288,7 +308,7 @@ HubTitle.Size = UDim2.new(1, -36, 0, 16)
 HubTitle.Position = UDim2.new(0, 34, 0, 4)
 HubTitle.BackgroundTransparency = 1
 HubTitle.Text = "Miisery Hub"
-HubTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+HubTitle.TextColor3 = currentThemeColors.Stroke
 HubTitle.Font = Enum.Font.GothamBold
 HubTitle.TextSize = 11
 HubTitle.TextXAlignment = Enum.TextXAlignment.Left
@@ -446,7 +466,8 @@ local MiiseryLibraryObj = {
         TabBtn.Name = tabName .. "TabButton"
         TabBtn.LayoutOrder = currentOrder
         TabBtn.Size = UDim2.new(1, 0, 0, 26)
-        TabBtn.BackgroundColor3 = firstTab and Color3.fromRGB(25, 25, 30) or Color3.fromRGB(12, 12, 15)
+        local tCols = GetThemeColors()
+        TabBtn.BackgroundColor3 = firstTab and tCols.PanelBg or tCols.MainBg
         TabBtn.BackgroundTransparency = 0.2
         TabBtn.Text = "  " .. tabName
         TabBtn.TextColor3 = firstTab and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(170, 170, 170)
@@ -458,7 +479,7 @@ local MiiseryLibraryObj = {
         Instance.new("UICorner", TabBtn).CornerRadius = UDim.new(0, 6)
 
         local TabStroke = Instance.new("UIStroke", TabBtn)
-        TabStroke.Color = firstTab and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(60, 60, 60)
+        TabStroke.Color = firstTab and tCols.Stroke or Color3.fromRGB(60, 60, 60)
         TabStroke.Thickness = 0.8
 
         local Page = Instance.new("ScrollingFrame", PagesFolder)
@@ -482,16 +503,18 @@ local MiiseryLibraryObj = {
             for _, child in ipairs(PagesFolder:GetChildren()) do child.Visible = false end
             for _, child in ipairs(NavScroll:GetChildren()) do
                 if child:IsA("TextButton") then
-                    child.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
+                    local thCols = GetThemeColors()
+                    child.BackgroundColor3 = thCols.MainBg
                     child.TextColor3 = Color3.fromRGB(170, 170, 170)
                     local str = child:FindFirstChildOfClass("UIStroke")
                     if str then str.Color = Color3.fromRGB(60, 60, 60) end
                 end
             end
             Page.Visible = true
-            TabBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+            local activeThCols = GetThemeColors()
+            TabBtn.BackgroundColor3 = activeThCols.PanelBg
             TabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-            TabStroke.Color = Color3.fromRGB(255, 255, 255)
+            TabStroke.Color = activeThCols.Stroke
         end)
 
         firstTab = false
@@ -504,13 +527,14 @@ local MiiseryLibraryObj = {
 
             local frame = Instance.new("Frame", Page)
             frame.Size = UDim2.new(1, -6, 0, 30)
-            frame.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
+            local thCols = GetThemeColors()
+            frame.BackgroundColor3 = thCols.PanelBg
             frame.BackgroundTransparency = 0.25
             frame.ZIndex = 3
             Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
             
             local stroke = Instance.new("UIStroke", frame)
-            stroke.Color = Color3.fromRGB(80, 80, 80)
+            stroke.Color = thCols.Stroke
             stroke.Thickness = 0.8
             
             local title = Instance.new("TextLabel", frame)
@@ -545,7 +569,8 @@ local MiiseryLibraryObj = {
 
             local btn = Instance.new("TextButton", Page)
             btn.Size = UDim2.new(1, -6, 0, 30)
-            btn.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
+            local thCols = GetThemeColors()
+            btn.BackgroundColor3 = thCols.PanelBg
             btn.BackgroundTransparency = 0.25
             btn.Text = "  " .. titleText
             btn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -556,7 +581,7 @@ local MiiseryLibraryObj = {
             Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
             
             local stroke = Instance.new("UIStroke", btn)
-            stroke.Color = Color3.fromRGB(80, 80, 80)
+            stroke.Color = thCols.Stroke
             stroke.Thickness = 0.8
 
             btn.MouseButton1Click:Connect(function()
@@ -570,7 +595,8 @@ local MiiseryLibraryObj = {
 
             local frame = Instance.new("Frame", Page)
             frame.Size = UDim2.new(1, -6, 0, 60)
-            frame.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
+            local thCols = GetThemeColors()
+            frame.BackgroundColor3 = thCols.MainBg
             frame.BackgroundTransparency = 0.4
             frame.ZIndex = 3
             Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
@@ -616,7 +642,8 @@ local MiiseryLibraryObj = {
 
             local frame = Instance.new("Frame", Page)
             frame.Size = UDim2.new(1, -6, 0, 40)
-            frame.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
+            local thCols = GetThemeColors()
+            frame.BackgroundColor3 = thCols.PanelBg
             frame.BackgroundTransparency = 0.25
             frame.ZIndex = 3
             Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
@@ -684,7 +711,8 @@ local MiiseryLibraryObj = {
 
             local btn = Instance.new("TextButton", Page)
             btn.Size = UDim2.new(1, -6, 0, 30)
-            btn.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
+            local thCols = GetThemeColors()
+            btn.BackgroundColor3 = thCols.PanelBg
             btn.BackgroundTransparency = 0.25
             btn.Text = "  " .. titleText .. ": " .. tostring(currentVal)
             btn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -695,7 +723,7 @@ local MiiseryLibraryObj = {
             Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
 
             local stroke = Instance.new("UIStroke", btn)
-            stroke.Color = Color3.fromRGB(80, 80, 80)
+            stroke.Color = thCols.Stroke
             stroke.Thickness = 0.8
 
             btn.MouseButton1Click:Connect(function()
@@ -2340,13 +2368,14 @@ HomeHeaderContainer.ZIndex = 3
 local ProfileCard = Instance.new("Frame", HomeHeaderContainer)
 ProfileCard.Size = UDim2.new(0.68, -3, 1, 0)
 ProfileCard.Position = UDim2.new(0, 0, 0, 0)
-ProfileCard.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
+local thC = GetThemeColors()
+ProfileCard.BackgroundColor3 = thC.PanelBg
 ProfileCard.BackgroundTransparency = 0.25
 ProfileCard.ZIndex = 3
 Instance.new("UICorner", ProfileCard).CornerRadius = UDim.new(0, 8)
 
 local ProfileStroke = Instance.new("UIStroke", ProfileCard)
-ProfileStroke.Color = Color3.fromRGB(200, 200, 200)
+ProfileStroke.Color = thC.Stroke
 ProfileStroke.Thickness = 0.9
 
 local AvatarImg = Instance.new("ImageLabel", ProfileCard)
@@ -2406,13 +2435,13 @@ TeamLabel.ZIndex = 4
 local StreamCard = Instance.new("Frame", HomeHeaderContainer)
 StreamCard.Size = UDim2.new(0.32, -3, 1, 0)
 StreamCard.Position = UDim2.new(0.68, 3, 0, 0)
-StreamCard.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
+StreamCard.BackgroundColor3 = thC.PanelBg
 StreamCard.BackgroundTransparency = 0.25
 StreamCard.ZIndex = 3
 Instance.new("UICorner", StreamCard).CornerRadius = UDim.new(0, 8)
 
 local StreamStroke = Instance.new("UIStroke", StreamCard)
-StreamStroke.Color = Color3.fromRGB(200, 200, 200)
+StreamStroke.Color = thC.Stroke
 StreamStroke.Thickness = 0.9
 
 local StreamTitle = Instance.new("TextLabel", StreamCard)
@@ -2450,7 +2479,7 @@ end)
 
 local BoostButton = Instance.new("TextButton", PagesFolder:FindFirstChild("HomePage"))
 BoostButton.Size = UDim2.new(1, -6, 0, 34)
-BoostButton.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
+BoostButton.BackgroundColor3 = thC.PanelBg
 BoostButton.BackgroundTransparency = 0.2
 BoostButton.Text = "  Miisery Boost"
 BoostButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -2462,7 +2491,7 @@ BoostButton.ZIndex = 3
 Instance.new("UICorner", BoostButton).CornerRadius = UDim.new(0, 6)
 
 local BoostStroke = Instance.new("UIStroke", BoostButton)
-BoostStroke.Color = Color3.fromRGB(200, 200, 200)
+BoostStroke.Color = thC.Stroke
 BoostStroke.Thickness = 0.9
 
 BoostButton.MouseButton1Click:Connect(function()
@@ -2472,44 +2501,6 @@ BoostButton.MouseButton1Click:Connect(function()
 end)
 
 HomeTab:Paragraph({ Title = "Miisery Hub - Blox Fruits", Desc = "Welcome to Miisery Hub v1.0" })
-
-local availableAssetIds = {
-    "114065885540477",
-    "85256255221310",
-    "106006243046634",
-    "76375726192743",
-    "88932447826978",
-    "100480019494922"
-}
-local selectedCustomId = Config.CustomAssetID or availableAssetIds[1]
-
-HomeTab:Dropdown({
-    Title = "UI Background / Logo ID",
-    Values = availableAssetIds,
-    Value = selectedCustomId,
-    Callback = function(v)
-        selectedCustomId = tostring(v)
-    end
-})
-
-HomeTab:Button({
-    Title = "Change & Apply UI Image",
-    Callback = function()
-        Config.CustomAssetID = selectedCustomId
-        SaveConfig()
-        local formattedUri = "rbxassetid://" .. selectedCustomId
-        pcall(function()
-            if BackgroundImage then
-                BackgroundImage.Image = ""
-                task.wait(0.02)
-                BackgroundImage.Image = formattedUri
-            end
-            if SidebarLogo then SidebarLogo.Image = formattedUri end
-            if BadgeLogo then BadgeLogo.Image = formattedUri end
-        end)
-        Notify("Miisery Hub", "UI Image successfully updated and applied!", 2)
-    end
-})
 
 task.spawn(function()
     while task.wait(1) do
@@ -2546,6 +2537,111 @@ task.spawn(function()
         end)
     end
 end)
+
+local PersonalizationTab = MiiseryLibraryObj:CreateTab("Personalization")
+
+PersonalizationTab:Paragraph({ Title = "UI Appearance Settings", Desc = "Customize color themes and background wallpapers via ID or URL." })
+
+local themeList = {"Amber", "CottonCandy", "Crimson", "Dark", "Darling", "Emerald", "Indigo", "Light", "Mellowsi", "Midnight"}
+PersonalizationTab:Dropdown({
+    Title = "UI Color Theme",
+    Values = themeList,
+    Value = Config.ColorTheme or "Darling",
+    Callback = function(v)
+        Config.ColorTheme = v
+        SaveConfig()
+        local newCols = GetThemeColors()
+        pcall(function()
+            MainFrame.BackgroundColor3 = newCols.MainBg
+            MainStroke.Color = newCols.Stroke
+            if BackgroundImage then BackgroundImage.BackgroundColor3 = newCols.MainBg end
+            if ToggleButton then
+                ToggleButton.BackgroundColor3 = newCols.PanelBg
+                ToggleStroke.Color = newCols.Stroke
+                BadgeText.TextColor3 = newCols.Stroke
+                StarIcon.TextColor3 = newCols.Stroke
+            end
+            if LeftSidebar then
+                LeftSidebar.BackgroundColor3 = newCols.PanelBg
+                SidebarStroke.Color = newCols.Stroke
+                HubTitle.TextColor3 = newCols.Stroke
+            end
+            ProfileCard.BackgroundColor3 = newCols.PanelBg
+            ProfileStroke.Color = newCols.Stroke
+            StreamCard.BackgroundColor3 = newCols.PanelBg
+            StreamStroke.Color = newCols.Stroke
+            BoostButton.BackgroundColor3 = newCols.PanelBg
+            BoostStroke.Color = newCols.Stroke
+        end)
+        Notify("Miisery Hub", "Theme applied successfully!", 2)
+    end
+})
+
+local function applyWallpaper(inputVal)
+    if not inputVal or inputVal == "" then return end
+    local assetUri = ""
+    if tonumber(inputVal) then
+        assetUri = "rbxassetid://" .. inputVal
+    else
+        assetUri = inputVal
+    end
+    Config.CustomAssetID = inputVal
+    Config.CustomInputURL = inputVal
+    SaveConfig()
+    pcall(function()
+        if BackgroundImage then
+            BackgroundImage.Image = ""
+            task.wait(0.02)
+            BackgroundImage.Image = assetUri
+        end
+        if SidebarLogo then SidebarLogo.Image = assetUri end
+        if BadgeLogo then BadgeLogo.Image = assetUri end
+    end)
+    Notify("Miisery Hub", "Background updated successfully!", 2)
+end
+
+local inputUrlVal = Config.CustomInputURL or ""
+
+PersonalizationTab:Button({
+    Title = "Media URL or ID: " .. (inputUrlVal == "" and "None" or inputUrlVal),
+    Callback = function()
+        pcall(function()
+            if not inputboxService and game:GetService("LogService") then
+            end
+        end)
+    end
+})
+
+local availableAssetIds = {
+    "114065885540477",
+    "85256255221310",
+    "106006243046634",
+    "76375726192743",
+    "88932447826978",
+    "100480019494922"
+}
+
+PersonalizationTab:Dropdown({
+    Title = "Preset Backgrounds",
+    Values = availableAssetIds,
+    Value = Config.CustomAssetID,
+    Callback = function(v)
+        applyWallpaper(tostring(v))
+    end
+})
+
+PersonalizationTab:Button({
+    Title = "Remove Background",
+    Callback = function()
+        Config.CustomAssetID = ""
+        Config.CustomInputURL = ""
+        SaveConfig()
+        pcall(function()
+            if BackgroundImage then BackgroundImage.Image = "" end
+        end)
+        Notify("Miisery Hub", "Background removed!", 2)
+    end
+})
 
 local MainTab = MiiseryLibraryObj:CreateTab("Main")
 MainTab:Toggle({ Title = "Fast Attack", Value = Config.FastAttack, Callback = function(v) Config.FastAttack = v SaveConfig() end })

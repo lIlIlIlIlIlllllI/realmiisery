@@ -1,13 +1,4 @@
-local HttpService = game:GetService("HttpService")
-local TweenService = game:GetService("TweenService")
-local CoreGui = game:GetService("CoreGui")
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-
-local localPlayer = Players.LocalPlayer
-local playerGui = localPlayer:WaitForChild("PlayerGui")
-
+-- Framework UI de Miisery Hub (Sistema de Background dividido en 5 partes horizontales)
 local MiiseryUI = {}
 MiiseryUI.__index = MiiseryUI
 
@@ -17,14 +8,20 @@ function MiiseryUI.new(customProperties)
     local self = setmetatable({}, MiiseryUI)
     
     self.Configuration = {
-        WindowTitle = customProperties.Title or "Miisery Framework",
+        WindowTitle = customProperties.Title or "Miisery Hub",
         WindowSubtitle = customProperties.Subtitle or "Advanced Script Engine",
-        AssetIdentifier = customProperties.AssetID or "114065885540477",
-        ThemeAccentColor = customProperties.AccentColor or Color3.fromRGB(255, 255, 255),
+        -- 5 IDs de logos/texturas de Roblox diferentes para probar las 5 partes horizontales
+        BackgroundParts = customProperties.BackgroundParts or {
+            "rbxassetid://6031094678", -- Parte 1 (Superior)
+            "rbxassetid://6023426915", -- Parte 2
+            "rbxassetid://6023426926", -- Parte 3
+            "rbxassetid://6023426846", -- Parte 4
+            "rbxassetid://6023426895"  -- Parte 5 (Inferior)
+        },
+        ThemeAccentColor = customProperties.AccentColor or Color3.fromRGB(160, 70, 255),
         DefaultSize = customProperties.Size or UDim2.new(0, 560, 0, 340),
         ExpandedSize = customProperties.ExpandedSize or UDim2.new(0, 700, 0, 420),
         DefaultPosition = customProperties.Position or UDim2.new(0.5, -280, 0.5, -170),
-        UserDataStorage = {}
     }
     
     self.ActiveStrokesRegistry = {}
@@ -32,6 +29,14 @@ function MiiseryUI.new(customProperties)
     self.IsInterfaceVisible = false
     self.IsInterfaceMinimized = false
     self.IsInterfaceExpanded = false
+    
+    local CoreGui = game:GetService("CoreGui")
+    local Players = game:GetService("Players")
+    local TweenService = game:GetService("TweenService")
+    local UserInputService = game:GetService("UserInputService")
+    
+    local localPlayer = Players.LocalPlayer
+    local playerGui = localPlayer:WaitForChild("PlayerGui")
     
     self.RootScreenGui = Instance.new("ScreenGui")
     self.RootScreenGui.Name = "MiiseryEngine_Container"
@@ -57,18 +62,51 @@ function MiiseryUI.new(customProperties)
     self.MainContainerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     table.insert(self.ActiveStrokesRegistry, self.MainContainerStroke)
     
-    self.BackgroundArtwork = Instance.new("ImageLabel", self.MainContainer)
-    self.BackgroundArtwork.Name = "BackgroundArtwork"
-    self.BackgroundArtwork.Size = UDim2.new(1, 0, 1, 0)
-    self.BackgroundArtwork.BackgroundTransparency = 0.15
-    self.BackgroundArtwork.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
-    self.BackgroundArtwork.Image = "rbxassetid://" .. tostring(self.Configuration.AssetIdentifier)
-    self.BackgroundArtwork.ScaleType = Enum.ScaleType.Crop
-    self.BackgroundArtwork.ZIndex = 1
+    -- CONTENEDOR DE LAS 5 PARTES DEL BACKGROUND (Estilo franjas apiladas como en la foto)
+    self.BackgroundHolder = Instance.new("Frame", self.MainContainer)
+    self.BackgroundHolder.Name = "BackgroundHolder"
+    self.BackgroundHolder.Size = UDim2.new(1, 0, 1, 0)
+    self.BackgroundHolder.BackgroundTransparency = 1
+    self.BackgroundHolder.ZIndex = 1
     
-    local artworkCorner = Instance.new("UICorner", self.BackgroundArtwork)
-    artworkCorner.CornerRadius = UDim.new(0, 10)
+    local bgHolderCorner = Instance.new("UICorner", self.BackgroundHolder)
+    bgHolderCorner.CornerRadius = UDim.new(0, 10)
     
+    -- Crear un UIListLayout vertical para apilar las 5 partes exactamente una debajo de otra
+    local bgLayout = Instance.new("UIListLayout", self.BackgroundHolder)
+    bgLayout.FillDirection = Enum.FillDirection.Vertical
+    bgLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    bgLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+    bgLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    bgLayout.Padding = UDim.new(0, 0)
+    
+    -- Generar las 5 partes del fondo en franjas horizontales iguales (20% de altura cada una)
+    self.BackgroundPartImages = {}
+    for i = 1, 5 do
+        local partImage = Instance.new("ImageLabel", self.BackgroundHolder)
+        partImage.Name = "BackgroundPart_" .. tostring(i)
+        partImage.LayoutOrder = i
+        -- Dividir la altura total en 5 partes iguales (0.2 o 20% de altura c/u)
+        partImage.Size = UDim2.new(1, 0, 0.2, 0)
+        partImage.BackgroundTransparency = 0.8
+        partImage.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+        partImage.Image = self.Configuration.BackgroundParts[i]
+        partImage.ScaleType = Enum.ScaleType.Crop
+        partImage.ZIndex = 1
+        
+        table.insert(self.BackgroundPartImages, partImage)
+    end
+    
+    -- Función para actualizar una parte específica del fondo en tiempo real
+    function self:SetBackgroundPart(index, assetId)
+        if index >= 1 and index <= 5 and self.BackgroundPartImages[index] then
+            self.Configuration.BackgroundParts[index] = tostring(assetId)
+            self.BackgroundPartImages[index].Image = tostring(assetId)
+            print("Miisery Hub: Franja Background Parte " .. tostring(index) .. " actualizada.")
+        end
+    end
+
+    -- Elementos de la Sidebar y controles (Minimizar, Expandir, Cerrar)
     self.MinimizedPill = Instance.new("Frame", self.RootScreenGui)
     self.MinimizedPill.Name = "MinimizedPill"
     self.MinimizedPill.Size = UDim2.new(0, 175, 0, 36)
@@ -111,7 +149,7 @@ function MiiseryUI.new(customProperties)
     self.PillLogoIcon.Size = UDim2.new(0, 20, 0, 20)
     self.PillLogoIcon.Position = UDim2.new(0, 45, 0.5, -10)
     self.PillLogoIcon.BackgroundTransparency = 1
-    self.PillLogoIcon.Image = "rbxassetid://" .. tostring(self.Configuration.AssetIdentifier)
+    self.PillLogoIcon.Image = self.Configuration.BackgroundParts[1]
     self.PillLogoIcon.ZIndex = 201
     
     local pillLogoCorner = Instance.new("UICorner", self.PillLogoIcon)
@@ -177,15 +215,24 @@ function MiiseryUI.new(customProperties)
     self.SidebarPanelStroke.Thickness = 0.8
     table.insert(self.ActiveStrokesRegistry, self.SidebarPanelStroke)
     
-    self.SidebarLogoIcon = Instance.new("ImageLabel", self.SidebarPanel)
-    self.SidebarLogoIcon.Size = UDim2.new(0, 22, 0, 22)
-    self.SidebarLogoIcon.Position = UDim2.new(0, 8, 0, 7)
-    self.SidebarLogoIcon.BackgroundTransparency = 1
-    self.SidebarLogoIcon.Image = "rbxassetid://" .. tostring(self.Configuration.AssetIdentifier)
-    self.SidebarLogoIcon.ZIndex = 3
+    local sidebarLogoContainer = Instance.new("Frame", self.SidebarPanel)
+    sidebarLogoContainer.Size = UDim2.new(0, 22, 0, 22)
+    sidebarLogoContainer.Position = UDim2.new(0, 8, 0, 7)
+    sidebarLogoContainer.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+    sidebarLogoContainer.BorderSizePixel = 0
+    sidebarLogoContainer.ZIndex = 3
     
-    local sidebarLogoCorner = Instance.new("UICorner", self.SidebarLogoIcon)
+    local sidebarLogoCorner = Instance.new("UICorner", sidebarLogoContainer)
     sidebarLogoCorner.CornerRadius = UDim.new(0, 6)
+    
+    self.SidebarLogoIcon = Instance.new("ImageLabel", sidebarLogoContainer)
+    self.SidebarLogoIcon.Size = UDim2.new(1, 0, 1, 0)
+    self.SidebarLogoIcon.BackgroundTransparency = 1
+    self.SidebarLogoIcon.Image = self.Configuration.BackgroundParts[1]
+    self.SidebarLogoIcon.ZIndex = 4
+    
+    local sidebarLogoImgCorner = Instance.new("UICorner", self.SidebarLogoIcon)
+    sidebarLogoImgCorner.CornerRadius = UDim.new(0, 6)
     
     self.HeaderTitleInstance = Instance.new("TextLabel", self.SidebarPanel)
     self.HeaderTitleInstance.Size = UDim2.new(1, -36, 0, 16)
@@ -301,6 +348,7 @@ end
 function MiiseryUI:MinimizeInterface()
     if self.IsInterfaceMinimized then return end
     self.IsInterfaceMinimized = true
+    local TweenService = game:GetService("TweenService")
     TweenService:Create(self.MainContainer, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
         Size = UDim2.new(0, 0, 0, 0),
         Position = self.MainContainer.Position + UDim2.new(0, 280, 0, 170)
@@ -316,6 +364,7 @@ end
 
 function MiiseryUI:RestoreInterface()
     if not self.IsInterfaceMinimized then return end
+    local TweenService = game:GetService("TweenService")
     TweenService:Create(self.MinimizedPill, TweenInfo.new(0.15, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
         Size = UDim2.new(0, 0, 0, 36)
     }):Play()
@@ -333,44 +382,13 @@ end
 
 function MiiseryUI:ToggleExpandInterface()
     self.IsInterfaceExpanded = not self.IsInterfaceExpanded
+    local TweenService = game:GetService("TweenService")
     local targetSize = self.IsInterfaceExpanded and self.Configuration.ExpandedSize or self.Configuration.DefaultSize
     local targetPos = self.IsInterfaceExpanded and UDim2.new(0.5, -350, 0.5, -210) or self.Configuration.DefaultPosition
     TweenService:Create(self.MainContainer, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
         Size = targetSize,
         Position = targetPos
     }):Play()
-end
-
-function MiiseryUI:UpdateAccentColor(newColor)
-    self.Configuration.ThemeAccentColor = newColor
-    for _, strokeObject in ipairs(self.ActiveStrokesRegistry) do
-        if strokeObject and strokeObject.Parent then
-            strokeObject.Color = newColor
-        end
-    end
-end
-
-function MiiseryUI:UpdateBackgroundAsset(newAssetId)
-    self.Configuration.AssetIdentifier = tostring(newAssetId)
-    local formattedUri = "rbxassetid://" .. self.Configuration.AssetIdentifier
-    pcall(function()
-        self.BackgroundArtwork.Image = ""
-        task.wait(0.02)
-        self.BackgroundArtwork.Image = formattedUri
-        self.SidebarLogoIcon.Image = formattedUri
-        self.PillLogoIcon.Image = formattedUri
-    end)
-end
-
-function MiiseryUI:UpdateMetadata(newTitle, newSubtitle)
-    if newTitle then
-        self.Configuration.WindowTitle = newTitle
-        self.HeaderTitleInstance.Text = newTitle
-    end
-    if newSubtitle then
-        self.Configuration.WindowSubtitle = newSubtitle
-        self.HeaderSubtitleInstance.Text = newSubtitle
-    end
 end
 
 function MiiseryUI:CreateTab(tabTitleName)
@@ -519,4 +537,26 @@ function MiiseryUI:DestroyInterface()
     end)
 end
 
-return MiiseryUI
+-- ==========================================================
+-- EJEMPLO DE USO CON LAS 5 PARTES HORIZONTALES
+-- ==========================================================
+
+local Window = MiiseryUI.new({
+    Title = "Miisery Hub",
+    Subtitle = "Advanced Script Engine",
+    AccentColor = Color3.fromRGB(160, 70, 255),
+    -- Aquí puedes cambiar los IDs de las 5 partes (franjas de arriba a abajo) cuando gustes:
+    BackgroundParts = {
+        "rbxassetid://6031094678", -- Parte 1 (Franja Superior)
+        "rbxassetid://6023426915", -- Parte 2
+        "rbxassetid://6023426926", -- Parte 3
+        "rbxassetid://6023426846", -- Parte 4
+        "rbxassetid://6023426895"  -- Parte 5 (Franja Inferior)
+    }
+})
+
+-- Mostrar la interfaz en pantalla
+Window:SetVisibility(true)
+
+-- Ejemplo de cómo cambiar la parte 3 en tiempo real:
+-- Window:SetBackgroundPart(3, "rbxassetid://TU_NUEVO_ID_AQUI")

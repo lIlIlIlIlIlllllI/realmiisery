@@ -121,7 +121,7 @@ local MainStroke = Instance.new("UIStroke", MainFrame)
 MainStroke.Color = Color3.fromRGB(255, 255, 255)
 MainStroke.Thickness = 1.5
 
--- Tus 8 IDs de arriba a abajo configuradas para el preset +18
+-- Preset +18 con las 8 piezas de arriba a abajo
 local BackgroundPresets = {
     ["+18"] = {
         "121146088575932",
@@ -2117,10 +2117,10 @@ end)
 HomeTab:Paragraph({ Title = "Miisery Hub - Blox Fruits PvP", Desc = "Welcome to Miisery Hub v1.0" })
 
 -- ==========================================
--- APARTADOS DE BACKGROUND / LOGOS EN HOME
+-- BACKGROUND / LOGO SECTIONS IN HOME
 -- ==========================================
 
--- 1. Apartado de Backgrounds Normales (Basic)
+-- 1. Basic Backgrounds Section
 local basicAssetIds = {
     "None",
     "114065885540477",
@@ -2153,7 +2153,7 @@ HomeTab:Dropdown({
     end
 })
 
--- 2. Apartado de Backgrounds +18 (Sistema de Piezas Actualizado)
+-- 2. +18 Backgrounds Section (Split Parts System)
 local plus18AssetIds = {
     "+18",
     "None"

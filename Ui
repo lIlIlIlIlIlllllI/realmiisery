@@ -1,626 +1,521 @@
--- =========================================================================
--- MIISERY UI FRAMEWORK (RAW-CONTROLLED HEADLESS ENGINE)
--- =========================================================================
--- NOTE: This library has NO internal windows, NO auto-execution, and NO 
--- default visual popups. It is entirely controlled externally via raw methods 
--- and returned objects. Clean console (zero prints/warns).
--- =========================================================================
-
 local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local UIS = game:GetService("UserInputService")
+local UserInputService = game:GetService("UserInputService")
 
-local lp = Players.LocalPlayer
-local playerGui = lp:WaitForChild("PlayerGui")
+local localPlayer = Players.LocalPlayer
+local playerGui = localPlayer:WaitForChild("PlayerGui")
 
 local MiiseryUI = {}
 MiiseryUI.__index = MiiseryUI
 
-function MiiseryUI.new(properties)
-    properties = properties or {}
+function MiiseryUI.new(customProperties)
+    customProperties = customProperties or {}
     
     local self = setmetatable({}, MiiseryUI)
     
-    self.Config = {
-        Title = properties.Title or "Miisery Framework",
-        Subtitle = properties.Subtitle or "by DementeMental",
-        AssetID = properties.AssetID or "114065885540477",
-        AccentColor = properties.AccentColor or Color3.fromRGB(255, 255, 255),
-        Size = properties.Size or UDim2.new(0, 545, 0, 330),
-        ExpandedSize = properties.ExpandedSize or UDim2.new(0, 680, 0, 410),
-        Position = properties.Position or UDim2.new(0.5, -272, 0.5, -180),
-        CustomData = {}
+    self.Configuration = {
+        WindowTitle = customProperties.Title or "Miisery Framework",
+        WindowSubtitle = customProperties.Subtitle or "Advanced Script Engine",
+        AssetIdentifier = customProperties.AssetID or "114065885540477",
+        ThemeAccentColor = customProperties.AccentColor or Color3.fromRGB(255, 255, 255),
+        DefaultSize = customProperties.Size or UDim2.new(0, 560, 0, 340),
+        ExpandedSize = customProperties.ExpandedSize or UDim2.new(0, 700, 0, 420),
+        DefaultPosition = customProperties.Position or UDim2.new(0.5, -280, 0.5, -170),
+        UserDataStorage = {}
     }
     
-    self.UIStrokes = {}
-    self.Tabs = {}
-    self.CurrentTab = nil
-    self.IsVisible = false
-    self.IsMinimized = false
-    self.IsExpanded = false
+    self.ActiveStrokesRegistry = {}
+    self.RegisteredTabsList = {}
+    self.IsInterfaceVisible = false
+    self.IsInterfaceMinimized = false
+    self.IsInterfaceExpanded = false
     
-    -- Root Container (Hidden by default until raw call)
-    self.ScreenGui = Instance.new("ScreenGui")
-    self.ScreenGui.Name = "MiiseryRawFramework_UI"
-    self.ScreenGui.ResetOnSpawn = false
-    self.ScreenGui.Enabled = false
-    self.ScreenGui.Parent = (gethui and gethui()) or CoreGui or playerGui
+    self.RootScreenGui = Instance.new("ScreenGui")
+    self.RootScreenGui.Name = "MiiseryEngine_Container"
+    self.RootScreenGui.ResetOnSpawn = false
+    self.RootScreenGui.Enabled = false
+    self.RootScreenGui.Parent = (gethui and gethui()) or CoreGui or playerGui
     
-    -- Main Frame
-    self.MainFrame = Instance.new("Frame", self.ScreenGui)
-    self.MainFrame.Name = "MainFrame"
-    self.MainFrame.Size = self.Config.Size
-    self.MainFrame.Position = self.Config.Position
-    self.MainFrame.BackgroundColor3 = Color3.fromRGB(8, 8, 10)
-    self.MainFrame.ClipsDescendants = true
-    self.MainFrame.Active = true
-    self.MainFrame.Draggable = true
+    self.MainContainer = Instance.new("Frame", self.RootScreenGui)
+    self.MainContainer.Name = "MainContainer"
+    self.MainContainer.Size = self.Configuration.DefaultSize
+    self.MainContainer.Position = self.Configuration.DefaultPosition
+    self.MainContainer.BackgroundColor3 = Color3.fromRGB(9, 9, 12)
+    self.MainContainer.ClipsDescendants = true
+    self.MainContainer.Active = true
+    self.MainContainer.Draggable = true
     
-    Instance.new("UICorner", self.MainFrame).CornerRadius = UDim.new(0, 10)
+    local mainCorner = Instance.new("UICorner", self.MainContainer)
+    mainCorner.CornerRadius = UDim.new(0, 10)
     
-    self.MainStroke = Instance.new("UIStroke", self.MainFrame)
-    self.MainStroke.Color = self.Config.AccentColor
-    self.MainStroke.Thickness = 1.5
-    self.MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    table.insert(self.UIStrokes, self.MainStroke)
+    self.MainContainerStroke = Instance.new("UIStroke", self.MainContainer)
+    self.MainContainerStroke.Color = self.Configuration.ThemeAccentColor
+    self.MainContainerStroke.Thickness = 1.5
+    self.MainContainerStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    table.insert(self.ActiveStrokesRegistry, self.MainContainerStroke)
     
-    -- Background Image Layer
-    self.BackgroundImage = Instance.new("ImageLabel", self.MainFrame)
-    self.BackgroundImage.Name = "BackgroundImage"
-    self.BackgroundImage.Size = UDim2.new(1, 0, 1, 0)
-    self.BackgroundImage.BackgroundTransparency = 0.15
-    self.BackgroundImage.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
-    self.BackgroundImage.Image = "rbxassetid://" .. tostring(self.Config.AssetID)
-    self.BackgroundImage.ScaleType = Enum.ScaleType.Crop
-    self.BackgroundImage.ZIndex = 1
-    Instance.new("UICorner", self.BackgroundImage).CornerRadius = UDim.new(0, 10)
+    self.BackgroundArtwork = Instance.new("ImageLabel", self.MainContainer)
+    self.BackgroundArtwork.Name = "BackgroundArtwork"
+    self.BackgroundArtwork.Size = UDim2.new(1, 0, 1, 0)
+    self.BackgroundArtwork.BackgroundTransparency = 0.15
+    self.BackgroundArtwork.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+    self.BackgroundArtwork.Image = "rbxassetid://" .. tostring(self.Configuration.AssetIdentifier)
+    self.BackgroundArtwork.ScaleType = Enum.ScaleType.Crop
+    self.BackgroundArtwork.ZIndex = 1
     
-    -- Minimized Pill Toggle Button
-    self.ToggleButton = Instance.new("Frame", self.ScreenGui)
-    self.ToggleButton.Name = "WindUIPillToggle"
-    self.ToggleButton.Size = UDim2.new(0, 175, 0, 36)
-    self.ToggleButton.Position = UDim2.new(0.5, -87, 0, 15)
-    self.ToggleButton.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
-    self.ToggleButton.BackgroundTransparency = 0.1
-    self.ToggleButton.Visible = false
-    self.ToggleButton.Active = true
-    self.ToggleButton.ZIndex = 200
-    Instance.new("UICorner", self.ToggleButton).CornerRadius = UDim.new(1, 0)
+    local artworkCorner = Instance.new("UICorner", self.BackgroundArtwork)
+    artworkCorner.CornerRadius = UDim.new(0, 10)
     
-    self.ToggleStroke = Instance.new("UIStroke", self.ToggleButton)
-    self.ToggleStroke.Color = self.Config.AccentColor
-    self.ToggleStroke.Thickness = 1.4
-    table.insert(self.UIStrokes, self.ToggleStroke)
+    self.MinimizedPill = Instance.new("Frame", self.RootScreenGui)
+    self.MinimizedPill.Name = "MinimizedPill"
+    self.MinimizedPill.Size = UDim2.new(0, 175, 0, 36)
+    self.MinimizedPill.Position = UDim2.new(0.5, -87, 0, 15)
+    self.MinimizedPill.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
+    self.MinimizedPill.BackgroundTransparency = 0.1
+    self.MinimizedPill.Visible = false
+    self.MinimizedPill.Active = true
+    self.MinimizedPill.ZIndex = 200
     
-    -- Drag area for pill
-    local dragArea = Instance.new("Frame", self.ToggleButton)
-    dragArea.Size = UDim2.new(0, 36, 1, 0)
-    dragArea.BackgroundTransparency = 1
-    dragArea.ZIndex = 201
+    local pillCorner = Instance.new("UICorner", self.MinimizedPill)
+    pillCorner.CornerRadius = UDim.new(1, 0)
     
-    local starIcon = Instance.new("TextLabel", dragArea)
-    starIcon.Size = UDim2.new(1, 0, 1, 0)
-    starIcon.BackgroundTransparency = 1
-    starIcon.Text = "☆"
-    starIcon.TextColor3 = Color3.fromRGB(255, 255, 255)
-    starIcon.Font = Enum.Font.GothamBold
-    starIcon.TextSize = 16
-    starIcon.ZIndex = 202
+    self.MinimizedPillStroke = Instance.new("UIStroke", self.MinimizedPill)
+    self.MinimizedPillStroke.Color = self.Configuration.ThemeAccentColor
+    self.MinimizedPillStroke.Thickness = 1.4
+    table.insert(self.ActiveStrokesRegistry, self.MinimizedPillStroke)
     
-    local separator = Instance.new("Frame", self.ToggleButton)
-    separator.Size = UDim2.new(0, 1, 1, -12)
-    separator.Position = UDim2.new(0, 36, 0, 6)
-    separator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-    separator.ZIndex = 201
+    local pillDragZone = Instance.new("Frame", self.MinimizedPill)
+    pillDragZone.Size = UDim2.new(0, 36, 1, 0)
+    pillDragZone.BackgroundTransparency = 1
+    pillDragZone.ZIndex = 201
     
-    self.BadgeLogo = Instance.new("ImageLabel", self.ToggleButton)
-    self.BadgeLogo.Size = UDim2.new(0, 20, 0, 20)
-    self.BadgeLogo.Position = UDim2.new(0, 45, 0.5, -10)
-    self.BadgeLogo.BackgroundTransparency = 1
-    self.BadgeLogo.Image = "rbxassetid://" .. tostring(self.Config.AssetID)
-    self.BadgeLogo.ZIndex = 201
-    Instance.new("UICorner", self.BadgeLogo).CornerRadius = UDim.new(0, 6)
+    local starSymbol = Instance.new("TextLabel", pillDragZone)
+    starSymbol.Size = UDim2.new(1, 0, 1, 0)
+    starSymbol.BackgroundTransparency = 1
+    starSymbol.Text = "☆"
+    starSymbol.TextColor3 = Color3.fromRGB(255, 255, 255)
+    starSymbol.Font = Enum.Font.GothamBold
+    starSymbol.TextSize = 16
+    starSymbol.ZIndex = 202
     
-    local badgeText = Instance.new("TextLabel", self.ToggleButton)
-    badgeText.Size = UDim2.new(1, -72, 1, 0)
-    badgeText.Position = UDim2.new(0, 70, 0, 0)
-    badgeText.BackgroundTransparency = 1
-    badgeText.Text = self.Config.Title
-    badgeText.TextColor3 = Color3.fromRGB(255, 255, 255)
-    badgeText.Font = Enum.Font.GothamBold
-    badgeText.TextSize = 11
-    badgeText.TextXAlignment = Enum.TextXAlignment.Left
-    badgeText.ZIndex = 201
+    local pillDivider = Instance.new("Frame", self.MinimizedPill)
+    pillDivider.Size = UDim2.new(0, 1, 1, -12)
+    pillDivider.Position = UDim2.new(0, 36, 0, 6)
+    pillDivider.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+    pillDivider.ZIndex = 201
     
-    local clickArea = Instance.new("TextButton", self.ToggleButton)
-    clickArea.Size = UDim2.new(1, -36, 1, 0)
-    clickArea.Position = UDim2.new(0, 36, 0, 0)
-    clickArea.BackgroundTransparency = 1
-    clickArea.Text = ""
-    clickArea.ZIndex = 203
+    self.PillLogoIcon = Instance.new("ImageLabel", self.MinimizedPill)
+    self.PillLogoIcon.Size = UDim2.new(0, 20, 0, 20)
+    self.PillLogoIcon.Position = UDim2.new(0, 45, 0.5, -10)
+    self.PillLogoIcon.BackgroundTransparency = 1
+    self.PillLogoIcon.Image = "rbxassetid://" .. tostring(self.Configuration.AssetIdentifier)
+    self.PillLogoIcon.ZIndex = 201
     
-    -- Pill Drag Logic
-    local dragging, dragStart, startPos = false, nil, nil
-    dragArea.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            dragStart = input.Position
-            startPos = self.ToggleButton.Position
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then dragging = false end
+    local pillLogoCorner = Instance.new("UICorner", self.PillLogoIcon)
+    pillLogoCorner.CornerRadius = UDim.new(0, 6)
+    
+    local pillTextLabel = Instance.new("TextLabel", self.MinimizedPill)
+    pillTextLabel.Size = UDim2.new(1, -72, 1, 0)
+    pillTextLabel.Position = UDim2.new(0, 70, 0, 0)
+    pillTextLabel.BackgroundTransparency = 1
+    pillTextLabel.Text = self.Configuration.WindowTitle
+    pillTextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    pillTextLabel.Font = Enum.Font.GothamBold
+    pillTextLabel.TextSize = 11
+    pillTextLabel.TextXAlignment = Enum.TextXAlignment.Left
+    pillTextLabel.ZIndex = 201
+    
+    local pillClickDetector = Instance.new("TextButton", self.MinimizedPill)
+    pillClickDetector.Size = UDim2.new(1, -36, 1, 0)
+    pillClickDetector.Position = UDim2.new(0, 36, 0, 0)
+    pillClickDetector.BackgroundTransparency = 1
+    pillClickDetector.Text = ""
+    pillClickDetector.ZIndex = 203
+    
+    local isPillDragging, pillDragInputStart, pillStartPos = false, nil, nil
+    pillDragZone.InputBegan:Connect(function(inputObject)
+        if inputObject.UserInputType == Enum.UserInputType.MouseButton1 or inputObject.UserInputType == Enum.UserInputType.Touch then
+            isPillDragging = true
+            pillDragInputStart = inputObject.Position
+            pillStartPos = self.MinimizedPill.Position
+            inputObject.Changed:Connect(function()
+                if inputObject.UserInputState == Enum.UserInputState.End then
+                    isPillDragging = false
+                end
             end)
         end
     end)
-    UIS.InputChanged:Connect(function(input)
-        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-            local delta = input.Position - dragStart
-            self.ToggleButton.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    
+    UserInputService.InputChanged:Connect(function(inputObject)
+        if isPillDragging and (inputObject.UserInputType == Enum.UserInputType.MouseMovement or inputObject.UserInputType == Enum.UserInputType.Touch) then
+            local movementDelta = inputObject.Position - pillDragInputStart
+            self.MinimizedPill.Position = UDim2.new(
+                pillStartPos.X.Scale, 
+                pillStartPos.X.Offset + movementDelta.X, 
+                pillStartPos.Y.Scale, 
+                pillStartPos.Y.Offset + movementDelta.Y
+            )
         end
     end)
     
-    -- Left Sidebar
-    self.LeftSidebar = Instance.new("Frame", self.MainFrame)
-    self.LeftSidebar.Size = UDim2.new(0, 130, 1, -12)
-    self.LeftSidebar.Position = UDim2.new(0, 6, 0, 6)
-    self.LeftSidebar.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
-    self.LeftSidebar.BackgroundTransparency = 0.25
-    self.LeftSidebar.ZIndex = 2
-    Instance.new("UICorner", self.LeftSidebar).CornerRadius = UDim.new(0, 8)
+    self.SidebarPanel = Instance.new("Frame", self.MainContainer)
+    self.SidebarPanel.Name = "SidebarPanel"
+    self.SidebarPanel.Size = UDim2.new(0, 135, 1, -12)
+    self.SidebarPanel.Position = UDim2.new(0, 6, 0, 6)
+    self.SidebarPanel.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
+    self.SidebarPanel.BackgroundTransparency = 0.25
+    self.SidebarPanel.ZIndex = 2
     
-    self.SidebarStroke = Instance.new("UIStroke", self.LeftSidebar)
-    self.SidebarStroke.Color = self.Config.AccentColor
-    self.SidebarStroke.Thickness = 0.8
-    table.insert(self.UIStrokes, self.SidebarStroke)
+    local sidebarCorner = Instance.new("UICorner", self.SidebarPanel)
+    sidebarCorner.CornerRadius = UDim.new(0, 8)
     
-    self.SidebarLogo = Instance.new("ImageLabel", self.LeftSidebar)
-    self.SidebarLogo.Size = UDim2.new(0, 22, 0, 22)
-    self.SidebarLogo.Position = UDim2.new(0, 8, 0, 7)
-    self.SidebarLogo.BackgroundTransparency = 1
-    self.SidebarLogo.Image = "rbxassetid://" .. tostring(self.Config.AssetID)
-    self.SidebarLogo.ZIndex = 3
-    Instance.new("UICorner", self.SidebarLogo).CornerRadius = UDim.new(0, 6)
+    self.SidebarPanelStroke = Instance.new("UIStroke", self.SidebarPanel)
+    self.SidebarPanelStroke.Color = self.Configuration.ThemeAccentColor
+    self.SidebarPanelStroke.Thickness = 0.8
+    table.insert(self.ActiveStrokesRegistry, self.SidebarPanelStroke)
     
-    self.HubTitleLabel = Instance.new("TextLabel", self.LeftSidebar)
-    self.HubTitleLabel.Size = UDim2.new(1, -36, 0, 16)
-    self.HubTitleLabel.Position = UDim2.new(0, 34, 0, 4)
-    self.HubTitleLabel.BackgroundTransparency = 1
-    self.HubTitleLabel.Text = self.Config.Title
-    self.HubTitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    self.HubTitleLabel.Font = Enum.Font.GothamBold
-    self.HubTitleLabel.TextSize = 11
-    self.HubTitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-    self.HubTitleLabel.ZIndex = 3
+    self.SidebarLogoIcon = Instance.new("ImageLabel", self.SidebarPanel)
+    self.SidebarLogoIcon.Size = UDim2.new(0, 22, 0, 22)
+    self.SidebarLogoIcon.Position = UDim2.new(0, 8, 0, 7)
+    self.SidebarLogoIcon.BackgroundTransparency = 1
+    self.SidebarLogoIcon.Image = "rbxassetid://" .. tostring(self.Configuration.AssetIdentifier)
+    self.SidebarLogoIcon.ZIndex = 3
     
-    self.AuthorSubLabel = Instance.new("TextLabel", self.LeftSidebar)
-    self.AuthorSubLabel.Size = UDim2.new(1, -36, 0, 12)
-    self.AuthorSubLabel.Position = UDim2.new(0, 34, 0, 20)
-    self.AuthorSubLabel.BackgroundTransparency = 1
-    self.AuthorSubLabel.Text = self.Config.Subtitle
-    self.AuthorSubLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
-    self.AuthorSubLabel.Font = Enum.Font.Gotham
-    self.AuthorSubLabel.TextSize = 8
-    self.AuthorSubLabel.TextXAlignment = Enum.TextXAlignment.Left
-    self.AuthorSubLabel.ZIndex = 3
+    local sidebarLogoCorner = Instance.new("UICorner", self.SidebarLogoIcon)
+    sidebarLogoCorner.CornerRadius = UDim.new(0, 6)
     
-    self.NavScroll = Instance.new("ScrollingFrame", self.LeftSidebar)
-    self.NavScroll.Size = UDim2.new(1, -8, 1, -45)
-    self.NavScroll.Position = UDim2.new(0, 4, 0, 38)
-    self.NavScroll.BackgroundTransparency = 1
-    self.NavScroll.ScrollBarThickness = 0
-    self.NavScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
-    self.NavScroll.ZIndex = 3
+    self.HeaderTitleInstance = Instance.new("TextLabel", self.SidebarPanel)
+    self.HeaderTitleInstance.Size = UDim2.new(1, -36, 0, 16)
+    self.HeaderTitleInstance.Position = UDim2.new(0, 34, 0, 4)
+    self.HeaderTitleInstance.BackgroundTransparency = 1
+    self.HeaderTitleInstance.Text = self.Configuration.WindowTitle
+    self.HeaderTitleInstance.TextColor3 = Color3.fromRGB(255, 255, 255)
+    self.HeaderTitleInstance.Font = Enum.Font.GothamBold
+    self.HeaderTitleInstance.TextSize = 11
+    self.HeaderTitleInstance.TextXAlignment = Enum.TextXAlignment.Left
+    self.HeaderTitleInstance.ZIndex = 3
     
-    local navList = Instance.new("UIListLayout", self.NavScroll)
-    navList.Padding = UDim.new(0, 4)
-    navList.SortOrder = Enum.SortOrder.LayoutOrder
-    navList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        self.NavScroll.CanvasSize = UDim2.new(0, 0, 0, navList.AbsoluteContentSize.Y + 10)
+    self.HeaderSubtitleInstance = Instance.new("TextLabel", self.SidebarPanel)
+    self.HeaderSubtitleInstance.Size = UDim2.new(1, -36, 0, 12)
+    self.HeaderSubtitleInstance.Position = UDim2.new(0, 34, 0, 20)
+    self.HeaderSubtitleInstance.BackgroundTransparency = 1
+    self.HeaderSubtitleInstance.Text = self.Configuration.WindowSubtitle
+    self.HeaderSubtitleInstance.TextColor3 = Color3.fromRGB(180, 180, 180)
+    self.HeaderSubtitleInstance.Font = Enum.Font.Gotham
+    self.HeaderSubtitleInstance.TextSize = 8
+    self.HeaderSubtitleInstance.TextXAlignment = Enum.TextXAlignment.Left
+    self.HeaderSubtitleInstance.ZIndex = 3
+    
+    self.NavigationScrollingFrame = Instance.new("ScrollingFrame", self.SidebarPanel)
+    self.NavigationScrollingFrame.Size = UDim2.new(1, -8, 1, -45)
+    self.NavigationScrollingFrame.Position = UDim2.new(0, 4, 0, 38)
+    self.NavigationScrollingFrame.BackgroundTransparency = 1
+    self.NavigationScrollingFrame.ScrollBarThickness = 0
+    self.NavigationScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+    self.NavigationScrollingFrame.ZIndex = 3
+    
+    local navigationLayout = Instance.new("UIListLayout", self.NavigationScrollingFrame)
+    navigationLayout.Padding = UDim.new(0, 4)
+    navigationLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    navigationLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        self.NavigationScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, navigationLayout.AbsoluteContentSize.Y + 10)
     end)
     
-    -- Pages Container
-    self.PagesFolder = Instance.new("Folder", self.MainFrame)
-    self.PagesFolder.Name = "PagesFolder"
+    self.PagesContainerFolder = Instance.new("Folder", self.MainContainer)
+    self.PagesContainerFolder.Name = "PagesContainerFolder"
     
-    -- Right Panel Controls (- □ ×) strictly maintained
-    local rightPanel = Instance.new("Frame", self.MainFrame)
-    rightPanel.Size = UDim2.new(0, 80, 0, 24)
-    rightPanel.Position = UDim2.new(1, -86, 0, 6)
-    rightPanel.BackgroundTransparency = 1
-    rightPanel.ZIndex = 10
+    local windowHeaderControls = Instance.new("Frame", self.MainContainer)
+    windowHeaderControls.Size = UDim2.new(0, 80, 0, 24)
+    windowHeaderControls.Position = UDim2.new(1, -86, 0, 6)
+    windowHeaderControls.BackgroundTransparency = 1
+    windowHeaderControls.ZIndex = 10
     
-    local panelLayout = Instance.new("UIListLayout", rightPanel)
-    panelLayout.FillDirection = Enum.FillDirection.Horizontal
-    panelLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
-    panelLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-    panelLayout.Padding = UDim.new(0, 4)
+    local controlsLayout = Instance.new("UIListLayout", windowHeaderControls)
+    controlsLayout.FillDirection = Enum.FillDirection.Horizontal
+    controlsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+    controlsLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+    controlsLayout.Padding = UDim.new(0, 4)
     
-    local minimizeBtn = Instance.new("TextButton", rightPanel)
-    minimizeBtn.Size = UDim2.new(0, 22, 0, 22)
-    minimizeBtn.BackgroundTransparency = 1
-    minimizeBtn.Text = "-"
-    minimizeBtn.TextColor3 = Color3.fromRGB(0, 255, 200)
-    minimizeBtn.Font = Enum.Font.GothamBold
-    minimizeBtn.TextSize = 16
-    minimizeBtn.ZIndex = 11
+    local minimizeButton = Instance.new("TextButton", windowHeaderControls)
+    minimizeButton.Size = UDim2.new(0, 22, 0, 22)
+    minimizeButton.BackgroundTransparency = 1
+    minimizeButton.Text = "-"
+    minimizeButton.TextColor3 = Color3.fromRGB(0, 255, 200)
+    minimizeButton.Font = Enum.Font.GothamBold
+    minimizeButton.TextSize = 16
+    minimizeButton.ZIndex = 11
     
-    local expandBtn = Instance.new("TextButton", rightPanel)
-    expandBtn.Size = UDim2.new(0, 22, 0, 22)
-    expandBtn.BackgroundTransparency = 1
-    expandBtn.Text = "□"
-    expandBtn.TextColor3 = Color3.fromRGB(255, 220, 0)
-    expandBtn.Font = Enum.Font.GothamBold
-    expandBtn.TextSize = 14
-    expandBtn.ZIndex = 11
+    local expandButton = Instance.new("TextButton", windowHeaderControls)
+    expandButton.Size = UDim2.new(0, 22, 0, 22)
+    expandButton.BackgroundTransparency = 1
+    expandButton.Text = "□"
+    expandButton.TextColor3 = Color3.fromRGB(255, 220, 0)
+    expandButton.Font = Enum.Font.GothamBold
+    expandButton.TextSize = 14
+    expandButton.ZIndex = 11
     
-    local closeBtn = Instance.new("TextButton", rightPanel)
-    closeBtn.Size = UDim2.new(0, 22, 0, 22)
-    closeBtn.BackgroundTransparency = 1
-    closeBtn.Text = "×"
-    closeBtn.TextColor3 = Color3.fromRGB(255, 140, 0)
-    closeBtn.Font = Enum.Font.GothamBold
-    closeBtn.TextSize = 18
-    closeBtn.ZIndex = 11
+    local closeButton = Instance.new("TextButton", windowHeaderControls)
+    closeButton.Size = UDim2.new(0, 22, 0, 22)
+    closeButton.BackgroundTransparency = 1
+    closeButton.Text = "×"
+    closeButton.TextColor3 = Color3.fromRGB(255, 140, 0)
+    closeButton.Font = Enum.Font.GothamBold
+    closeButton.TextSize = 18
+    closeButton.ZIndex = 11
     
-    -- Button actions
-    minimizeBtn.MouseButton1Click:Connect(function()
-        self:Minimize()
+    minimizeButton.MouseButton1Click:Connect(function()
+        self:MinimizeInterface()
     end)
     
-    expandBtn.MouseButton1Click:Connect(function()
-        self:ToggleExpand()
+    expandButton.MouseButton1Click:Connect(function()
+        self:ToggleExpandInterface()
     end)
     
-    closeBtn.MouseButton1Click:Connect(function()
-        self:Destroy()
+    closeButton.MouseButton1Click:Connect(function()
+        self:DestroyInterface()
     end)
     
-    clickArea.MouseButton1Click:Connect(function()
-        self:Restore()
+    pillClickDetector.MouseButton1Click:Connect(function()
+        self:RestoreInterface()
     end)
     
     return self
 end
 
--- =========================================================================
--- RAW CONTROLLER METHODS
--- =========================================================================
-
-function MiiseryUI:ToggleVisibility(state)
-    self.IsVisible = state ~= nil and state or not self.IsVisible
-    if self.IsMinimized then
-        self.ScreenGui.Enabled = true
-        self.ToggleButton.Visible = self.IsVisible
-        self.MainFrame.Visible = false
+function MiiseryUI:SetVisibility(visibleState)
+    self.IsInterfaceVisible = visibleState ~= nil and visibleState or not self.IsInterfaceVisible
+    if self.IsInterfaceMinimized then
+        self.RootScreenGui.Enabled = true
+        self.MinimizedPill.Visible = self.IsInterfaceVisible
+        self.MainContainer.Visible = false
     else
-        self.ScreenGui.Enabled = self.IsVisible
-        self.MainFrame.Visible = self.IsVisible
-        self.ToggleButton.Visible = false
+        self.RootScreenGui.Enabled = self.IsInterfaceVisible
+        self.MainContainer.Visible = self.IsInterfaceVisible
+        self.MinimizedPill.Visible = false
     end
 end
 
-function MiiseryUI:Minimize()
-    if self.IsMinimized then return end
-    self.IsMinimized = true
-    TweenService:Create(self.MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+function MiiseryUI:MinimizeInterface()
+    if self.IsInterfaceMinimized then return end
+    self.IsInterfaceMinimized = true
+    TweenService:Create(self.MainContainer, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
         Size = UDim2.new(0, 0, 0, 0),
-        Position = self.MainFrame.Position + UDim2.new(0, 272, 0, 180)
+        Position = self.MainContainer.Position + UDim2.new(0, 280, 0, 170)
     }):Play()
     task.wait(0.2)
-    self.MainFrame.Visible = false
-    self.ToggleButton.Size = UDim2.new(0, 0, 0, 36)
-    self.ToggleButton.Visible = true
-    TweenService:Create(self.ToggleButton, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+    self.MainContainer.Visible = false
+    self.MinimizedPill.Size = UDim2.new(0, 0, 0, 36)
+    self.MinimizedPill.Visible = true
+    TweenService:Create(self.MinimizedPill, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
         Size = UDim2.new(0, 175, 0, 36)
     }):Play()
 end
 
-function MiiseryUI:Restore()
-    if not self.IsMinimized then return end
-    TweenService:Create(self.ToggleButton, TweenInfo.new(0.15, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+function MiiseryUI:RestoreInterface()
+    if not self.IsInterfaceMinimized then return end
+    TweenService:Create(self.MinimizedPill, TweenInfo.new(0.15, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
         Size = UDim2.new(0, 0, 0, 36)
     }):Play()
     task.wait(0.15)
-    self.ToggleButton.Visible = false
-    self.MainFrame.Size = UDim2.new(0, 0, 0, 0)
-    self.MainFrame.Visible = true
-    TweenService:Create(self.MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-        Size = self.Config.Size,
-        Position = self.Config.Position
+    self.MinimizedPill.Visible = false
+    self.MainContainer.Size = UDim2.new(0, 0, 0, 0)
+    self.MainContainer.Visible = true
+    TweenService:Create(self.MainContainer, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Size = self.Configuration.DefaultSize,
+        Position = self.Configuration.DefaultPosition
     }):Play()
     task.wait(0.3)
-    self.IsMinimized = false
+    self.IsInterfaceMinimized = false
 end
 
-function MiiseryUI:ToggleExpand()
-    self.IsExpanded = not self.IsExpanded
-    local targetSize = self.IsExpanded and self.Config.ExpandedSize or self.Config.Size
-    local targetPos = self.IsExpanded and UDim2.new(0.5, -340, 0.5, -205) or self.Config.Position
-    TweenService:Create(self.MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+function MiiseryUI:ToggleExpandInterface()
+    self.IsInterfaceExpanded = not self.IsInterfaceExpanded
+    local targetSize = self.IsInterfaceExpanded and self.Configuration.ExpandedSize or self.Configuration.DefaultSize
+    local targetPos = self.IsInterfaceExpanded and UDim2.new(0.5, -350, 0.5, -210) or self.Configuration.DefaultPosition
+    TweenService:Create(self.MainContainer, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
         Size = targetSize,
         Position = targetPos
     }):Play()
 end
 
-function MiiseryUI:SetAccentColor(color)
-    self.Config.AccentColor = color
-    for _, stroke in ipairs(self.UIStrokes) do
-        if stroke and stroke.Parent then
-            stroke.Color = color
+function MiiseryUI:UpdateAccentColor(newColor)
+    self.Configuration.ThemeAccentColor = newColor
+    for _, strokeObject in ipairs(self.ActiveStrokesRegistry) do
+        if strokeObject and strokeObject.Parent then
+            strokeObject.Color = newColor
         end
     end
 end
 
-function MiiseryUI:SetBackground(assetId)
-    self.Config.AssetID = tostring(assetId)
-    local formattedUri = "rbxassetid://" .. self.Config.AssetID
+function MiiseryUI:UpdateBackgroundAsset(newAssetId)
+    self.Configuration.AssetIdentifier = tostring(newAssetId)
+    local formattedUri = "rbxassetid://" .. self.Configuration.AssetIdentifier
     pcall(function()
-        self.BackgroundImage.Image = ""
+        self.BackgroundArtwork.Image = ""
         task.wait(0.02)
-        self.BackgroundImage.Image = formattedUri
-        self.SidebarLogo.Image = formattedUri
-        self.BadgeLogo.Image = formattedUri
+        self.BackgroundArtwork.Image = formattedUri
+        self.SidebarLogoIcon.Image = formattedUri
+        self.PillLogoIcon.Image = formattedUri
     end)
 end
 
-function MiiseryUI:SetTitle(title, subtitle)
-    if title then
-        self.Config.Title = title
-        self.HubTitleLabel.Text = title
+function MiiseryUI:UpdateMetadata(newTitle, newSubtitle)
+    if newTitle then
+        self.Configuration.WindowTitle = newTitle
+        self.HeaderTitleInstance.Text = newTitle
     end
-    if subtitle then
-        self.Config.Subtitle = subtitle
-        self.AuthorSubLabel.Text = subtitle
+    if newSubtitle then
+        self.Configuration.WindowSubtitle = newSubtitle
+        self.HeaderSubtitleInstance.Text = newSubtitle
     end
 end
 
--- =========================================================================
--- ADVANCED MODERN TAB & ELEMENT BUILDERS (Raw / External Control)
--- =========================================================================
-
-function MiiseryUI:CreateTab(tabName)
-    local tabObj = {}
-    local isFirst = (#self.Tabs == 0)
-    table.insert(self.Tabs, tabName)
+function MiiseryUI:CreateTab(tabTitleName)
+    local tabConstruct = {}
+    local isInitialTab = (#self.RegisteredTabsList == 0)
+    table.insert(self.RegisteredTabsList, tabTitleName)
     
-    local tabBtn = Instance.new("TextButton", self.NavScroll)
-    tabBtn.Name = tabName .. "TabButton"
-    tabBtn.LayoutOrder = #self.Tabs
-    tabBtn.Size = UDim2.new(1, 0, 0, 26)
-    tabBtn.BackgroundColor3 = isFirst and Color3.fromRGB(25, 25, 30) or Color3.fromRGB(12, 12, 15)
-    tabBtn.BackgroundTransparency = 0.2
-    tabBtn.Text = "  " .. tabName
-    tabBtn.TextColor3 = isFirst and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(170, 170, 170)
-    tabBtn.Font = Enum.Font.GothamMedium
-    tabBtn.TextSize = 10
-    tabBtn.TextXAlignment = Enum.TextXAlignment.Left
-    tabBtn.ZIndex = 3
-    Instance.new("UICorner", tabBtn).CornerRadius = UDim.new(0, 6)
+    local tabNavigationButton = Instance.new("TextButton", self.NavigationScrollingFrame)
+    tabNavigationButton.Name = tabTitleName .. "TabButton"
+    tabNavigationButton.LayoutOrder = #self.RegisteredTabsList
+    tabNavigationButton.Size = UDim2.new(1, 0, 0, 26)
+    tabNavigationButton.BackgroundColor3 = isInitialTab and Color3.fromRGB(25, 25, 30) or Color3.fromRGB(12, 12, 15)
+    tabNavigationButton.BackgroundTransparency = 0.2
+    tabNavigationButton.Text = "  " .. tabTitleName
+    tabNavigationButton.TextColor3 = isInitialTab and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(170, 170, 170)
+    tabNavigationButton.Font = Enum.Font.GothamMedium
+    tabNavigationButton.TextSize = 10
+    tabNavigationButton.TextXAlignment = Enum.TextXAlignment.Left
+    tabNavigationButton.ZIndex = 3
     
-    local tabStroke = Instance.new("UIStroke", tabBtn)
-    tabStroke.Color = isFirst and self.Config.AccentColor or Color3.fromRGB(60, 60, 60)
-    tabStroke.Thickness = 0.8
-    table.insert(self.UIStrokes, tabStroke)
+    local buttonCorner = Instance.new("UICorner", tabNavigationButton)
+    buttonCorner.CornerRadius = UDim.new(0, 6)
     
-    local page = Instance.new("ScrollingFrame", self.PagesFolder)
-    page.Name = tabName .. "Page"
-    page.Size = UDim2.new(1, -150, 1, -42)
-    page.Position = UDim2.new(0, 142, 0, 36)
-    page.BackgroundTransparency = 1
-    page.ScrollBarThickness = 2
-    page.CanvasSize = UDim2.new(0, 0, 0, 0)
-    page.Visible = isFirst
-    page.ZIndex = 2
-    page.ClipsDescendants = true
+    local buttonStroke = Instance.new("UIStroke", tabNavigationButton)
+    buttonStroke.Color = isInitialTab and self.Configuration.ThemeAccentColor or Color3.fromRGB(60, 60, 60)
+    buttonStroke.Thickness = 0.8
+    table.insert(self.ActiveStrokesRegistry, buttonStroke)
     
-    local pageLayout = Instance.new("UIListLayout", page)
+    local tabPageContainer = Instance.new("ScrollingFrame", self.PagesContainerFolder)
+    tabPageContainer.Name = tabTitleName .. "Page"
+    tabPageContainer.Size = UDim2.new(1, -155, 1, -42)
+    tabPageContainer.Position = UDim2.new(0, 145, 0, 36)
+    tabPageContainer.BackgroundTransparency = 1
+    tabPageContainer.ScrollBarThickness = 2
+    tabPageContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
+    tabPageContainer.Visible = isInitialTab
+    tabPageContainer.ZIndex = 2
+    tabPageContainer.ClipsDescendants = true
+    
+    local pageLayout = Instance.new("UIListLayout", tabPageContainer)
     pageLayout.Padding = UDim.new(0, 6)
     pageLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        page.CanvasSize = UDim2.new(0, 0, 0, pageLayout.AbsoluteContentSize.Y + 15)
+        tabPageContainer.CanvasSize = UDim2.new(0, 0, 0, pageLayout.AbsoluteContentSize.Y + 15)
     end)
     
-    tabBtn.MouseButton1Click:Connect(function()
-        for _, child in ipairs(self.PagesFolder:GetChildren()) do child.Visible = false end
-        for _, child in ipairs(self.NavScroll:GetChildren()) do
-            if child:IsA("TextButton") then
-                child.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
-                child.TextColor3 = Color3.fromRGB(170, 170, 170)
-                local str = child:FindFirstChildOfClass("UIStroke")
-                if str then str.Color = Color3.fromRGB(60, 60, 60) end
+    tabNavigationButton.MouseButton1Click:Connect(function()
+        for _, pageNode in ipairs(self.PagesContainerFolder:GetChildren()) do
+            pageNode.Visible = false
+        end
+        for _, btnNode in ipairs(self.NavigationScrollingFrame:GetChildren()) do
+            if btnNode:IsA("TextButton") then
+                btnNode.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
+                btnNode.TextColor3 = Color3.fromRGB(170, 170, 170)
+                local strNode = btnNode:FindFirstChildOfClass("UIStroke")
+                if strNode then
+                    strNode.Color = Color3.fromRGB(60, 60, 60)
+                end
             end
         end
-        page.Visible = true
-        tabBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
-        tabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        tabStroke.Color = self.Config.AccentColor
+        tabPageContainer.Visible = true
+        tabNavigationButton.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+        tabNavigationButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        buttonStroke.Color = self.Configuration.ThemeAccentColor
     end)
     
-    function tabObj:Toggle(data)
-        local titleText = data.Title or "Toggle"
-        local defaultState = data.Value or false
-        local callback = data.Callback or function() end
-        local toggled = defaultState
+    function tabConstruct:AddToggle(settingsData)
+        local labelText = settingsData.Title or "Toggle"
+        local initialState = settingsData.Value or false
+        local callbackFn = settingsData.Callback or function() end
+        local currentState = initialState
         
-        local frame = Instance.new("Frame", page)
-        frame.Size = UDim2.new(1, -6, 0, 30)
-        frame.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
-        frame.BackgroundTransparency = 0.25
-        frame.ZIndex = 3
-        Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
+        local elementFrame = Instance.new("Frame", tabPageContainer)
+        elementFrame.Size = UDim2.new(1, -6, 0, 30)
+        elementFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
+        elementFrame.BackgroundTransparency = 0.25
+        elementFrame.ZIndex = 3
         
-        local stroke = Instance.new("UIStroke", frame)
-        stroke.Color = Color3.fromRGB(80, 80, 80)
-        stroke.Thickness = 0.8
+        local frameCorner = Instance.new("UICorner", elementFrame)
+        frameCorner.CornerRadius = UDim.new(0, 6)
         
-        local title = Instance.new("TextLabel", frame)
-        title.Size = UDim2.new(1, -45, 1, 0)
-        title.Position = UDim2.new(0, 10, 0, 0)
-        title.BackgroundTransparency = 1
-        title.Text = titleText
-        title.TextColor3 = Color3.fromRGB(255, 255, 255)
-        title.Font = Enum.Font.GothamMedium
-        title.TextSize = 10
-        title.TextXAlignment = Enum.TextXAlignment.Left
-        title.ZIndex = 4
+        local frameStroke = Instance.new("UIStroke", elementFrame)
+        frameStroke.Color = Color3.fromRGB(80, 80, 80)
+        frameStroke.Thickness = 0.8
         
-        local switch = Instance.new("TextButton", frame)
-        switch.Size = UDim2.new(0, 26, 0, 14)
-        switch.Position = UDim2.new(1, -34, 0.5, -7)
-        switch.BackgroundColor3 = toggled and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40)
-        switch.Text = ""
-        switch.ZIndex = 4
-        Instance.new("UICorner", switch).CornerRadius = UDim.new(1, 0)
+        local textLabel = Instance.new("TextLabel", elementFrame)
+        textLabel.Size = UDim2.new(1, -45, 1, 0)
+        textLabel.Position = UDim2.new(0, 10, 0, 0)
+        textLabel.BackgroundTransparency = 1
+        textLabel.Text = labelText
+        textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        textLabel.Font = Enum.Font.GothamMedium
+        textLabel.TextSize = 10
+        textLabel.TextXAlignment = Enum.TextXAlignment.Left
+        textLabel.ZIndex = 4
         
-        switch.MouseButton1Click:Connect(function()
-            toggled = not toggled
-            switch.BackgroundColor3 = toggled and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40)
-            pcall(callback, toggled)
+        local toggleSwitch = Instance.new("TextButton", elementFrame)
+        toggleSwitch.Size = UDim2.new(0, 26, 0, 14)
+        toggleSwitch.Position = UDim2.new(1, -34, 0.5, -7)
+        toggleSwitch.BackgroundColor3 = currentState and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40)
+        toggleSwitch.Text = ""
+        toggleSwitch.ZIndex = 4
+        
+        local switchCorner = Instance.new("UICorner", toggleSwitch)
+        switchCorner.CornerRadius = UDim.new(1, 0)
+        
+        toggleSwitch.MouseButton1Click:Connect(function()
+            currentState = not currentState
+            toggleSwitch.BackgroundColor3 = currentState and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(40, 40, 40)
+            pcall(callbackFn, currentState)
         end)
     end
     
-    function tabObj:Button(data)
-        local titleText = data.Title or "Button"
-        local callback = data.Callback or function() end
-
-        local btn = Instance.new("TextButton", page)
-        btn.Size = UDim2.new(1, -6, 0, 30)
-        btn.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
-        btn.BackgroundTransparency = 0.25
-        btn.Text = "  " .. titleText
-        btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        btn.Font = Enum.Font.GothamMedium
-        btn.TextSize = 10
-        btn.TextXAlignment = Enum.TextXAlignment.Left
-        btn.ZIndex = 3
-        Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+    function tabConstruct:AddButton(settingsData)
+        local labelText = settingsData.Title or "Button"
+        local callbackFn = settingsData.Callback or function() end
         
-        local stroke = Instance.new("UIStroke", btn)
-        stroke.Color = Color3.fromRGB(80, 80, 80)
-        stroke.Thickness = 0.8
-
-        btn.MouseButton1Click:Connect(function()
-            pcall(callback)
+        local buttonElement = Instance.new("TextButton", tabPageContainer)
+        buttonElement.Size = UDim2.new(1, -6, 0, 30)
+        buttonElement.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
+        buttonElement.BackgroundTransparency = 0.25
+        buttonElement.Text = "  " .. labelText
+        buttonElement.TextColor3 = Color3.fromRGB(255, 255, 255)
+        buttonElement.Font = Enum.Font.GothamMedium
+        buttonElement.TextSize = 10
+        buttonElement.TextXAlignment = Enum.TextXAlignment.Left
+        buttonElement.ZIndex = 3
+        
+        local btnCorner = Instance.new("UICorner", buttonElement)
+        btnCorner.CornerRadius = UDim.new(0, 6)
+        
+        local btnStroke = Instance.new("UIStroke", buttonElement)
+        btnStroke.Color = Color3.fromRGB(80, 80, 80)
+        btnStroke.Thickness = 0.8
+        
+        buttonElement.MouseButton1Click:Connect(function()
+            pcall(callbackFn)
         end)
     end
-
-    function tabObj:Slider(data)
-        local titleText = data.Title or "Slider"
-        local min = data.Value and data.Value.Min or 0
-        local max = data.Value and data.Value.Max or 100
-        local default = data.Value and data.Value.Default or min
-        local callback = data.Callback or function() end
-
-        local frame = Instance.new("Frame", page)
-        frame.Size = UDim2.new(1, -6, 0, 40)
-        frame.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
-        frame.BackgroundTransparency = 0.25
-        frame.ZIndex = 3
-        Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
-
-        local title = Instance.new("TextLabel", frame)
-        title.Size = UDim2.new(1, -12, 0, 16)
-        title.Position = UDim2.new(0, 10, 0, 4)
-        title.BackgroundTransparency = 1
-        title.Text = titleText .. ": " .. tostring(default)
-        title.TextColor3 = Color3.fromRGB(255, 255, 255)
-        title.Font = Enum.Font.GothamMedium
-        title.TextSize = 10
-        title.TextXAlignment = Enum.TextXAlignment.Left
-        title.ZIndex = 4
-
-        local sliderBg = Instance.new("Frame", frame)
-        sliderBg.Size = UDim2.new(1, -20, 0, 6)
-        sliderBg.Position = UDim2.new(0, 10, 0, 26)
-        sliderBg.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-        sliderBg.ZIndex = 4
-        Instance.new("UICorner", sliderBg).CornerRadius = UDim.new(1, 0)
-
-        local sliderFill = Instance.new("Frame", sliderBg)
-        sliderFill.Size = UDim2.new((default - min)/(max - min), 0, 1, 0)
-        sliderFill.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        sliderFill.ZIndex = 5
-        Instance.new("UICorner", sliderFill).CornerRadius = UDim.new(1, 0)
-
-        local draggingSlider = false
-        local function updateInput(input)
-            local pos = math.clamp((input.Position.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X, 0, 1)
-            local val = math.floor(min + (max - min) * pos)
-            sliderFill.Size = UDim2.new(pos, 0, 1, 0)
-            title.Text = titleText .. ": " .. tostring(val)
-            pcall(callback, val)
-        end
-
-        sliderBg.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                draggingSlider = true
-                updateInput(input)
-            end
-        end)
-        UIS.InputEnded:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                draggingSlider = false
-            end
-        end)
-        UIS.InputChanged:Connect(function(input)
-            if draggingSlider and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-                updateInput(input)
-            end
-        end)
-    end
-
-    function tabObj:Dropdown(data)
-        local titleText = data.Title or "Dropdown"
-        local values = data.Values or {}
-        local currentVal = data.Value or values[1] or "None"
-        local callback = data.Callback or function() end
-        local idx = 1
-        for i, v in ipairs(values) do
-            if v == currentVal then idx = i break end
-        end
-
-        local btn = Instance.new("TextButton", page)
-        btn.Size = UDim2.new(1, -6, 0, 30)
-        btn.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
-        btn.BackgroundTransparency = 0.25
-        btn.Text = "  " .. titleText .. ": " .. tostring(currentVal)
-        btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        btn.Font = Enum.Font.GothamMedium
-        btn.TextSize = 10
-        btn.TextXAlignment = Enum.TextXAlignment.Left
-        btn.ZIndex = 3
-        Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
-
-        local stroke = Instance.new("UIStroke", btn)
-        stroke.Color = Color3.fromRGB(80, 80, 80)
-        stroke.Thickness = 0.8
-
-        btn.MouseButton1Click:Connect(function()
-            if #values == 0 then return end
-            idx = idx + 1
-            if idx > #values then idx = 1 end
-            local choice = values[idx]
-            btn.Text = "  " .. titleText .. ": " .. tostring(choice)
-            pcall(callback, choice)
-        end)
-
-        local dropdownObj = {}
-        function dropdownObj:Refresh(newValues)
-            values = newValues or {}
-            idx = 1
-            currentVal = values[1] or "None"
-            btn.Text = "  " .. titleText .. ": " .. tostring(currentVal)
-        end
-        return dropdownObj
-    end
-
-    return tabObj
+    
+    return tabConstruct
 end
 
-function MiiseryUI:Destroy()
+function MiiseryUI:DestroyInterface()
     pcall(function()
-        self.ScreenGui:Destroy()
+        self.RootScreenGui:Destroy()
     end)
 end
 

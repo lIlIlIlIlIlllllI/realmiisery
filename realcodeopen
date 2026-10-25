@@ -77,7 +77,6 @@ local Config = {
     StreamProof = false
 }
 
--- Configuración de los 10 Slots para la Macro
 local MacroConfigData = {}
 local defaultSpeeds = {999, 998, 997, 996, 995, 994, 993, 992, 991, 990}
 local defaultKeys = {"None", "None", "None", "None", "None", "None", "None", "None", "None", "None"}
@@ -278,7 +277,7 @@ DragArea.InputBegan:Connect(function(input)
     end
 end)
 
-UserInputService.InputChanged:Connect(function(input)
+UIS.InputChanged:Connect(function(input)
     if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
         local delta = input.Position - dragStart
         ToggleButton.Position = UDim2.new(
@@ -2274,10 +2273,10 @@ local gunKeys = {"Z", "X"}
 for i = 1, #gunKeys do blToggle("Gun", gunKeys[i]) end
 
 -- ==========================================
--- PESTAÑA MACRO (Ubicada justo arriba de Misc con sus 10 Slots)
+-- PESTAÑA MACRO (Con reemplazo automático y anclaje ☆/¤)
 -- ==========================================
 local MacroTab = MiiseryLibraryObj:CreateTab("Macro")
-MacroTab:Paragraph({ Title = "Sistema de Macro PvP (10 Slots)", Desc = "Configura tus teclas y velocidad (hasta 999). Si está en None, se omite." })
+MacroTab:Paragraph({ Title = "Sistema de Macro PvP (10 Slots)", Desc = "Configura tus teclas y velocidad. Si está en None, se omite." })
 
 for i = 1, 10 do
     MacroTab:Dropdown({
@@ -2312,8 +2311,8 @@ MacroTab:Button({
         MiniGui.Parent = ScreenGui
 
         local MiniBox = Instance.new("Frame", MiniGui)
-        MiniBox.Size = UDim2.new(0, 110, 0, 70)
-        MiniBox.Position = UDim2.new(0.5, -55, 0.25, 0)
+        MiniBox.Size = UDim2.new(0, 130, 0, 70)
+        MiniBox.Position = UDim2.new(0.5, -65, 0.25, 0)
         MiniBox.BackgroundColor3 = Color3.fromRGB(12, 12, 18)
         MiniBox.Active = true
         MiniBox.Draggable = true
@@ -2331,7 +2330,7 @@ MacroTab:Button({
         Instance.new("UICorner", MiniLogo).CornerRadius = UDim.new(1, 0)
 
         local MiniTitle = Instance.new("TextLabel", MiniBox)
-        MiniTitle.Size = UDim2.new(1, -30, 0, 20)
+        MiniTitle.Size = UDim2.new(1, -50, 0, 20)
         MiniTitle.Position = UDim2.new(0, 28, 0, 4)
         MiniTitle.BackgroundTransparency = 1
         MiniTitle.Text = "MACRO"
@@ -2339,6 +2338,28 @@ MacroTab:Button({
         MiniTitle.Font = Enum.Font.GothamBold
         MiniTitle.TextSize = 10
         MiniTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+        -- Botón de Anclar (☆ = Desanclado, ¤ = Anclado)
+        local isLocked = false
+        local AnchorBtn = Instance.new("TextButton", MiniBox)
+        AnchorBtn.Size = UDim2.new(0, 20, 0, 20)
+        AnchorBtn.Position = UDim2.new(1, -24, 0, 4)
+        AnchorBtn.BackgroundTransparency = 1
+        AnchorBtn.Text = "☆"
+        AnchorBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        AnchorBtn.Font = Enum.Font.GothamBold
+        AnchorBtn.TextSize = 14
+
+        AnchorBtn.MouseButton1Click:Connect(function()
+            isLocked = not isLocked
+            if isLocked then
+                AnchorBtn.Text = "¤"
+                MiniBox.Draggable = false
+            else
+                AnchorBtn.Text = "☆"
+                MiniBox.Draggable = true
+            end
+        end)
 
         ToggleMacroBtnRef = Instance.new("TextButton", MiniBox)
         ToggleMacroBtnRef.Size = UDim2.new(1, -16, 0, 32)
@@ -2382,9 +2403,9 @@ local function getKeyCode(keyStr)
     return map[keyStr]
 end
 
+-- Bucle de Macro Ultra Rápido y Fluido
 task.spawn(function()
     while true do
-        task.wait(0.01)
         if isMacroActive then
             for i = 1, 10 do
                 if not isMacroActive then break end
@@ -2397,21 +2418,16 @@ task.spawn(function()
                     if keyCode then
                         pcall(function()
                             VirtualInputManager:SendKeyEvent(true, keyCode, false, game)
-                            task.wait(0.01)
                             VirtualInputManager:SendKeyEvent(false, keyCode, false, game)
                         end)
                     end
                 end
                 
-                local waitTime = math.clamp((1000 - currentSpeed) / 10000, 0.001, 0.5)
+                local waitTime = math.clamp((1000 - currentSpeed) / 15000, 0.0001, 0.05)
                 task.wait(waitTime)
             end
-            
-            isMacroActive = false
-            if ToggleMacroBtnRef and ToggleMacroBtnRef.Parent then
-                ToggleMacroBtnRef.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-                ToggleMacroBtnRef.Text = "OFF"
-            end
+        else
+            task.wait(0.1)
         end
     end
 end)

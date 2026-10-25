@@ -72,7 +72,6 @@ local Config = {
     ChestFarm = false, ChestFarmSpeed = 160,
     Language = "English",
     CustomAssetID = "114065885540477",
-    CustomInputURL = "",
     ColorTheme = "Miisery",
     StreamProof = false
 }
@@ -132,6 +131,15 @@ local function GetThemeColors()
     return Themes[Config.ColorTheme] or Themes.Miisery
 end
 
+local BackgroundPresets = {
+    ["Default Miisery"] = "114065885540477",
+    ["Anime Style 1"] = "85256255221310",
+    ["Dark Aesthetic"] = "106006243046634",
+    ["Neon Night"] = "76375726192743",
+    ["Cyberpunk Vibe"] = "88932447826978",
+    ["Aesthetic Void"] = "100480019494922"
+}
+
 local function getFormattedAsset(val)
     if not val or val == "" then return "" end
     if tonumber(val) then
@@ -140,7 +148,7 @@ local function getFormattedAsset(val)
     return val
 end
 
-local ASSET_ID = getFormattedAsset(Config.CustomInputURL ~= "" and Config.CustomInputURL or Config.CustomAssetID)
+local ASSET_ID = getFormattedAsset(Config.CustomAssetID)
 
 local OriginalSize = UDim2.new(0, 545, 0, 330)
 local ExpandedSize = UDim2.new(0, 680, 0, 410)
@@ -2640,7 +2648,6 @@ local function applyWallpaper(inputVal)
     if not inputVal or inputVal == "" then return end
     local assetUri = getFormattedAsset(inputVal)
     Config.CustomAssetID = inputVal
-    Config.CustomInputURL = inputVal
     SaveConfig()
     pcall(function()
         if BackgroundImage then
@@ -2656,7 +2663,7 @@ end
 
 PersonalizationTab:Textbox({
     Title = "Media URL or ID",
-    Value = Config.CustomInputURL or "",
+    Value = Config.CustomAssetID or "",
     Callback = function(txt)
         applyWallpaper(txt)
     end
@@ -2665,7 +2672,7 @@ PersonalizationTab:Textbox({
 PersonalizationTab:Button({
     Title = "Apply Background",
     Callback = function()
-        applyWallpaper(Config.CustomInputURL)
+        applyWallpaper(Config.CustomAssetID)
     end
 })
 
@@ -2673,7 +2680,6 @@ PersonalizationTab:Button({
     Title = "Remove Background",
     Callback = function()
         Config.CustomAssetID = ""
-        Config.CustomInputURL = ""
         SaveConfig()
         pcall(function()
             if BackgroundImage then BackgroundImage.Image = "" end
@@ -2684,22 +2690,20 @@ PersonalizationTab:Button({
     end
 })
 
-local availableAssetIds = {
-    "114065885540477",
-    "85256255221310",
-    "106006243046634",
-    "76375726192743",
-    "88932447826978",
-    "100480019494922"
-}
+local presetNames = {}
+for name, _ in pairs(BackgroundPresets) do
+    table.insert(presetNames, name)
+end
 
 PersonalizationTab:Dropdown({
     Title = "Featured Backgrounds (Click to Apply)",
-    Values = availableAssetIds,
-    Value = Config.CustomAssetID,
+    Values = presetNames,
+    Value = "Default Miisery",
     Callback = function(v)
-        Config.CustomInputURL = tostring(v)
-        applyWallpaper(tostring(v))
+        local idVal = BackgroundPresets[v]
+        if idVal then
+            applyWallpaper(idVal)
+        end
     end
 })
 
@@ -2841,7 +2845,7 @@ InfoTab:Dropdown({
 })
 
 pcall(function()
-    local initialUri = getFormattedAsset(Config.CustomInputURL ~= "" and Config.CustomInputURL or Config.CustomAssetID)
+    local initialUri = getFormattedAsset(Config.CustomAssetID)
     if BackgroundImage then BackgroundImage.Image = initialUri end
     if SidebarLogo then SidebarLogo.Image = initialUri end
     if BadgeLogo then BadgeLogo.Image = initialUri end

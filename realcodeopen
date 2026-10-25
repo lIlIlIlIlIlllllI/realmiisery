@@ -78,10 +78,10 @@ local Config = {
 }
 
 local MacroConfigData = {}
-local defaultSpeeds = {999, 998, 997, 996, 995, 994, 993, 992, 991, 990}
+local defaultSpeeds = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 local defaultKeys = {"None", "None", "None", "None", "None", "None", "None", "None", "None", "None"}
 for i = 1, 10 do
-    MacroConfigData[i] = { Key = defaultKeys[i], Speed = defaultSpeeds[i] }
+    MacroConfigData[i] = { Key = defaultKeys[i], Delay = defaultSpeeds[i] }
 end
 
 local isMacroActive = false
@@ -2273,33 +2273,90 @@ local gunKeys = {"Z", "X"}
 for i = 1, #gunKeys do blToggle("Gun", gunKeys[i]) end
 
 -- ==========================================
--- PESTAÑA MACRO (Con reemplazo automático y anclaje ☆/¤)
+-- PESTAÑA MACRO (Con formato "Tecla : [Valor] < >", delay y slot único hiper rápido)
 -- ==========================================
 local MacroTab = MiiseryLibraryObj:CreateTab("Macro")
-MacroTab:Paragraph({ Title = "Sistema de Macro PvP (10 Slots)", Desc = "Configura tus teclas y velocidad. Si está en None, se omite." })
+MacroTab:Paragraph({ Title = "Configurar Macro PvP", Desc = "Usa las flechas para elegir la tecla (ej. 3) y su Delay. Al activarse, tira cada slot 1 vez hiper rápido y se auto-apaga." })
+
+local keyOptions = {"None", "Z", "X", "C", "V", "F", "1", "2", "3", "4", "5"}
 
 for i = 1, 10 do
-    MacroTab:Dropdown({
-        Title = "Slot " .. i .. " -> Tecla",
-        Values = {"None", "Z", "X", "C", "V", "F", "1", "2", "3", "4", "5"},
-        Value = MacroConfigData[i].Key,
-        Callback = function(v)
-            MacroConfigData[i].Key = tostring(v)
-        end
-    })
+    local slotFrame = Instance.new("Frame", PagesFolder:FindFirstChild("MacroPage"))
+    slotFrame.Size = UDim2.new(1, -6, 0, 50)
+    slotFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
+    slotFrame.BackgroundTransparency = 0.25
+    slotFrame.ZIndex = 3
+    Instance.new("UICorner", slotFrame).CornerRadius = UDim.new(0, 6)
 
-    MacroTab:Slider({
-        Title = "Slot " .. i .. " -> Velocidad",
-        Value = { Min = 1, Max = 999, Default = MacroConfigData[i].Speed },
-        Callback = function(v)
-            MacroConfigData[i].Speed = tonumber(v) or 500
-        end
-    })
+    local stroke = Instance.new("UIStroke", slotFrame)
+    stroke.Color = Color3.fromRGB(80, 80, 80)
+    stroke.Thickness = 0.8
+
+    local slotTitle = Instance.new("TextLabel", slotFrame)
+    slotTitle.Size = UDim2.new(1, -12, 0, 16)
+    slotTitle.Position = UDim2.new(0, 10, 0, 4)
+    slotTitle.BackgroundTransparency = 1
+    slotTitle.Text = "Slot " .. i
+    slotTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+    slotTitle.Font = Enum.Font.GothamBold
+    slotTitle.TextSize = 10
+    slotTitle.TextXAlignment = Enum.TextXAlignment.Left
+    slotTitle.ZIndex = 4
+
+    -- Selector Tecla: [Valor] < >
+    local keyValIdx = 1
+    local keyBtn = Instance.new("TextButton", slotFrame)
+    keyBtn.Size = UDim2.new(0.48, 0, 0, 22)
+    keyBtn.Position = UDim2.new(0, 8, 0, 22)
+    keyBtn.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
+    keyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    keyBtn.Font = Enum.Font.GothamMedium
+    keyBtn.TextSize = 9.5
+    keyBtn.ZIndex = 4
+    Instance.new("UICorner", keyBtn).CornerRadius = UDim.new(0, 4)
+
+    local function updateKeyText()
+        keyBtn.Text = "Tecla : " .. MacroConfigData[i].Key .. "  <  >"
+    end
+    updateKeyText()
+
+    keyBtn.MouseButton1Click:Connect(function()
+        keyValIdx = keyValIdx + 1
+        if keyValIdx > #keyOptions then keyValIdx = 1 end
+        MacroConfigData[i].Key = keyOptions[keyValIdx]
+        updateKeyText()
+    end)
+
+    -- Selector Delay / Velocidad
+    local delayBtn = Instance.new("TextButton", slotFrame)
+    delayBtn.Size = UDim2.new(0.48, 0, 0, 22)
+    delayBtn.Position = UDim2.new(0.51, 0, 0, 22)
+    delayBtn.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
+    delayBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    delayBtn.Font = Enum.Font.GothamMedium
+    delayBtn.TextSize = 9.5
+    delayBtn.ZIndex = 4
+    Instance.new("UICorner", delayBtn).CornerRadius = UDim.new(0, 4)
+
+    local delays = {0, 0.05, 0.1, 0.15, 0.2, 0.3, 0.5}
+    local delayIdx = 1
+    local function updateDelayText()
+        delayBtn.Text = "Delay : " .. tostring(MacroConfigData[i].Delay) .. "s  <  >"
+    end
+    updateDelayText()
+
+    delayBtn.MouseButton1Click:Connect(function()
+        delayIdx = delayIdx + 1
+        if delayIdx > #delays then delayIdx = 1 end
+        MacroConfigData[i].Delay = delays[delayIdx]
+        updateDelayText()
+    end)
 end
 
 MacroTab:Button({
     Title = "Generar Mini UI Flotante",
     Callback = function()
+        -- Si ya había una Mini UI generada, se destruye y se reemplaza limpiamente por la nueva
         pcall(function()
             if CoreGui:FindFirstChild("MiiseryMiniMacroUI") then CoreGui.MiiseryMiniMacroUI:Destroy() end
             if playerGui:FindFirstChild("MiiseryMiniMacroUI") then playerGui.MiiseryMiniMacroUI:Destroy() end
@@ -2339,7 +2396,7 @@ MacroTab:Button({
         MiniTitle.TextSize = 10
         MiniTitle.TextXAlignment = Enum.TextXAlignment.Left
 
-        -- Botón de Anclar (☆ = Desanclado, ¤ = Anclado)
+        -- Botón de Anclar (☆ = Desanclado / se puede mover, ¤ = Anclado / bloqueado)
         local isLocked = false
         local AnchorBtn = Instance.new("TextButton", MiniBox)
         AnchorBtn.Size = UDim2.new(0, 20, 0, 20)
@@ -2403,18 +2460,19 @@ local function getKeyCode(keyStr)
     return map[keyStr]
 end
 
--- Bucle de Macro Ultra Rápido y Fluido
+-- Bucle de Macro: Toca exactamente 1 vez por slot a velocidad hiper rápida y se auto-apaga
 task.spawn(function()
     while true do
+        task.wait(0.01)
         if isMacroActive then
             for i = 1, 10 do
                 if not isMacroActive then break end
                 
-                local currentKeyStr = MacroConfigData[i].Key
-                local currentSpeed = MacroConfigData[i].Speed or 500
+                local keyStr = MacroConfigData[i].Key
+                local slotDelay = MacroConfigData[i].Delay or 0
                 
-                if currentKeyStr ~= "None" then
-                    local keyCode = getKeyCode(currentKeyStr)
+                if keyStr ~= "None" then
+                    local keyCode = getKeyCode(keyStr)
                     if keyCode then
                         pcall(function()
                             VirtualInputManager:SendKeyEvent(true, keyCode, false, game)
@@ -2423,11 +2481,17 @@ task.spawn(function()
                     end
                 end
                 
-                local waitTime = math.clamp((1000 - currentSpeed) / 15000, 0.0001, 0.05)
-                task.wait(waitTime)
+                if slotDelay > 0 then
+                    task.wait(slotDelay)
+                end
             end
-        else
-            task.wait(0.1)
+            
+            -- Auto-apagado automático al terminar la ronda de habilidades
+            isMacroActive = false
+            if ToggleMacroBtnRef and ToggleMacroBtnRef.Parent then
+                ToggleMacroBtnRef.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+                ToggleMacroBtnRef.Text = "OFF"
+            end
         end
     end
 end)

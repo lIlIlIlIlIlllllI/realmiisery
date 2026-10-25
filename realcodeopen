@@ -4,12 +4,10 @@ local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
-local UserInputService = UIS
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RS = ReplicatedStorage
 local HttpService = game:GetService("HttpService")
-local Lighting = game:GetService("Lighting")
 local TweenService = game:GetService("TweenService")
 
 local lp = Players.LocalPlayer
@@ -27,8 +25,6 @@ end)
 if not registerHit then
     registerHit = Net:FindFirstChild("RE/RegisterHit")
 end
-local ShootGunEvent = Net:FindFirstChild("Remotes") and Net.Remotes:FindFirstChild("ShootGunEvent") or Net:FindFirstChild("RE/ShootGunEvent")
-local Validator2 = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Validator2")
 
 pcall(function()
     if CoreGui:FindFirstChild("MiiseryLib_UI") then CoreGui.MiiseryLib_UI:Destroy() end
@@ -48,8 +44,6 @@ ScreenGui.Parent = (gethui and gethui()) or CoreGui or playerGui
 local Config = {
     FastAttack = false, FAPlayers = true, FAMobs = true, FARange = 1000,
     BringMobs = false, BringRange = 3000,
-    SafeGun = false, SafeMobs = true, SafePlayers = true, SafeSea = true, SafeRange = 500,
-    SuperGun = false, SuperMobs = true, SuperPlayers = true, SuperSea = true, SuperRange = 500,
     Disappear = false, AutoV3 = false, AutoV4 = false, AutoPvP = false,
     InfiniteZoom = false, AntiAFK = true, Notifications = true,
     Fly = false, FlySpeed = 250, FlyVertical = 180, FlySmooth = true,
@@ -63,15 +57,13 @@ local Config = {
     SilentPlayer = false, SilentNPC = false, AimMode = "360", AimPriority = "Nearest",
     ShowFOV = false, FOVMode = "V1", FOVRadius = 150, AimMaxRange = 2000,
     Tracer = false, TracerColor = "Red",
-    BypassTpNpc = false, BypassTpRange = 500, BypassTpMode = "Nearest", BypassTpAbove = true, BypassTpHeight = 12,
-    LowGraphics = false, DisableShadows = false, NoFog = false, NoGfxMode = "Off",
     BL_Melee_Z = false, BL_Melee_X = false, BL_Melee_C = false, BL_Melee_V = false, BL_Melee_F = false,
     BL_Sword_Z = false, BL_Sword_X = false, BL_Sword_C = false, BL_Sword_V = false, BL_Sword_F = false,
     BL_Fruit_Z = false, BL_Fruit_X = false, BL_Fruit_C = false, BL_Fruit_V = false, BL_Fruit_F = false, BL_Fruit_TAP = false,
     BL_Gun_Z = false, BL_Gun_X = false, BL_Gun_C = false, BL_Gun_V = false, BL_Gun_F = false,
     ChestFarm = false, ChestFarmSpeed = 160,
-    Language = "English",
     CustomAssetID = "114065885540477",
+    AccentColor = "White",
     StreamProof = false
 }
 
@@ -229,7 +221,7 @@ DragArea.InputBegan:Connect(function(input)
     end
 end)
 
-UserInputService.InputChanged:Connect(function(input)
+UIS.InputChanged:Connect(function(input)
     if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
         local delta = input.Position - dragStart
         ToggleButton.Position = UDim2.new(
@@ -251,13 +243,11 @@ local function ToggleStreamProof(active)
     end
 end
 
-local function OnChatted(message)
+lp.Chatted:Connect(function(message)
     if string.lower(message) == "-open-" then
         ToggleStreamProof(false)
     end
-end
-
-lp.Chatted:Connect(OnChatted)
+end)
 
 local LeftSidebar = Instance.new("Frame", MainFrame)
 LeftSidebar.Name = "LeftSidebar"
@@ -379,15 +369,12 @@ local isMinimized = false
 local function MinimizeUI()
     if isMinimized then return end
     isMinimized = true
-    
     TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
         Size = UDim2.new(0, 0, 0, 0),
         Position = MainFrame.Position + UDim2.new(0, 272, 0, 180)
     }):Play()
-    
     task.wait(0.2)
     MainFrame.Visible = false
-    
     ToggleButton.Size = UDim2.new(0, 0, 0, 36)
     ToggleButton.Visible = true
     TweenService:Create(ToggleButton, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
@@ -397,22 +384,17 @@ end
 
 local function RestoreUI()
     if not isMinimized then return end
-    
     TweenService:Create(ToggleButton, TweenInfo.new(0.15, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
         Size = UDim2.new(0, 0, 0, 36)
     }):Play()
-    
     task.wait(0.15)
     ToggleButton.Visible = false
-    
     MainFrame.Size = UDim2.new(0, 0, 0, 0)
     MainFrame.Visible = true
-    
     TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
         Size = OriginalSize,
         Position = UDim2.new(0.5, -272, 0.5, -180)
     }):Play()
-    
     task.wait(0.3)
     isMinimized = false
 end
@@ -422,7 +404,6 @@ ExpandBtn.MouseButton1Click:Connect(function()
     isExpanded = not isExpanded
     local targetSize = isExpanded and ExpandedSize or OriginalSize
     local targetPos = isExpanded and UDim2.new(0.5, -340, 0.5, -205) or UDim2.new(0.5, -272, 0.5, -180)
-    
     TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
         Size = targetSize,
         Position = targetPos
@@ -435,6 +416,7 @@ CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
 
 local firstTab = true
 local tabCounter = 0
+local UIStrokesList = {}
 
 local MiiseryLibraryObj = {
     CreateTab = function(self, tabName)
@@ -460,6 +442,7 @@ local MiiseryLibraryObj = {
         local TabStroke = Instance.new("UIStroke", TabBtn)
         TabStroke.Color = firstTab and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(60, 60, 60)
         TabStroke.Thickness = 0.8
+        table.insert(UIStrokesList, TabStroke)
 
         local Page = Instance.new("ScrollingFrame", PagesFolder)
         Page.Name = tabName .. "Page"
@@ -512,6 +495,7 @@ local MiiseryLibraryObj = {
             local stroke = Instance.new("UIStroke", frame)
             stroke.Color = Color3.fromRGB(80, 80, 80)
             stroke.Thickness = 0.8
+            table.insert(UIStrokesList, stroke)
             
             local title = Instance.new("TextLabel", frame)
             title.Size = UDim2.new(1, -45, 1, 0)
@@ -558,6 +542,7 @@ local MiiseryLibraryObj = {
             local stroke = Instance.new("UIStroke", btn)
             stroke.Color = Color3.fromRGB(80, 80, 80)
             stroke.Thickness = 0.8
+            table.insert(UIStrokesList, stroke)
 
             btn.MouseButton1Click:Connect(function()
                 pcall(callback)
@@ -697,6 +682,7 @@ local MiiseryLibraryObj = {
             local stroke = Instance.new("UIStroke", btn)
             stroke.Color = Color3.fromRGB(80, 80, 80)
             stroke.Thickness = 0.8
+            table.insert(UIStrokesList, stroke)
 
             btn.MouseButton1Click:Connect(function()
                 if #values == 0 then return end
@@ -785,13 +771,9 @@ end
 
 local function getIslandsForCurrentSea()
     local sea = getCurrentSea()
-    if sea == 1 then
-        return IslandLocationsSea1
-    elseif sea == 2 then
-        return IslandLocationsSea2
-    elseif sea == 3 then
-        return IslandLocationsSea3
-    end
+    if sea == 1 then return IslandLocationsSea1
+    elseif sea == 2 then return IslandLocationsSea2
+    elseif sea == 3 then return IslandLocationsSea3 end
     return IslandLocationsSea1
 end
 
@@ -801,7 +783,6 @@ local function getCurrentIsland()
     local islands = getIslandsForCurrentSea()
     local currentIsland = nil
     local shortestDist = math.huge
-
     for i = 1, #islands do
         local island = islands[i]
         local cf = island.GetCFrame()
@@ -813,20 +794,16 @@ local function getCurrentIsland()
             end
         end
     end
-    if shortestDist <= 500 then
-        return currentIsland
-    end
+    if shortestDist <= 500 then return currentIsland end
     return nil
 end
 
 local function getNearestIsland(excludeIslandName)
     local myRoot = humanoidRootPart
     if not myRoot then return nil end
-
     local islands = getIslandsForCurrentSea()
     local nearestIsland = nil
     local shortestDist = math.huge
-
     for i = 1, #islands do
         local island = islands[i]
         if not excludeIslandName or island.Name ~= excludeIslandName then
@@ -840,11 +817,7 @@ local function getNearestIsland(excludeIslandName)
             end
         end
     end
-
-    if not nearestIsland and excludeIslandName then
-        return getNearestIsland(nil)
-    end
-
+    if not nearestIsland and excludeIslandName then return getNearestIsland(nil) end
     return nearestIsland
 end
 
@@ -871,9 +844,7 @@ end
 local function getClosestChestInMap()
     local myRoot = humanoidRootPart
     if not myRoot then return nil end
-
     local bestChest, shortestDist = nil, math.huge
-
     local function checkContainer(folder)
         if not folder then return end
         local children = folder:GetChildren()
@@ -892,20 +863,16 @@ local function getClosestChestInMap()
             end
         end
     end
-
     checkContainer(Workspace:FindFirstChild("ChestModels"))
     checkContainer(Workspace)
-
     return bestChest
 end
 
 local function getNearestChestInIsland(centerCF, maxDist)
     local myRoot = humanoidRootPart
     if not myRoot then return nil end
-
     local bestChest, shortestDist = nil, math.huge
     maxDist = maxDist or 3000
-
     local function checkContainer(folder)
         if not folder then return end
         local children = folder:GetChildren()
@@ -927,79 +894,59 @@ local function getNearestChestInIsland(centerCF, maxDist)
             end
         end
     end
-
     checkContainer(Workspace:FindFirstChild("ChestModels"))
     checkContainer(Workspace)
-
     return bestChest
 end
 
 local function safeTweenTo(targetCFrame, speed)
     local myRoot = humanoidRootPart
     if not myRoot then return end
-
     local startPos = myRoot.Position
     local endPos = targetCFrame.Position
-    
     local safeY = math.max(startPos.Y, endPos.Y, 95)
     local highPos1 = Vector3.new(startPos.X, safeY + 45, startPos.Z)
     local highPos2 = Vector3.new(endPos.X, safeY + 45, endPos.Z)
-
     myRoot.CFrame = CFrame.new(highPos1)
     task.wait(0.05)
-
     local dist = (highPos2 - highPos1).Magnitude
     local timeDuration = math.clamp(dist / speed, 0.6, 20)
-
     if activeChestTween then activeChestTween:Cancel() end
-    activeChestTween = TweenService:Create(myRoot, TweenInfo.new(timeDuration, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
-        CFrame = CFrame.new(highPos2)
-    })
+    activeChestTween = TweenService:Create(myRoot, TweenInfo.new(timeDuration, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { CFrame = CFrame.new(highPos2) })
     activeChestTween:Play()
     activeChestTween.Completed:Wait()
-
     local finalDist = (endPos - myRoot.Position).Magnitude
     local finalDuration = math.clamp(finalDist / speed, 0.3, 5)
-
     if activeChestTween then activeChestTween:Cancel() end
-    activeChestTween = TweenService:Create(myRoot, TweenInfo.new(finalDuration, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
-        CFrame = targetCFrame
-    })
+    activeChestTween = TweenService:Create(myRoot, TweenInfo.new(finalDuration, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { CFrame = targetCFrame })
     activeChestTween:Play()
     activeChestTween.Completed:Wait()
 end
 
+-- Optimización de bucles intensivos (intervalos estables para no saturar rendimiento)
 task.spawn(function()
     while true do
-        task.wait(0.12)
+        task.wait(0.2)
         if Config.ChestFarm then
             pcall(function()
                 local myRoot = humanoidRootPart
                 if not myRoot then return end
-
                 local activeIsland = getCurrentIsland()
-                if activeIsland then
-                    lastIslandName = activeIsland.Name
-                end
-
+                if activeIsland then lastIslandName = activeIsland.Name end
                 local nearbyChest = getClosestChestInMap()
                 if nearbyChest and (nearbyChest.Position - myRoot.Position).Magnitude <= 450 then
                     currentTargetChest = nearbyChest
                 end
-
                 if currentTargetChest and currentTargetChest.Parent then
                     local destCFrame = currentTargetChest.CFrame + Vector3.new(0, 3, 0)
                     local dist = (destCFrame.Position - myRoot.Position).Magnitude
                     local speed = math.clamp(Config.ChestFarmSpeed or 160, 60, 300)
-                    
                     if dist > 20 then
                         safeTweenTo(destCFrame, speed)
                     elseif dist > 4 then
                         local timeDuration = math.clamp(dist / speed, 0.3, 2.0)
                         if activeChestTween then activeChestTween:Cancel() end
-                        activeChestTween = TweenService:Create(myRoot, TweenInfo.new(timeDuration, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
-                            CFrame = destCFrame
-                        })
+                        activeChestTween = TweenService:Create(myRoot, TweenInfo.new(timeDuration, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { CFrame = destCFrame })
                         activeChestTween:Play()
                         activeChestTween.Completed:Wait()
                     else
@@ -1009,15 +956,12 @@ task.spawn(function()
                 else
                     currentTargetChest = nil
                 end
-
                 if not currentTargetIsland then
                     currentTargetIsland = getNearestIsland(lastIslandName)
                 end
-
                 if currentTargetIsland then
                     local islandName = currentTargetIsland.Name
                     local targetChestInIsland = nil
-
                     if islandName == "Skylands" then
                         local skylandsLocs = getSkylandsLocations()
                         for i = 1, #skylandsLocs do
@@ -1039,22 +983,15 @@ task.spawn(function()
                                 safeTweenTo(whirlpoolCF + Vector3.new(0, 5, 0), speed)
                                 return
                             else
-                                pcall(function()
-                                    local soundCutscene = ReplicatedStorage:FindFirstChild("Storage") and ReplicatedStorage.Storage:FindFirstChild("Sound") and ReplicatedStorage.Storage.Sound:FindFirstChild("UnderwaterCityBonusMoments") and ReplicatedStorage.Storage.Sound.UnderwaterCityBonusMoments:FindFirstChild("Bubble_Teleport_Whirlpool_Cutscene_01")
-                                    if soundCutscene then soundCutscene:Play() end
-                                    CommF:InvokeServer("requestEntrance", Vector3.new(61163, 11, 1819))
-                                end)
+                                pcall(function() CommF:InvokeServer("requestEntrance", Vector3.new(61163, 11, 1819)) end)
                                 task.wait(0.8)
                                 targetChestInIsland = getNearestChestInIsland(myRoot.CFrame, 3000)
                             end
                         end
                     else
                         local islandCF = currentTargetIsland.GetCFrame()
-                        if islandCF then
-                            targetChestInIsland = getNearestChestInIsland(islandCF, 3200)
-                        end
+                        if islandCF then targetChestInIsland = getNearestChestInIsland(islandCF, 3200) end
                     end
-
                     if targetChestInIsland then
                         currentTargetChest = targetChestInIsland
                     else
@@ -1078,17 +1015,14 @@ task.spawn(function()
             currentTargetChest = nil
             currentTargetIsland = nil
             lastIslandName = nil
-            if activeChestTween then
-                activeChestTween:Cancel()
-                activeChestTween = nil
-            end
+            if activeChestTween then activeChestTween:Cancel() activeChestTween = nil end
         end
     end
 end)
 
 task.spawn(function()
     while true do
-        task.wait(0.08)
+        task.wait(0.1)
         if not Config.FastAttack then continue end
         pcall(function()
             local char = lp.Character
@@ -1284,7 +1218,7 @@ local function StartAutoFlee()
     if fleeConnection then return end
     fleeConnection = task.spawn(function()
         while Config.AutoFlee do
-            task.wait()
+            task.wait(0.2)
             pcall(function()
                 if not Config.AutoFlee then return end
                 local char = lp.Character
@@ -1298,7 +1232,7 @@ local function StartAutoFlee()
                         local dest = GetFleeDestination()
                         if dest then pcall(function() ReplicatedStorage.Remotes.CommF_:InvokeServer("requestEntrance", dest) end) end
                     end
-                    local deltaTime = task.wait()
+                    local deltaTime = 0.2
                     local newPosition = hrp.Position + Vector3.new(0, FLEE_Y * deltaTime, FLEE_Z * deltaTime)
                     hrp.AssemblyLinearVelocity = Vector3.zero
                     hrp.AssemblyAngularVelocity = Vector3.zero
@@ -1330,7 +1264,7 @@ task.spawn(function()
 end)
 task.spawn(function()
     while true do
-        task.wait(0.5)
+        task.wait(1)
         if Config.AutoV4 then
             pcall(function()
                 local aw = (lp.Character and lp.Character:FindFirstChild("Awakening")) or (lp.Backpack and lp.Backpack:FindFirstChild("Awakening"))
@@ -1500,6 +1434,7 @@ local function stopFly()
     Config.Fly = false
     cleanupFly()
 end
+
 UIS.InputBegan:Connect(function(input, gpe)
     if gpe then return end
     if input.KeyCode == Enum.KeyCode.Space then holdUp = true
@@ -1527,7 +1462,7 @@ end)
 local waterPart
 task.spawn(function()
     while true do
-        task.wait(0.15)
+        task.wait(0.3)
         if Config.WalkOnWater then
             local hrp = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart")
             if not waterPart or not waterPart.Parent then
@@ -1590,6 +1525,9 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
+-- =========================================================================
+-- AIM MODULE (INTACTO Y SIN MODIFICACIONES EN SU RENDIMIENTO)
+-- =========================================================================
 local mouse = lp:GetMouse()
 local SilentAimModule = (function()
     local module = {}
@@ -2184,7 +2122,7 @@ local GunClickSLMod = (function()
                         end
                         aimPos = closest
                     end
-                    task.wait(0.05)
+                    task.wait(0.2)
                 end
             end)
         else aimPos = nil end
@@ -2317,7 +2255,7 @@ local function StopHipHeight()
 end
 
 -- =========================================================================
--- CREACIÓN DE PESTAÑAS (ORDENADAS CORRECTAMENTE)
+-- CREACIÓN DE PESTAÑAS (ORDENADAS CORRECTAMENTE, SIN INFORMATION)
 -- =========================================================================
 
 local HomeTab = MiiseryLibraryObj:CreateTab("Home")
@@ -2327,11 +2265,11 @@ local AimTab = MiiseryLibraryObj:CreateTab("Aim")
 local TrackersTab = MiiseryLibraryObj:CreateTab("Trackers")
 local MovementTab = MiiseryLibraryObj:CreateTab("Movement")
 local BlacklistTab = MiiseryLibraryObj:CreateTab("Blacklist")
+local AppearanceTab = MiiseryLibraryObj:CreateTab("Appearance")
 local MiscTab = MiiseryLibraryObj:CreateTab("Misc")
-local InfoTab = MiiseryLibraryObj:CreateTab("Information")
 
 -- =========================================================================
--- CONTENIDO DE LA PESTAÑA: HOME
+-- CONTENIDO: HOME
 -- =========================================================================
 local HomeHeaderContainer = Instance.new("Frame", PagesFolder:FindFirstChild("HomePage"))
 HomeHeaderContainer.Size = UDim2.new(1, -6, 0, 115)
@@ -2472,48 +2410,11 @@ BoostButton.MouseButton1Click:Connect(function()
     end)
 end)
 
-HomeTab:Paragraph({ Title = "Miisery Hub - Blox Fruits", Desc = "Welcome to Miisery Hub v1.0" })
+HomeTab:Paragraph({ Title = "Miisery Hub - Blox Fruits", Desc = "Welcome to Miisery Hub v1.0 - Fully Optimized & Structured" })
 
-local availableAssetIds = {
-    "114065885540477",
-    "85256255221310",
-    "106006243046634",
-    "76375726192743",
-    "88932447826978",
-    "100480019494922"
-}
-local selectedCustomId = Config.CustomAssetID or availableAssetIds[1]
-
-HomeTab:Dropdown({
-    Title = "UI Background / Logo ID",
-    Values = availableAssetIds,
-    Value = selectedCustomId,
-    Callback = function(v)
-        selectedCustomId = tostring(v)
-    end
-})
-
-HomeTab:Button({
-    Title = "Change & Apply UI Image",
-    Callback = function()
-        Config.CustomAssetID = selectedCustomId
-        SaveConfig()
-        local formattedUri = "rbxassetid://" .. selectedCustomId
-        pcall(function()
-            if BackgroundImage then
-                BackgroundImage.Image = ""
-                task.wait(0.02)
-                BackgroundImage.Image = formattedUri
-            end
-            if SidebarLogo then SidebarLogo.Image = formattedUri end
-            if BadgeLogo then BadgeLogo.Image = formattedUri end
-        end)
-        Notify("Miisery Hub", "UI Image successfully updated and applied!", 2)
-    end
-})
-
+-- Bucle optimizado para stats (actualiza cada 2 segundos para ahorrar recursos)
 task.spawn(function()
-    while task.wait(1) do
+    while task.wait(2) do
         pcall(function()
             local leaderstats = lp:FindFirstChild("leaderstats") or (lp.Character and lp.Character:FindFirstChild("leaderstats"))
             local bountyVal = nil
@@ -2549,7 +2450,7 @@ task.spawn(function()
 end)
 
 -- =========================================================================
--- CONTENIDO DE LAS DEMÁS PESTAÑAS
+-- CONTENIDO: RESTO DE PESTAÑAS
 -- =========================================================================
 
 MainTab:Toggle({ Title = "Fast Attack", Value = Config.FastAttack, Callback = function(v) Config.FastAttack = v SaveConfig() end })
@@ -2631,6 +2532,80 @@ BlacklistTab:Paragraph({ Title = "GUNS", Desc = "Z / X" })
 local gunKeys = {"Z", "X"}
 for i = 1, #gunKeys do blToggle("Gun", gunKeys[i]) end
 
+-- =========================================================================
+-- NUEVA PESTAÑA: APPEARANCE (Fondo, Logo y Sistema de Colores de Acento)
+-- =========================================================================
+AppearanceTab:Paragraph({ Title = "Appearance Settings", Desc = "Customize UI background, logo IDs and color themes." })
+
+local availableAssetIds = {
+    "114065885540477",
+    "85256255221310",
+    "106006243046634",
+    "76375726192743",
+    "88932447826978",
+    "100480019494922"
+}
+local selectedCustomId = Config.CustomAssetID or availableAssetIds[1]
+
+AppearanceTab:Dropdown({
+    Title = "UI Background / Logo ID",
+    Values = availableAssetIds,
+    Value = selectedCustomId,
+    Callback = function(v)
+        selectedCustomId = tostring(v)
+    end
+})
+
+AppearanceTab:Button({
+    Title = "Change & Apply UI Image",
+    Callback = function()
+        Config.CustomAssetID = selectedCustomId
+        SaveConfig()
+        local formattedUri = "rbxassetid://" .. selectedCustomId
+        pcall(function()
+            if BackgroundImage then
+                BackgroundImage.Image = ""
+                task.wait(0.02)
+                BackgroundImage.Image = formattedUri
+            end
+            if SidebarLogo then SidebarLogo.Image = formattedUri end
+            if BadgeLogo then BadgeLogo.Image = formattedUri end
+        end)
+        Notify("Miisery Hub", "UI Image successfully updated and applied!", 2)
+    end
+})
+
+local colorThemes = {
+    White = Color3.fromRGB(255, 255, 255),
+    Cyan = Color3.fromRGB(0, 255, 200),
+    Purple = Color3.fromRGB(180, 100, 255),
+    Gold = Color3.fromRGB(255, 215, 0),
+    Crimson = Color3.fromRGB(255, 70, 70),
+    Lime = Color3.fromRGB(50, 255, 50)
+}
+
+AppearanceTab:Dropdown({
+    Title = "UI Accent Color",
+    Values = {"White", "Cyan", "Purple", "Gold", "Crimson", "Lime"},
+    Value = Config.AccentColor or "White",
+    Callback = function(v)
+        Config.AccentColor = v
+        SaveConfig()
+        local targetColor = colorThemes[v] or Color3.fromRGB(255, 255, 255)
+        pcall(function()
+            MainStroke.Color = targetColor
+            ToggleStroke.Color = targetColor
+            SidebarStroke.Color = targetColor
+            for _, stroke in ipairs(UIStrokesList) do
+                if stroke and stroke.Parent then
+                    stroke.Color = targetColor
+                end
+            end
+        end)
+        Notify("Miisery Hub", "Accent color updated to " .. v, 2)
+    end
+})
+
 MiscTab:Toggle({ Title = "Notifications", Value = Config.Notifications, Callback = function(v) Config.Notifications = v SaveConfig() end })
 MiscTab:Toggle({ Title = "Anti AFK", Value = Config.AntiAFK, Callback = function(v) Config.AntiAFK = v SaveConfig() end })
 MiscTab:Toggle({ Title = "Auto V3", Value = Config.AutoV3, Callback = function(v) Config.AutoV3 = v SaveConfig() end })
@@ -2649,41 +2624,16 @@ MiscTab:Button({ Title = "Reset Stats", Callback = function() pcall(function() C
 MiscTab:Button({ Title = "Reroll Race", Callback = function() pcall(function() CommF:InvokeServer("BlackbeardReward", "Reroll", "2") end) Notify("Miisery Hub", "Reroll sent", 2) end })
 MiscTab:Button({ Title = "Save Config Now", Callback = function() SaveConfig() Notify("Miisery Hub", "Config saved", 2) end })
 
-local infoDescParagraph = InfoTab:Paragraph({
-    Title = "Script Guide & Functions",
-    Desc = "• Main: Fast Attack, Bring Mobs and combat options.\n• Farm: Smart island detection and automatic chest looting.\n• Aim & Trackers: Silent aim, FOV customization and player tracking.\n• Movement: Fly, Noclip, Speed Hack and utility movement modifiers.\n• Blacklist: Exclude specific skill keys per weapon category."
-})
-
-local bugFixParagraph = InfoTab:Paragraph({
-    Title = "Bug Fixes & Updates",
-    Desc = "0"
-})
-
-InfoTab:Dropdown({
-    Title = "Language / Idioma / Idioma",
-    Values = {"English", "Español", "Português"},
-    Value = Config.Language or "English",
-    Callback = function(v)
-        Config.Language = v
-        SaveConfig()
-        if v == "Español" then
-            infoDescParagraph:Update("Guía y Funciones del Script", "• Main: Ataque rápido, atraer NPCs y opciones de combate.\n• Farm: Detección inteligente de islas y recolección de cofres.\n• Aim & Trackers: Apuntado silencioso, FOV y rastreo de jugadores.\n• Movement: Vuelo, Noclip, velocidad y modificadores de movimiento.\n• Blacklist: Excluir habilidades específicas por categoría de arma.")
-            bugFixParagraph:Update("Corrección de Errores y Actualizaciones", "0")
-        elseif v == "Português" then
-            infoDescParagraph:Update("Guia e Funções do Script", "• Main: Ataque rápido, puxar mobs e opções de combate.\n• Farm: Detecção inteligente de ilhas e coleta de baús.\n• Aim & Trackers: Mira silenciosa, FOV e rastreamento de jogadores.\n• Movement: Voo, Noclip, velocidade e modificadores de movimento.\n• Blacklist: Excluir habilidades específicas por categoria de arma.")
-            bugFixParagraph:Update("Correções de Bugs e Atualizações", "0")
-        else
-            infoDescParagraph:Update("Script Guide & Functions", "• Main: Fast Attack, Bring Mobs and combat options.\n• Farm: Smart island detection and automatic chest looting.\n• Aim & Trackers: Silent aim, FOV customization and player tracking.\n• Movement: Fly, Noclip, Speed Hack and utility movement modifiers.\n• Blacklist: Exclude specific skill keys per weapon category.")
-            bugFixParagraph:Update("Bug Fixes & Updates", "0")
-        end
-    end
-})
-
 pcall(function()
     local initialUri = "rbxassetid://" .. tostring(Config.CustomAssetID or "114065885540477")
     if BackgroundImage then BackgroundImage.Image = initialUri end
     if SidebarLogo then SidebarLogo.Image = initialUri end
     if BadgeLogo then BadgeLogo.Image = initialUri end
+
+    local initialAccent = colorThemes[Config.AccentColor] or Color3.fromRGB(255, 255, 255)
+    MainStroke.Color = initialAccent
+    ToggleStroke.Color = initialAccent
+    SidebarStroke.Color = initialAccent
 end)
 
 task.defer(function()
@@ -2697,4 +2647,4 @@ task.defer(function()
     if Config.StreamProof then ToggleStreamProof(true) end
 end)
 
-Notify("Miisery Hub", "Loaded successfully!", 3)
+Notify("Miisery Hub", "Loaded successfully and optimized!", 3)

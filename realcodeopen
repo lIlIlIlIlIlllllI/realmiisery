@@ -58,7 +58,7 @@ local Config = {
     AutoFlee = false, AutoFleeHP = 30,
     TweenNearest = false, TweenToPlayer = false, TweenSpeed = 350,
     TweenOX = 0, TweenOY = 1.5, TweenOZ = 3.5, InstaTP = false, Spectate = false,
-    SelectedTrackPlayer = "Nearest", PredictionStrength = 0.1,
+    SelectedTrackPlayer = "Nearest",
     M1Extender = false, M1Range = 50, GunClickSL = false,
     SilentPlayer = false, SilentNPC = false, AimMode = "360", AimPriority = "Nearest",
     ShowFOV = false, FOVMode = "V1", FOVRadius = 150, AimMaxRange = 2000,
@@ -72,10 +72,7 @@ local Config = {
     ChestFarm = false, ChestFarmSpeed = 160,
     Language = "English",
     CustomAssetID = "114065885540477",
-    StreamProof = false,
-    UITheme = "Dark",
-    BackgroundTransparency = 0.15,
-    CustomBackgroundURL = ""
+    StreamProof = false
 }
 
 local CONFIG_FILE = "MiiseryHub_Config.json"
@@ -131,7 +128,7 @@ MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.Parent = ScreenGui
 
-Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 12)
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
 
 local MainStroke = Instance.new("UIStroke", MainFrame)
 MainStroke.Color = Color3.fromRGB(255, 255, 255)
@@ -141,13 +138,13 @@ MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 local BackgroundImage = Instance.new("ImageLabel", MainFrame)
 BackgroundImage.Name = "BackgroundImage"
 BackgroundImage.Size = UDim2.new(1, 0, 1, 0)
-BackgroundImage.BackgroundTransparency = Config.BackgroundTransparency or 0.15
+BackgroundImage.BackgroundTransparency = 0.15
 BackgroundImage.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
 BackgroundImage.Image = ASSET_ID
 BackgroundImage.ScaleType = Enum.ScaleType.Crop
 BackgroundImage.ZIndex = 1
 
-Instance.new("UICorner", BackgroundImage).CornerRadius = UDim.new(0, 12)
+Instance.new("UICorner", BackgroundImage).CornerRadius = UDim.new(0, 10)
 
 local ToggleButton = Instance.new("Frame", ScreenGui)
 ToggleButton.Name = "WindUIPillToggle"
@@ -189,17 +186,17 @@ Separator.ZIndex = 201
 
 local BadgeLogo = Instance.new("ImageLabel", ToggleButton)
 BadgeLogo.Name = "BadgeLogo"
-BadgeLogo.Size = UDim2.new(0, 22, 0, 22)
-BadgeLogo.Position = UDim2.new(0, 44, 0.5, -11)
+BadgeLogo.Size = UDim2.new(0, 20, 0, 20)
+BadgeLogo.Position = UDim2.new(0, 45, 0.5, -10)
 BadgeLogo.BackgroundTransparency = 1
 BadgeLogo.Image = ASSET_ID
 BadgeLogo.ZIndex = 201
 
-Instance.new("UICorner", BadgeLogo).CornerRadius = UDim.new(0, 6)
+Instance.new("UICorner", BadgeLogo).CornerRadius = UDim.new(1, 0)
 
 local BadgeText = Instance.new("TextLabel", ToggleButton)
 BadgeText.Size = UDim2.new(1, -72, 1, 0)
-BadgeText.Position = UDim2.new(0, 72, 0, 0)
+BadgeText.Position = UDim2.new(0, 70, 0, 0)
 BadgeText.BackgroundTransparency = 1
 BadgeText.Text = "Miisery Hub"
 BadgeText.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -284,7 +281,7 @@ SidebarLogo.BackgroundTransparency = 1
 SidebarLogo.Image = ASSET_ID
 SidebarLogo.ZIndex = 3
 
-Instance.new("UICorner", SidebarLogo).CornerRadius = UDim.new(0, 6)
+Instance.new("UICorner", SidebarLogo).CornerRadius = UDim.new(1, 0)
 
 local HubTitle = Instance.new("TextLabel", LeftSidebar)
 HubTitle.Size = UDim2.new(1, -36, 0, 16)
@@ -718,49 +715,6 @@ local MiiseryLibraryObj = {
                 btn.Text = "  " .. titleText .. ": " .. tostring(currentVal)
             end
             return dropdownObj
-        end
-
-        function tabObj:TextBox(data)
-            local titleText = data.Title or "TextBox"
-            local defaultVal = data.Value or ""
-            local callback = data.Callback or function() end
-
-            local frame = Instance.new("Frame", Page)
-            frame.Size = UDim2.new(1, -6, 0, 38)
-            frame.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
-            frame.BackgroundTransparency = 0.25
-            frame.ZIndex = 3
-            Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
-
-            local stroke = Instance.new("UIStroke", frame)
-            stroke.Color = Color3.fromRGB(80, 80, 80)
-            stroke.Thickness = 0.8
-
-            local title = Instance.new("TextLabel", frame)
-            title.Size = UDim2.new(0.5, 0, 1, 0)
-            title.Position = UDim2.new(0, 10, 0, 0)
-            title.BackgroundTransparency = 1
-            title.Text = titleText
-            title.TextColor3 = Color3.fromRGB(255, 255, 255)
-            title.Font = Enum.Font.GothamMedium
-            title.TextSize = 10
-            title.TextXAlignment = Enum.TextXAlignment.Left
-            title.ZIndex = 4
-
-            local textBox = Instance.new("TextBox", frame)
-            textBox.Size = UDim2.new(0.45, 0, 0, 22)
-            textBox.Position = UDim2.new(0.53, 0, 0.5, -11)
-            textBox.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
-            textBox.Text = defaultVal
-            textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-            textBox.Font = Enum.Font.Gotham
-            textBox.TextSize = 9.5
-            textBox.ZIndex = 4
-            Instance.new("UICorner", textBox).CornerRadius = UDim.new(0, 4)
-
-            textBox.FocusLost:Connect(function(enterPressed)
-                pcall(callback, textBox.Text)
-            end)
         end
 
         return tabObj
@@ -1283,8 +1237,7 @@ RunService.Heartbeat:Connect(function()
         local targetHRP, _ = getTrackTargetHRP()
         if not targetHRP then return end
         local ox, oy, oz = Config.TweenOX or 0, Config.TweenOY or 1.5, Config.TweenOZ or 3.5
-        local pred = targetHRP.Position + (targetHRP.AssemblyLinearVelocity * (Config.PredictionStrength or 0.1))
-        local dest = CFrame.new(pred) * CFrame.new(ox, oy, oz)
+        local dest = targetHRP.CFrame * CFrame.new(ox, oy, oz)
         if Config.InstaTP then
             hrp.CFrame = dest
             hrp.AssemblyLinearVelocity = Vector3.zero
@@ -1645,9 +1598,6 @@ local SilentAimModule = (function()
 
     local SilentAimPlayersEnabled = false
     local SilentAimNPCsEnabled = false
-    local PredictionEnabled = true
-    local PredictionAmount = 0.12
-    local ZSkillorM1 = true
     local ShowFOVCircle = false
     local FOVRadius = 150
     local FOVMode = "V1"
@@ -1753,26 +1703,6 @@ local SilentAimModule = (function()
             task.wait(1.5)
             if lastSkillTime == myTime and currentSkillKey == key then currentSkillKey = nil end
         end)
-    end
-
-    local lastDirection = nil
-    local function predicted(hrp)
-        if not hrp then return nil end
-        local hum = hrp.Parent and hrp.Parent:FindFirstChildOfClass("Humanoid")
-        if not hum or hum.Health <= 0 then return hrp.Position end
-        if not PredictionEnabled then return hrp.Position end
-        local vel = hrp.AssemblyLinearVelocity or hrp.Velocity or Vector3.zero
-        local speed = vel.Magnitude
-        if speed < 5 then lastDirection = nil return hrp.Position end
-        local currentDirection = vel.Unit
-        if lastDirection and lastDirection:Dot(currentDirection) < 0.7 then lastDirection = nil return hrp.Position end
-        lastDirection = currentDirection
-        local ping = 0
-        pcall(function() ping = player:GetNetworkPing() end)
-        ping = math.clamp(ping, 0, 0.35)
-        local factor = PredictionAmount + ping
-        if speed > 100 then factor = math.min(factor, 0.15) end
-        return hrp.Position + vel * factor
     end
 
     local function isAllyWithMe(targetplayer)
@@ -1996,13 +1926,23 @@ local SilentAimModule = (function()
                     end
                     if SilentAimPlayersEnabled then
                         local targetplayer = getClosestplayer(lpHRP)
-                        if targetplayer and targetplayer.Character then PlayersPosition = predicted(getHRP(targetplayer.Character)) else PlayersPosition = nil end
+                        if targetplayer and targetplayer.Character then
+                            local hrpTarget = getHRP(targetplayer.Character)
+                            PlayersPosition = hrpTarget and hrpTarget.Position or nil
+                        else
+                            PlayersPosition = nil
+                        end
                     else
                         PlayersPosition = nil
                     end
                     if SilentAimNPCsEnabled then
                         local npc = getClosestNPC(lpHRP)
-                        if npc then NPCPosition = predicted(getHRP(npc)) else NPCPosition = nil end
+                        if npc then
+                            local hrpTarget = getHRP(npc)
+                            NPCPosition = hrpTarget and hrpTarget.Position or nil
+                        else
+                            NPCPosition = nil
+                        end
                     else
                         NPCPosition = nil
                     end
@@ -2021,7 +1961,7 @@ local SilentAimModule = (function()
         end
         if not heartbeatConnection then
             heartbeatConnection = RunService.Heartbeat:Connect(function()
-                if not ZSkillorM1 or (not SilentAimPlayersEnabled and not SilentAimNPCsEnabled) then return end
+                if (not SilentAimPlayersEnabled and not SilentAimNPCsEnabled) then return end
                 if currentSkillKey and isKeyCurrentlyBlacklisted(currentSkillKey) then return end
                 if currentTool then
                     local n = string.lower(currentTool.Name)
@@ -2376,8 +2316,23 @@ local function StopHipHeight()
     if hum then hum.HipHeight = 2 end
 end
 
-local HomeTab = MiiseryLibraryObj:CreateTab("Home")
+-- =========================================================================
+-- CREACIÓN DE PESTAÑAS (ORDENADAS CORRECTAMENTE)
+-- =========================================================================
 
+local HomeTab = MiiseryLibraryObj:CreateTab("Home")
+local MainTab = MiiseryLibraryObj:CreateTab("Main")
+local FarmTab = MiiseryLibraryObj:CreateTab("Farm")
+local AimTab = MiiseryLibraryObj:CreateTab("Aim")
+local TrackersTab = MiiseryLibraryObj:CreateTab("Trackers")
+local MovementTab = MiiseryLibraryObj:CreateTab("Movement")
+local BlacklistTab = MiiseryLibraryObj:CreateTab("Blacklist")
+local MiscTab = MiiseryLibraryObj:CreateTab("Misc")
+local InfoTab = MiiseryLibraryObj:CreateTab("Information")
+
+-- =========================================================================
+-- CONTENIDO DE LA PESTAÑA: HOME
+-- =========================================================================
 local HomeHeaderContainer = Instance.new("Frame", PagesFolder:FindFirstChild("HomePage"))
 HomeHeaderContainer.Size = UDim2.new(1, -6, 0, 115)
 HomeHeaderContainer.BackgroundTransparency = 1
@@ -2519,21 +2474,6 @@ end)
 
 HomeTab:Paragraph({ Title = "Miisery Hub - Blox Fruits", Desc = "Welcome to Miisery Hub v1.0" })
 
--- NUEVA PESTAÑA APARANCE (APARIENCIA)
-local AppearanceTab = MiiseryLibraryObj:CreateTab("Appearance")
-
-local colorThemes = {"Amber", "CottonCandy", "Crimson", "Dark", "Emerald", "Indigo", "Light", "Mellowsi", "Midnight", "Ember", "White"}
-AppearanceTab:Dropdown({
-    Title = "UI Color Theme",
-    Values = colorThemes,
-    Value = Config.UITheme or "Dark",
-    Callback = function(v)
-        Config.UITheme = v
-        SaveConfig()
-        Notify("Miisery Hub", "Theme changed to " .. tostring(v), 2)
-    end
-})
-
 local availableAssetIds = {
     "114065885540477",
     "85256255221310",
@@ -2544,51 +2484,31 @@ local availableAssetIds = {
 }
 local selectedCustomId = Config.CustomAssetID or availableAssetIds[1]
 
-AppearanceTab:TextBox({
-    Title = "Media URL or ID",
-    Value = Config.CustomBackgroundURL or "",
+HomeTab:Dropdown({
+    Title = "UI Background / Logo ID",
+    Values = availableAssetIds,
+    Value = selectedCustomId,
     Callback = function(v)
-        Config.CustomBackgroundURL = v
-        SaveConfig()
+        selectedCustomId = tostring(v)
     end
 })
 
-AppearanceTab:Button({
-    Title = "Apply Background",
+HomeTab:Button({
+    Title = "Change & Apply UI Image",
     Callback = function()
-        local uri = Config.CustomBackgroundURL ~= "" and Config.CustomBackgroundURL or ("rbxassetid://" .. selectedCustomId)
+        Config.CustomAssetID = selectedCustomId
+        SaveConfig()
+        local formattedUri = "rbxassetid://" .. selectedCustomId
         pcall(function()
             if BackgroundImage then
                 BackgroundImage.Image = ""
                 task.wait(0.02)
-                BackgroundImage.Image = uri
+                BackgroundImage.Image = formattedUri
             end
+            if SidebarLogo then SidebarLogo.Image = formattedUri end
+            if BadgeLogo then BadgeLogo.Image = formattedUri end
         end)
-        Notify("Miisery Hub", "Background applied successfully!", 2)
-        SaveConfig()
-    end
-})
-
-AppearanceTab:Button({
-    Title = "Remove Background",
-    Callback = function()
-        pcall(function()
-            if BackgroundImage then BackgroundImage.Image = "" end
-        end)
-        Notify("Miisery Hub", "Background removed", 2)
-    end
-})
-
-AppearanceTab:Slider({
-    Title = "Background Dimming / Transparency",
-    Value = { Min = 0, Max = 100, Default = math.floor((Config.BackgroundTransparency or 0.15) * 100) },
-    Callback = function(v)
-        local alpha = v / 100
-        Config.BackgroundTransparency = alpha
-        pcall(function()
-            if BackgroundImage then BackgroundImage.BackgroundTransparency = alpha end
-        end)
-        SaveConfig()
+        Notify("Miisery Hub", "UI Image successfully updated and applied!", 2)
     end
 })
 
@@ -2628,7 +2548,10 @@ task.spawn(function()
     end
 end)
 
-local MainTab = MiiseryLibraryObj:CreateTab("Main")
+-- =========================================================================
+-- CONTENIDO DE LAS DEMÁS PESTAÑAS
+-- =========================================================================
+
 MainTab:Toggle({ Title = "Fast Attack", Value = Config.FastAttack, Callback = function(v) Config.FastAttack = v SaveConfig() end })
 MainTab:Toggle({ Title = "Attack Players", Value = Config.FAPlayers, Callback = function(v) Config.FAPlayers = v SaveConfig() end })
 MainTab:Toggle({ Title = "Attack NPCs", Value = Config.FAMobs, Callback = function(v) Config.FAMobs = v SaveConfig() end })
@@ -2636,13 +2559,10 @@ MainTab:Slider({ Title = "FA Range", Value = { Min = 50, Max = 5000, Default = C
 MainTab:Toggle({ Title = "Bring Mobs", Value = Config.BringMobs, Callback = function(v) Config.BringMobs = v SaveConfig() end })
 MainTab:Slider({ Title = "Bring Range", Value = { Min = 50, Max = 5000, Default = Config.BringRange }, Callback = function(v) Config.BringRange = v SaveConfig() end })
 
-local FarmTab = MiiseryLibraryObj:CreateTab("Farm")
 FarmTab:Paragraph({ Title = "Auto Farm", Desc = "Automatic Sea Detection & Smart Chest Farm" })
-
 FarmTab:Toggle({ Title = "Activate", Value = Config.ChestFarm, Callback = function(v) Config.ChestFarm = v SaveConfig() end })
 FarmTab:Slider({ Title = "Speed", Value = { Min = 50, Max = 500, Default = Config.ChestFarmSpeed }, Callback = function(v) Config.ChestFarmSpeed = v SaveConfig() end })
 
-local AimTab = MiiseryLibraryObj:CreateTab("Aim")
 AimTab:Toggle({ Title = "Silent Aim Players", Value = Config.SilentPlayer, Callback = function(v) Config.SilentPlayer = v SilentAimModule:SetPlayerSilentAim(v) SaveConfig() end })
 AimTab:Toggle({ Title = "Silent Aim NPCs", Value = Config.SilentNPC, Callback = function(v) Config.SilentNPC = v SilentAimModule:SetNPCSilentAim(v) SaveConfig() end })
 AimTab:Dropdown({ Title = "Aim Mode", Values = {"360", "180", "FOV"}, Value = Config.AimMode or "360", Callback = function(v) Config.AimMode = v SilentAimModule:SetAimMode(v) SaveConfig() end })
@@ -2656,7 +2576,6 @@ AimTab:Slider({ Title = "M1 Range", Value = { Min = 10, Max = 300, Default = Con
 AimTab:Toggle({ Title = "Gun Click SL", Value = Config.GunClickSL, Callback = function(v) Config.GunClickSL = v GunClickSLMod:SetEnabled(v) SaveConfig() end })
 AimTab:Toggle({ Title = "Tracer", Value = Config.Tracer, Callback = function(v) Config.Tracer = v SilentAimModule:SetTracerEnabled(v) SaveConfig() end })
 
-local TrackersTab = MiiseryLibraryObj:CreateTab("Trackers")
 local function getPlayerList()
     local list = {"Nearest"}
     local players = Players:GetPlayers()
@@ -2682,7 +2601,6 @@ TrackersTab:Toggle({ Title = "Auto Flee", Value = Config.AutoFlee, Callback = fu
 TrackersTab:Slider({ Title = "Auto Flee HP %", Value = { Min = 5, Max = 80, Default = Config.AutoFleeHP }, Callback = function(v) Config.AutoFleeHP = v SaveConfig() end })
 TrackersTab:Toggle({ Title = "Spectate Target", Value = Config.Spectate, Callback = function(v) Config.Spectate = v if not v then pcall(function() Workspace.CurrentCamera.CameraSubject = lp.Character:FindFirstChildOfClass("Humanoid") end) end SaveConfig() end })
 
-local MovementTab = MiiseryLibraryObj:CreateTab("Movement")
 MovementTab:Toggle({ Title = "Fly", Value = Config.Fly, Callback = function(v) Config.Fly = v if v then startFly() else stopFly() end SaveConfig() end })
 MovementTab:Slider({ Title = "Fly Speed", Value = { Min = 50, Max = 500, Default = Config.FlySpeed or 250 }, Callback = function(v) Config.FlySpeed = v SaveConfig() end })
 MovementTab:Toggle({ Title = "Noclip", Value = false, Callback = function(v) if v then StartNoclip() else StopNoclip() end SaveConfig() end })
@@ -2696,7 +2614,6 @@ MovementTab:Slider({ Title = "Dash Length", Value = { Min = 10, Max = 200, Defau
 MovementTab:Toggle({ Title = "Custom Hip Height", Value = false, Callback = function(v) if v then StartHipHeight() else StopHipHeight() end SaveConfig() end })
 MovementTab:Slider({ Title = "Hip Height Value", Value = { Min = 0, Max = 20, Default = 2 }, Callback = function(v) MovementState.HipHeightValue = v SaveConfig() end })
 
-local BlacklistTab = MiiseryLibraryObj:CreateTab("Blacklist")
 local function blToggle(cat, key)
     local ck = "BL_" .. cat .. "_" .. key
     BlacklistTab:Toggle({ Title = cat .. ": Blacklist " .. key, Value = Config[ck] == true, Callback = function(v) Config[ck] = v SilentAimModule:SetBlacklistKey(cat, key, v) SaveConfig() end })
@@ -2714,7 +2631,6 @@ BlacklistTab:Paragraph({ Title = "GUNS", Desc = "Z / X" })
 local gunKeys = {"Z", "X"}
 for i = 1, #gunKeys do blToggle("Gun", gunKeys[i]) end
 
-local MiscTab = MiiseryLibraryObj:CreateTab("Misc")
 MiscTab:Toggle({ Title = "Notifications", Value = Config.Notifications, Callback = function(v) Config.Notifications = v SaveConfig() end })
 MiscTab:Toggle({ Title = "Anti AFK", Value = Config.AntiAFK, Callback = function(v) Config.AntiAFK = v SaveConfig() end })
 MiscTab:Toggle({ Title = "Auto V3", Value = Config.AutoV3, Callback = function(v) Config.AutoV3 = v SaveConfig() end })
@@ -2733,11 +2649,9 @@ MiscTab:Button({ Title = "Reset Stats", Callback = function() pcall(function() C
 MiscTab:Button({ Title = "Reroll Race", Callback = function() pcall(function() CommF:InvokeServer("BlackbeardReward", "Reroll", "2") end) Notify("Miisery Hub", "Reroll sent", 2) end })
 MiscTab:Button({ Title = "Save Config Now", Callback = function() SaveConfig() Notify("Miisery Hub", "Config saved", 2) end })
 
-local InfoTab = MiiseryLibraryObj:CreateTab("Information")
-
 local infoDescParagraph = InfoTab:Paragraph({
     Title = "Script Guide & Functions",
-    Desc = "• Main: Fast Attack, Bring Mobs and combat options.\n• Farm: Smart island detection and automatic chest looting.\n• Appearance: UI Color themes and background transparency controls.\n• Aim & Trackers: Silent aim, FOV customization and player tracking.\n• Movement: Fly, Noclip, Speed Hack and utility movement modifiers."
+    Desc = "• Main: Fast Attack, Bring Mobs and combat options.\n• Farm: Smart island detection and automatic chest looting.\n• Aim & Trackers: Silent aim, FOV customization and player tracking.\n• Movement: Fly, Noclip, Speed Hack and utility movement modifiers.\n• Blacklist: Exclude specific skill keys per weapon category."
 })
 
 local bugFixParagraph = InfoTab:Paragraph({
@@ -2753,13 +2667,13 @@ InfoTab:Dropdown({
         Config.Language = v
         SaveConfig()
         if v == "Español" then
-            infoDescParagraph:Update("Guía y Funciones del Script", "• Main: Ataque rápido, atraer NPCs y opciones de combate.\n• Farm: Detección inteligente de islas y recolección de cofres.\n• Appearance: Temas de color de UI y control de transparencia de fondo.\n• Aim & Trackers: Apuntado silencioso, FOV y rastreo de jugadores.\n• Movement: Vuelo, Noclip, velocidad y modificadores de movimiento.")
+            infoDescParagraph:Update("Guía y Funciones del Script", "• Main: Ataque rápido, atraer NPCs y opciones de combate.\n• Farm: Detección inteligente de islas y recolección de cofres.\n• Aim & Trackers: Apuntado silencioso, FOV y rastreo de jugadores.\n• Movement: Vuelo, Noclip, velocidad y modificadores de movimiento.\n• Blacklist: Excluir habilidades específicas por categoría de arma.")
             bugFixParagraph:Update("Corrección de Errores y Actualizaciones", "0")
         elseif v == "Português" then
-            infoDescParagraph:Update("Guia e Funções do Script", "• Main: Ataque rápido, puxar mobs e opções de combate.\n• Farm: Detecção inteligente de ilhas e coleta de baús.\n• Appearance: Temas de cores da UI e controle de transparência.\n• Aim & Trackers: Mira silenciosa, FOV e rastreamento de jogadores.\n• Movement: Voo, Noclip, velocidade e modificadores de movimento.")
+            infoDescParagraph:Update("Guia e Funções do Script", "• Main: Ataque rápido, puxar mobs e opções de combate.\n• Farm: Detecção inteligente de ilhas e coleta de baús.\n• Aim & Trackers: Mira silenciosa, FOV e rastreamento de jogadores.\n• Movement: Voo, Noclip, velocidade e modificadores de movimento.\n• Blacklist: Excluir habilidades específicas por categoria de arma.")
             bugFixParagraph:Update("Correções de Bugs e Atualizações", "0")
         else
-            infoDescParagraph:Update("Script Guide & Functions", "• Main: Fast Attack, Bring Mobs and combat options.\n• Farm: Smart island detection and automatic chest looting.\n• Appearance: UI Color themes and background transparency controls.\n• Aim & Trackers: Silent aim, FOV customization and player tracking.\n• Movement: Fly, Noclip, Speed Hack and utility movement modifiers.")
+            infoDescParagraph:Update("Script Guide & Functions", "• Main: Fast Attack, Bring Mobs and combat options.\n• Farm: Smart island detection and automatic chest looting.\n• Aim & Trackers: Silent aim, FOV customization and player tracking.\n• Movement: Fly, Noclip, Speed Hack and utility movement modifiers.\n• Blacklist: Exclude specific skill keys per weapon category.")
             bugFixParagraph:Update("Bug Fixes & Updates", "0")
         end
     end

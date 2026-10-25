@@ -14,16 +14,18 @@ local SoundService = game:GetService("SoundService")
 local lp = Players.LocalPlayer
 local playerGui = lp:WaitForChild("PlayerGui")
 local Camera = Workspace.CurrentCamera
-local CommF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
-local CommE = ReplicatedStorage:WaitForChild("Remotes"):FindFirstChild("CommE")
-local Net = ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Net")
 
-local registerAttack = Net:FindFirstChild("RE/RegisterAttack")
+local CommF, CommE, Net
+pcall(function() CommF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_", 3) end)
+pcall(function() CommE = ReplicatedStorage:WaitForChild("Remotes"):FindFirstChild("CommE") end)
+pcall(function() Net = ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Net", 3) end)
+
+local registerAttack = Net and Net:FindFirstChild("RE/RegisterAttack")
 local registerHit
 pcall(function()
     registerHit = require(ReplicatedStorage.Modules.Net):RemoteEvent("RegisterHit", true)
 end)
-if not registerHit then
+if not registerHit and Net then
     registerHit = Net:FindFirstChild("RE/RegisterHit")
 end
 
@@ -1281,7 +1283,7 @@ end)
 task.spawn(function()
     while true do
         task.wait(30)
-        if Config.AutoPvP then pcall(function() CommF:InvokeServer("EnablePvp") end) end
+        if Config.AutoPvP and CommF then pcall(function() CommF:InvokeServer("EnablePvp") end) end
     end
 end)
 
@@ -1326,7 +1328,8 @@ local function setStatsGui(on)
             statsFpsCount = 0
             statsFpsLast = now
         end
-        local ping = math.floor(lp:GetNetworkPing() * 1000)
+        local ping = 0
+        pcall(function() ping = math.floor(lp:GetNetworkPing() * 1000) end)
         local fps = math.floor(statsFpsValue)
         if statsLabel then statsLabel.Text = string.format("FPS: %d | Ping: %dms", fps, ping) end
     end)
@@ -1528,7 +1531,7 @@ RunService.Heartbeat:Connect(function()
 end)
 
 -- =========================================================================
--- AIM MODULE (INTACTO)
+-- AIM MODULE (PROTEGIDO)
 -- =========================================================================
 local mouse = lp:GetMouse()
 local SilentAimModule = (function()
@@ -1797,33 +1800,35 @@ local SilentAimModule = (function()
 
     pcall(function()
         local MouseModuleInstance = RS:FindFirstChild("Mouse")
-        if not MouseModuleInstance then return end
-        local MouseModule = require(MouseModuleInstance)
-        if not MouseModule or type(MouseModule) ~= "table" then return end
-        local realStore = { Hit = rawget(MouseModule, "Hit"), Target = rawget(MouseModule, "Target") }
-        local mmt = getrawmetatable(MouseModule)
-        if mmt then setreadonly(mmt, false) else mmt = {}; setmetatable(MouseModule, mmt) end
-        rawset(MouseModule, "Hit", nil)
-        rawset(MouseModule, "Target", nil)
-        mmt.__index = function(self, key)
-            if key == "Hit" then
-                if OverrideGodhumanSanguineEnabled and (SilentAimPlayersEnabled or SilentAimNPCsEnabled) and (PlayersPosition or NPCPosition) and isOverrideTool(currentTool) and currentSkillKey == "Z" and not isKeyCurrentlyBlacklisted(currentSkillKey) then
-                    local pos = PlayersPosition or NPCPosition
-                    if pos then return CFrame.new(pos) end
+        if MouseModuleInstance then
+            local MouseModule = require(MouseModuleInstance)
+            if MouseModule and type(MouseModule) == "table" then
+                local realStore = { Hit = rawget(MouseModule, "Hit"), Target = rawget(MouseModule, "Target") }
+                local mmt = getrawmetatable(MouseModule)
+                if mmt then setreadonly(mmt, false) else mmt = {}; setmetatable(MouseModule, mmt) end
+                rawset(MouseModule, "Hit", nil)
+                rawset(MouseModule, "Target", nil)
+                mmt.__index = function(self, key)
+                    if key == "Hit" then
+                        if OverrideGodhumanSanguineEnabled and (SilentAimPlayersEnabled or SilentAimNPCsEnabled) and (PlayersPosition or NPCPosition) and isOverrideTool(currentTool) and currentSkillKey == "Z" and not isKeyCurrentlyBlacklisted(currentSkillKey) then
+                            local pos = PlayersPosition or NPCPosition
+                            if pos then return CFrame.new(pos) end
+                        end
+                        return realStore.Hit
+                    elseif key == "Target" then
+                        if OverrideGodhumanSanguineEnabled and (SilentAimPlayersEnabled or SilentAimNPCsEnabled) and (PlayersPosition or NPCPosition) and isOverrideTool(currentTool) and currentSkillKey == "Z" and not isKeyCurrentlyBlacklisted(currentSkillKey) then
+                            return nil
+                        end
+                        return realStore.Target
+                    end
+                    return rawget(self, key)
                 end
-                return realStore.Hit
-            elseif key == "Target" then
-                if OverrideGodhumanSanguineEnabled and (SilentAimPlayersEnabled or SilentAimNPCsEnabled) and (PlayersPosition or NPCPosition) and isOverrideTool(currentTool) and currentSkillKey == "Z" and not isKeyCurrentlyBlacklisted(currentSkillKey) then
-                    return nil
+                mmt.__newindex = function(self, key, value)
+                    if key == "Hit" or key == "Target" then realStore[key] = value else rawset(self, key, value) end
                 end
-                return realStore.Target
+                setreadonly(mmt, true)
             end
-            return rawget(self, key)
         end
-        mmt.__newindex = function(self, key, value)
-            if key == "Hit" or key == "Target" then realStore[key] = value else rawset(self, key, value) end
-        end
-        setreadonly(mmt, true)
     end)
 
     UIS.InputBegan:Connect(function(input, gp)
@@ -2082,20 +2087,22 @@ local GunClickSLMod = (function()
     local function installHook()
         if hookInstalled then return end
         hookInstalled = true
-        local mt = getrawmetatable(game)
-        local oldNamecall = mt.__namecall
-        setreadonly(mt, false)
-        mt.__namecall = newcclosure(function(self, ...)
-            local args = {...}
-            local method = getnamecallmethod()
-            if enabled and aimPos and method == "FireServer" and tostring(self.Name or self):find("ShootGun") then
-                if typeof(args[1]) == "Vector3" then args[1] = aimPos.Position end
-                if typeof(args[2]) == "table" then args[2] = { aimPos } end
-                return oldNamecall(self, unpack(args))
-            end
-            return oldNamecall(self, ...)
+        pcall(function()
+            local mt = getrawmetatable(game)
+            local oldNamecall = mt.__namecall
+            setreadonly(mt, false)
+            mt.__namecall = newcclosure(function(self, ...)
+                local args = {...}
+                local method = getnamecallmethod()
+                if enabled and aimPos and method == "FireServer" and tostring(self.Name or self):find("ShootGun") then
+                    if typeof(args[1]) == "Vector3" then args[1] = aimPos.Position end
+                    if typeof(args[2]) == "table" then args[2] = { aimPos } end
+                    return oldNamecall(self, unpack(args))
+                end
+                return oldNamecall(self, ...)
+            end)
+            setreadonly(mt, true)
         end)
-        setreadonly(mt, true)
     end
     local M = {}
     function M:SetEnabled(state)
@@ -2257,7 +2264,7 @@ local function StopHipHeight()
 end
 
 -- =========================================================================
--- CREACIÓN DE PESTAÑAS (ORDENadas CORRECTAMENTE)
+-- CREACIÓN DE PESTAÑAS
 -- =========================================================================
 
 local HomeTab = MiiseryLibraryObj:CreateTab("Home")
@@ -2271,7 +2278,7 @@ local AppearanceTab = MiiseryLibraryObj:CreateTab("Appearance")
 local MiscTab = MiiseryLibraryObj:CreateTab("Misc")
 
 -- =========================================================================
--- CONTENIDO: HOME (Incluyendo el control de audio "Ainsi Bas La Vida")
+-- CONTENIDO: HOME (Audio y perfil)
 -- =========================================================================
 local HomeHeaderContainer = Instance.new("Frame", PagesFolder:FindFirstChild("HomePage"))
 HomeHeaderContainer.Size = UDim2.new(1, -6, 0, 115)
@@ -2406,7 +2413,7 @@ local BoostStroke = Instance.new("UIStroke", BoostButton)
 BoostStroke.Color = Color3.fromRGB(200, 200, 200)
 BoostStroke.Thickness = 0.9
 
-BoostButton.MouseButton1ListClick = BoostButton.MouseButton1Click:Connect(function()
+BoostButton.MouseButton1Click:Connect(function()
     pcall(function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/ChaosXiter/MiiseryHub/refs/heads/main/Boost"))()
     end)
@@ -2414,7 +2421,6 @@ end)
 
 HomeTab:Paragraph({ Title = "Miisery Hub - Blox Fruits", Desc = "Welcome to Miisery Hub v1.0 - Fully Optimized & Structured" })
 
--- Sistema de Audio: Ainsi Bas La Vida (Mute total de sonidos del juego y reproducción del custom)
 local customSound = Instance.new("Sound")
 customSound.Name = "MiiseryCustomMusic"
 customSound.SoundId = "rbxassetid://115786688552249"
@@ -2564,7 +2570,7 @@ local gunKeys = {"Z", "X"}
 for i = 1, #gunKeys do blToggle("Gun", gunKeys[i]) end
 
 -- =========================================================================
--- PESTAÑA: APPEARANCE (Con Nuevo Logo 7 / Nueva Imagen añadida)
+-- PESTAÑA: APPEARANCE (Con Logo 7 / Nueva Imagen añadida)
 -- =========================================================================
 AppearanceTab:Paragraph({ Title = "Appearance Settings", Desc = "Customize UI background style, logo themes and color palettes." })
 

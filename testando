@@ -1,0 +1,62 @@
+-- MIISERY UI
+
+local MiiseryEngine = loadstring(game:HttpGet("https://raw.githubusercontent.com/lIlIlIlIlIlllllI/realmiisery/refs/heads/main/Ui"))()
+
+-- 1. Inicializar el motor de manera completamente oculta (Headless)
+local WindowController = MiiseryEngine.new({
+    Title = "Miisery Hub",
+    Subtitle = "by DementeMental",
+    AssetID = "114065885540477",
+    AccentColor = Color3.fromRGB(0, 255, 200),
+    Size = UDim2.new(0, 560, 0, 340),
+    ExpandedSize = UDim2.new(0, 700, 0, 420),
+    Position = UDim2.new(0.5, -280, 0.5, -170)
+})
+
+-- Create Window 
+local HomeSectionTab = WindowController:CreateTab("Home")
+local CombatSectionTab = WindowController:CreateTab("Combat")
+local VisualsSectionTab = WindowController:CreateTab("Visuals")
+local SettingsSectionTab = WindowController:CreateTab("Settings")
+
+-- ADD HOME
+HomeSectionTab:AddButton({
+    Title = "Execute Script Boost",
+    Callback = function()
+        -- Click 
+    end
+})
+
+HomeSectionTab:AddToggle({
+    Title = "Enable Background Music",
+    Value = false,
+    Callback = function(state)
+        -- Lógica del estado del toggle
+    end
+})
+
+- iNf
+CombatSectionTab:AddToggle({
+    Title = "Fast Attack (Silent)",
+    Value = true,
+    Callback = function(state)
+        
+    end
+})
+
+CombatSectionTab:AddToggle({
+    Title = "Bring Mobs Pro",
+    Value = false,
+    Callback = function(state)
+        
+    end
+})
+
+-- Ui
+local UserInputService = game:GetService("UserInputService")
+
+UserInputService.InputBegan:Connect(function(inputObject, gameProcessed)
+    if not gameProcessed and inputObject.KeyCode == Enum.KeyCode.Insert then
+        WindowController:SetVisibility() -- Alterna entre visible/oculto limpiamente
+    end
+end)

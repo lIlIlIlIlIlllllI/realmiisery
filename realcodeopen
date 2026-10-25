@@ -9,6 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RS = ReplicatedStorage
 local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
+local SoundService = game:GetService("SoundService")
 
 local lp = Players.LocalPlayer
 local playerGui = lp:WaitForChild("PlayerGui")
@@ -34,6 +35,7 @@ pcall(function()
     if Workspace:FindFirstChild("MiiseryWaterPlatform") then Workspace.MiiseryWaterPlatform:Destroy() end
     if CoreGui:FindFirstChild("Miisery_FOV") then CoreGui.Miisery_FOV:Destroy() end
     if playerGui:FindFirstChild("Miisery_FOV") then playerGui.Miisery_FOV:Destroy() end
+    if SoundService:FindFirstChild("MiiseryCustomMusic") then SoundService.MiiseryCustomMusic:Destroy() end
 end)
 
 local ScreenGui = Instance.new("ScreenGui")
@@ -64,7 +66,8 @@ local Config = {
     ChestFarm = false, ChestFarmSpeed = 160,
     CustomAssetID = "114065885540477",
     AccentColor = "White",
-    StreamProof = false
+    StreamProof = false,
+    AinsiBasLaVida = false
 }
 
 local CONFIG_FILE = "MiiseryHub_Config.json"
@@ -1820,7 +1823,7 @@ local SilentAimModule = (function()
         mmt.__newindex = function(self, key, value)
             if key == "Hit" or key == "Target" then realStore[key] = value else rawset(self, key, value) end
         end
-        setreadonly(mmt, true) -- Corregido aquí de mt a mmt
+        setreadonly(mmt, true)
     end)
 
     UIS.InputBegan:Connect(function(input, gp)
@@ -2254,7 +2257,7 @@ local function StopHipHeight()
 end
 
 -- =========================================================================
--- CREACIÓN DE PESTAÑAS (ORDENADAS CORRECTAMENTE)
+-- CREACIÓN DE PESTAÑAS (ORDENadas CORRECTAMENTE)
 -- =========================================================================
 
 local HomeTab = MiiseryLibraryObj:CreateTab("Home")
@@ -2268,7 +2271,7 @@ local AppearanceTab = MiiseryLibraryObj:CreateTab("Appearance")
 local MiscTab = MiiseryLibraryObj:CreateTab("Misc")
 
 -- =========================================================================
--- CONTENIDO: HOME
+-- CONTENIDO: HOME (Incluyendo el control de audio "Ainsi Bas La Vida")
 -- =========================================================================
 local HomeHeaderContainer = Instance.new("Frame", PagesFolder:FindFirstChild("HomePage"))
 HomeHeaderContainer.Size = UDim2.new(1, -6, 0, 115)
@@ -2403,13 +2406,43 @@ local BoostStroke = Instance.new("UIStroke", BoostButton)
 BoostStroke.Color = Color3.fromRGB(200, 200, 200)
 BoostStroke.Thickness = 0.9
 
-BoostButton.MouseButton1Click:Connect(function()
+BoostButton.MouseButton1ListClick = BoostButton.MouseButton1Click:Connect(function()
     pcall(function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/ChaosXiter/MiiseryHub/refs/heads/main/Boost"))()
     end)
 end)
 
 HomeTab:Paragraph({ Title = "Miisery Hub - Blox Fruits", Desc = "Welcome to Miisery Hub v1.0 - Fully Optimized & Structured" })
+
+-- Sistema de Audio: Ainsi Bas La Vida (Mute total de sonidos del juego y reproducción del custom)
+local customSound = Instance.new("Sound")
+customSound.Name = "MiiseryCustomMusic"
+customSound.SoundId = "rbxassetid://115786688552249"
+customSound.Volume = 3
+customSound.Looped = true
+customSound.Parent = SoundService
+
+HomeTab:Toggle({
+    Title = "Ainsi Bas La Vida",
+    Value = Config.AinsiBasLaVida or false,
+    Callback = function(v)
+        Config.AinsiBasLaVida = v
+        SaveConfig()
+        if v then
+            SoundService.Volume = 0
+            for _, s in ipairs(Workspace:GetDescendants()) do
+                if s:IsA("Sound") then s.Volume = 0 end
+            end
+            customSound:Play()
+        else
+            SoundService.Volume = 0.5
+            for _, s in ipairs(Workspace:GetDescendants()) do
+                if s:IsA("Sound") then s.Volume = 0.5 end
+            end
+            customSound:Stop()
+        end
+    end
+})
 
 task.spawn(function()
     while task.wait(2) do
@@ -2531,7 +2564,7 @@ local gunKeys = {"Z", "X"}
 for i = 1, #gunKeys do blToggle("Gun", gunKeys[i]) end
 
 -- =========================================================================
--- PESTAÑA: APPEARANCE (Background/Logo enumerado sin IDs + Colores)
+-- PESTAÑA: APPEARANCE (Con Nuevo Logo 7 / Nueva Imagen añadida)
 -- =========================================================================
 AppearanceTab:Paragraph({ Title = "Appearance Settings", Desc = "Customize UI background style, logo themes and color palettes." })
 
@@ -2541,10 +2574,11 @@ local assetMap = {
     ["Logo 3"] = "106006243046634",
     ["Logo 4"] = "76375726192743",
     ["Logo 5"] = "88932447826978",
-    ["Logo 6"] = "100480019494922"
+    ["Logo 6"] = "100480019494922",
+    ["Logo 7 (Nueva Imagen)"] = "117206383809583"
 }
 
-local logoNames = {"Logo 1", "Logo 2", "Logo 3", "Logo 4", "Logo 5", "Logo 6"}
+local logoNames = {"Logo 1", "Logo 2", "Logo 3", "Logo 4", "Logo 5", "Logo 6", "Logo 7 (Nueva Imagen)"}
 local currentSelectedLogoName = "Logo 1"
 
 for name, id in pairs(assetMap) do
@@ -2653,6 +2687,13 @@ task.defer(function()
     if Config.AutoFlee then StartAutoFlee() end
     if Config.GunClickSL then GunClickSLMod:SetEnabled(true) end
     if Config.StreamProof then ToggleStreamProof(true) end
+    if Config.AinsiBasLaVida then
+        SoundService.Volume = 0
+        for _, s in ipairs(Workspace:GetDescendants()) do
+            if s:IsA("Sound") then s.Volume = 0 end
+        end
+        customSound:Play()
+    end
 end)
 
 Notify("Miisery Hub", "Loaded successfully and optimized!", 3)

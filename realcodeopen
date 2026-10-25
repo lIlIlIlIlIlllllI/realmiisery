@@ -71,7 +71,7 @@ local Config = {
     BL_Gun_Z = false, BL_Gun_X = false, BL_Gun_C = false, BL_Gun_V = false, BL_Gun_F = false,
     ChestFarm = false, ChestFarmSpeed = 160,
     Language = "English",
-    CustomAssetID = "114065885540477",
+    CustomAssetID = "+18",
     CurrentBackground = "+18",
     StreamProof = false
 }
@@ -114,7 +114,7 @@ end
 
 LoadConfig()
 
-local ASSET_ID = "rbxassetid://" .. tostring(Config.CustomAssetID or "114065885540477")
+local ASSET_ID = "rbxassetid://" .. tostring(Config.CustomAssetID ~= "+18" and Config.CustomAssetID or "114065885540477")
 
 local OriginalSize = UDim2.new(0, 545, 0, 330)
 local ExpandedSize = UDim2.new(0, 680, 0, 410)
@@ -136,7 +136,7 @@ MainStroke.Color = Color3.fromRGB(255, 255, 255)
 MainStroke.Thickness = 1.5
 MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
--- Definición de Fondos (incluyendo el nuevo "+18" de 12 partes exactas)
+-- Definición del preset de 12 partes para el fondo "+18"
 local BackgroundPresets = {
     ["+18"] = {
         "114190662442676", "120046269451482", "140082597612823", "129273225975036",
@@ -155,11 +155,14 @@ BackgroundHolder.ZIndex = 1
 Instance.new("UICorner", BackgroundHolder).CornerRadius = UDim.new(0, 10)
 
 local BackgroundPartImages = {}
+local BackgroundImage = nil
+
 local function setupBackground(presetName)
     for i = 1, #BackgroundPartImages do
         if BackgroundPartImages[i] then BackgroundPartImages[i]:Destroy() end
     end
     BackgroundPartImages = {}
+    BackgroundImage = nil
 
     local preset = BackgroundPresets[presetName]
     if preset and #preset == 12 then
@@ -179,12 +182,12 @@ local function setupBackground(presetName)
             table.insert(BackgroundPartImages, partImage)
         end
     else
-        local BackgroundImage = Instance.new("ImageLabel", BackgroundHolder)
+        BackgroundImage = Instance.new("ImageLabel", BackgroundHolder)
         BackgroundImage.Name = "BackgroundImage"
         BackgroundImage.Size = UDim2.new(1, 0, 1, 0)
         BackgroundImage.BackgroundTransparency = 0.15
         BackgroundImage.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
-        BackgroundImage.Image = ASSET_ID
+        BackgroundImage.Image = "rbxassetid://" .. tostring(presetName)
         BackgroundImage.ScaleType = Enum.ScaleType.Crop
         BackgroundImage.ZIndex = 1
         Instance.new("UICorner", BackgroundImage).CornerRadius = UDim.new(0, 10)
@@ -2549,11 +2552,14 @@ HomeTab:Button({
         Config.CurrentBackground = selectedCustomId
         SaveConfig()
         setupBackground(selectedCustomId)
-        local formattedUri = "rbxassetid://" .. selectedCustomId
         pcall(function()
             if selectedCustomId ~= "+18" then
+                local formattedUri = "rbxassetid://" .. selectedCustomId
                 if SidebarLogo then SidebarLogo.Image = formattedUri end
                 if BadgeLogo then BadgeLogo.Image = formattedUri end
+            else
+                if SidebarLogo then SidebarLogo.Image = "rbxassetid://114190662442676" end
+                if BadgeLogo then BadgeLogo.Image = "rbxassetid://114190662442676" end
             end
         end)
         Notify("Miisery Hub", "UI Background successfully updated and applied!", 2)
@@ -2734,11 +2740,9 @@ InfoTab:Dropdown({
 })
 
 pcall(function()
-    local initialUri = "rbxassetid://" .. tostring(Config.CustomAssetID or "114065885540477")
-    if Config.CurrentBackground ~= "+18" then
-        if SidebarLogo then SidebarLogo.Image = initialUri end
-        if BadgeLogo then BadgeLogo.Image = initialUri end
-    end
+    local initialUri = "rbxassetid://" .. tostring(Config.CustomAssetID ~= "+18" and Config.CustomAssetID or "114190662442676")
+    if SidebarLogo then SidebarLogo.Image = initialUri end
+    if BadgeLogo then BadgeLogo.Image = initialUri end
 end)
 
 task.defer(function()

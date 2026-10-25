@@ -100,7 +100,7 @@ end
 
 LoadConfig()
 
-local ASSET_ID = "rbxassetid://" .. tostring(Config.CustomAssetID ~= "+18" and Config.CustomAssetID or "114190662442676")
+local ASSET_ID = "rbxassetid://" .. tostring(Config.CustomAssetID ~= "+18" and Config.CustomAssetID or "121146088575932")
 
 local OriginalSize = UDim2.new(0, 545, 0, 330)
 local ExpandedSize = UDim2.new(0, 680, 0, 410)
@@ -121,11 +121,17 @@ local MainStroke = Instance.new("UIStroke", MainFrame)
 MainStroke.Color = Color3.fromRGB(255, 255, 255)
 MainStroke.Thickness = 1.5
 
+-- Tus 8 IDs de arriba a abajo configuradas para el preset +18
 local BackgroundPresets = {
     ["+18"] = {
-        "114190662442676", "120046269451482", "140082597612823", "129273225975036",
-        "80024750464714",  "88842229046939",  "79539639499471",  "91763108447180",
-        "99723228983167",  "128087290942098", "80565014387441",  "109823947239244"
+        "121146088575932",
+        "98196489868218",
+        "131913984019179",
+        "111888566824639",
+        "113392505649838",
+        "108579080147238",
+        "114050455244258",
+        "102130068070500"
     }
 }
 
@@ -153,8 +159,8 @@ local function setupBackground(presetName)
     end
 
     local preset = BackgroundPresets[presetName]
-    if preset and #preset == 12 then
-        local totalParts = 12
+    if preset then
+        local totalParts = #preset
         for i = 1, totalParts do
             local partImage = Instance.new("ImageLabel", BackgroundHolder)
             partImage.Name = "BackgroundPart_" .. tostring(i)
@@ -183,7 +189,6 @@ local function setupBackground(presetName)
     end
 end
 
--- Activar el fondo guardado inicialmente
 if Config.CurrentBackground == "+18" then
     setupBackground("+18")
 else
@@ -2141,14 +2146,14 @@ HomeTab:Dropdown({
                 if SidebarLogo then SidebarLogo.Image = formattedUri end
                 if BadgeLogo then BadgeLogo.Image = formattedUri end
             else
-                if SidebarLogo then SidebarLogo.Image = "rbxassetid://114190662442676" end
-                if BadgeLogo then BadgeLogo.Image = "rbxassetid://114190662442676" end
+                if SidebarLogo then SidebarLogo.Image = "rbxassetid://121146088575932" end
+                if BadgeLogo then BadgeLogo.Image = "rbxassetid://121146088575932" end
             end
         end)
     end
 })
 
--- 2. Apartado de Backgrounds +18 (Sistema de Piezas)
+-- 2. Apartado de Backgrounds +18 (Sistema de Piezas Actualizado)
 local plus18AssetIds = {
     "+18",
     "None"
@@ -2166,11 +2171,11 @@ HomeTab:Dropdown({
         setupBackground(choice)
         pcall(function()
             if choice == "+18" then
-                if SidebarLogo then SidebarLogo.Image = "rbxassetid://114190662442676" end
-                if BadgeLogo then BadgeLogo.Image = "rbxassetid://114190662442676" end
+                if SidebarLogo then SidebarLogo.Image = "rbxassetid://121146088575932" end
+                if BadgeLogo then BadgeLogo.Image = "rbxassetid://121146088575932" end
             else
-                if SidebarLogo then SidebarLogo.Image = "rbxassetid://114190662442676" end
-                if BadgeLogo then BadgeLogo.Image = "rbxassetid://114190662442676" end
+                if SidebarLogo then SidebarLogo.Image = "rbxassetid://121146088575932" end
+                if BadgeLogo then BadgeLogo.Image = "rbxassetid://121146088575932" end
             end
         end)
     end
@@ -2312,7 +2317,7 @@ MiscTab:Button({ Title = "Reroll Race", Callback = function() pcall(function() C
 MiscTab:Button({ Title = "Save Config Now", Callback = function() SaveConfig() end })
 
 pcall(function()
-    local initialUri = "rbxassetid://" .. tostring(Config.CustomAssetID ~= "+18" and Config.CustomAssetID or "114190662442676")
+    local initialUri = "rbxassetid://" .. tostring(Config.CustomAssetID ~= "+18" and Config.CustomAssetID or "121146088575932")
     if SidebarLogo then SidebarLogo.Image = initialUri end
     if BadgeLogo then BadgeLogo.Image = initialUri end
 end)

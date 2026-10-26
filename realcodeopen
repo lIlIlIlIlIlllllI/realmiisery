@@ -4,10 +4,12 @@ local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
+local UserInputService = UIS
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RS = ReplicatedStorage
 local HttpService = game:GetService("HttpService")
+local Lighting = game:GetService("Lighting")
 local TweenService = game:GetService("TweenService")
 
 local lp = Players.LocalPlayer
@@ -25,6 +27,8 @@ end)
 if not registerHit then
     registerHit = Net:FindFirstChild("RE/RegisterHit")
 end
+local ShootGunEvent = Net:FindFirstChild("Remotes") and Net.Remotes:FindFirstChild("ShootGunEvent") or Net:FindFirstChild("RE/ShootGunEvent")
+local Validator2 = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Validator2")
 
 pcall(function()
     if CoreGui:FindFirstChild("MiiseryLib_UI") then CoreGui.MiiseryLib_UI:Destroy() end
@@ -44,7 +48,9 @@ ScreenGui.Parent = (gethui and gethui()) or CoreGui or playerGui
 local Config = {
     FastAttack = false, FAPlayers = true, FAMobs = true, FARange = 1000,
     BringMobs = false, BringRange = 3000,
-    AutoV3 = false, AutoV4 = false, AutoPvP = false,
+    SafeGun = false, SafeMobs = true, SafePlayers = true, SafeSea = true, SafeRange = 500,
+    SuperGun = false, SuperMobs = true, SuperPlayers = true, SuperSea = true, SuperRange = 500,
+    Disappear = false, AutoV3 = false, AutoV4 = false, AutoPvP = false,
     InfiniteZoom = false, AntiAFK = true, Notifications = true,
     Fly = false, FlySpeed = 250, FlyVertical = 180, FlySmooth = true,
     WalkOnWater = false, AntiLava = false, SpeedEnabled = false, SpeedMode = "CFrame", SpeedValue = 50,
@@ -57,18 +63,23 @@ local Config = {
     SilentPlayer = false, SilentNPC = false, AimMode = "360", AimPriority = "Nearest",
     ShowFOV = false, FOVMode = "V1", FOVRadius = 150, AimMaxRange = 2000,
     Tracer = false, TracerColor = "Red",
+    BypassTpNpc = false, BypassTpRange = 500, BypassTpMode = "Nearest", BypassTpAbove = true, BypassTpHeight = 12,
+    LowGraphics = false, DisableShadows = false, NoFog = false, NoGfxMode = "Off",
     BL_Melee_Z = false, BL_Melee_X = false, BL_Melee_C = false, BL_Melee_V = false, BL_Melee_F = false,
     BL_Sword_Z = false, BL_Sword_X = false, BL_Sword_C = false, BL_Sword_V = false, BL_Sword_F = false,
     BL_Fruit_Z = false, BL_Fruit_X = false, BL_Fruit_C = false, BL_Fruit_V = false, BL_Fruit_F = false, BL_Fruit_TAP = false,
     BL_Gun_Z = false, BL_Gun_X = false, BL_Gun_C = false, BL_Gun_V = false, BL_Gun_F = false,
+    ChestFarm = false, ChestFarmSpeed = 160,
     Language = "English",
-    CustomAssetID = "+18",
-    CurrentBackground = "+18",
-    BasicBackground = "None",
     StreamProof = false
 }
 
 local CONFIG_FILE = "MiiseryHub_Config.json"
+
+local function Notify(title, content, duration)
+    if not Config.Notifications then return end
+    pcall(function() print("[MiiseryNotify] " .. tostring(title) .. " - " .. tostring(content)) end)
+end
 
 local function SaveConfig()
     if not writefile then return false end
@@ -79,7 +90,8 @@ local function SaveConfig()
                 data[k] = v
             end
         end
-        writefile(CONFIG_FILE, HttpService:JSONEncode(data))
+        local encoded = HttpService:JSONEncode(data)
+        writefile(CONFIG_FILE, encoded)
     end)
 end
 
@@ -100,8 +112,6 @@ end
 
 LoadConfig()
 
-local ASSET_ID = "rbxassetid://121146088575932"
-
 local OriginalSize = UDim2.new(0, 545, 0, 330)
 local ExpandedSize = UDim2.new(0, 680, 0, 410)
 
@@ -120,36 +130,9 @@ Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
 local MainStroke = Instance.new("UIStroke", MainFrame)
 MainStroke.Color = Color3.fromRGB(255, 255, 255)
 MainStroke.Thickness = 1.5
+MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
--- Definición de ambos logos con sus respectivas IDs (de arriba a abajo)
-local BackgroundPresets = {
-    ["+18"] = { -- El logo de 8 IDs
-        "121146088575932",
-        "98196489868218",
-        "131913984019179",
-        "111888566824639",
-        "113392505649838",
-        "108579080147238",
-        "114050455244258",
-        "102130068070500"
-    },
-    ["CustomLogo12"] = { -- El logo de 12 IDs (las que proporcionaste previamente)
-        "121146088575932",
-        "98196489868218",
-        "131913984019179",
-        "111888566824639",
-        "113392505649838",
-        "108579080147238",
-        "114050455244258",
-        "102130068070500",
-        -- Agregadas las de 12 si faltaban o completadas de arriba a abajo en orden exacto:
-        "121146088575932",
-        "98196489868218",
-        "131913984019179",
-        "111888566824639"
-    }
-}
-
+-- Contenedor del fondo entrelazado para el logo +18 de 8 IDs
 local BackgroundHolder = Instance.new("Frame", MainFrame)
 BackgroundHolder.Name = "BackgroundHolder"
 BackgroundHolder.Size = UDim2.new(1, 0, 1, 0)
@@ -159,55 +142,32 @@ BackgroundHolder.ZIndex = 1
 
 Instance.new("UICorner", BackgroundHolder).CornerRadius = UDim.new(0, 10)
 
-local BackgroundPartImages = {}
-local BackgroundImage = nil
+-- Las 8 IDs exactas del logo +18 original ordenadas de arriba a abajo
+local logo8IDs = {
+    "121146088575932",
+    "98196489868218",
+    "131913984019179",
+    "111888566824639",
+    "113392505649838",
+    "108579080147238",
+    "114050455244258",
+    "102130068070500"
+}
 
-local function setupBackground(presetName)
-    for i = 1, #BackgroundPartImages do
-        if BackgroundPartImages[i] then BackgroundPartImages[i]:Destroy() end
-    end
-    BackgroundPartImages = {}
-    BackgroundImage = nil
-
-    if presetName == "None" then
-        return
-    end
-
-    local preset = BackgroundPresets[presetName]
-    if preset then
-        local totalParts = #preset
-        for i = 1, totalParts do
-            local partImage = Instance.new("ImageLabel", BackgroundHolder)
-            partImage.Name = "BackgroundPart_" .. tostring(i)
-            local heightScale = 1 / totalParts
-            local posYScale = (i - 1) * heightScale
-            partImage.Size = UDim2.new(1, 0, heightScale + 0.002, 0)
-            partImage.Position = UDim2.new(0, 0, posYScale, 0)
-            partImage.BackgroundTransparency = 1
-            partImage.BorderSizePixel = 0
-            partImage.Image = "rbxassetid://" .. tostring(preset[i])
-            partImage.ScaleType = Enum.ScaleType.Stretch
-            partImage.ZIndex = 1
-            table.insert(BackgroundPartImages, partImage)
-        end
-    else
-        BackgroundImage = Instance.new("ImageLabel", BackgroundHolder)
-        BackgroundImage.Name = "BackgroundImage"
-        BackgroundImage.Size = UDim2.new(1, 0, 1, 0)
-        BackgroundImage.BackgroundTransparency = 0.15
-        BackgroundImage.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
-        BackgroundImage.Image = "rbxassetid://" .. tostring(presetName)
-        BackgroundImage.ScaleType = Enum.ScaleType.Crop
-        BackgroundImage.ZIndex = 1
-        Instance.new("UICorner", BackgroundImage).CornerRadius = UDim.new(0, 10)
-        table.insert(BackgroundPartImages, BackgroundImage)
-    end
-end
-
-if Config.CurrentBackground then
-    setupBackground(Config.CurrentBackground)
-else
-    setupBackground("+18")
+local totalParts = #logo8IDs
+for i = 1, totalParts do
+    local partImage = Instance.new("ImageLabel", BackgroundHolder)
+    partImage.Name = "BackgroundPart_" .. tostring(i)
+    local heightScale = 1 / totalParts
+    local posYScale = (i - 1) * heightScale
+    
+    partImage.Size = UDim2.new(1, 0, heightScale + 0.002, 0)
+    partImage.Position = UDim2.new(0, 0, posYScale, 0)
+    partImage.BackgroundTransparency = 0.15
+    partImage.BorderSizePixel = 0
+    partImage.Image = "rbxassetid://" .. tostring(logo8IDs[i])
+    partImage.ScaleType = Enum.ScaleType.Stretch
+    partImage.ZIndex = 1
 end
 
 local ToggleButton = Instance.new("Frame", ScreenGui)
@@ -253,7 +213,7 @@ BadgeLogo.Name = "BadgeLogo"
 BadgeLogo.Size = UDim2.new(0, 20, 0, 20)
 BadgeLogo.Position = UDim2.new(0, 45, 0.5, -10)
 BadgeLogo.BackgroundTransparency = 1
-BadgeLogo.Image = ASSET_ID
+BadgeLogo.Image = "rbxassetid://" .. tostring(logo8IDs[1])
 BadgeLogo.ZIndex = 201
 
 Instance.new("UICorner", BadgeLogo).CornerRadius = UDim.new(1, 0)
@@ -284,10 +244,16 @@ DragArea.InputBegan:Connect(function(input)
         dragging = true
         dragStart = input.Position
         startPos = ToggleButton.Position
+        
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
     end
 end)
 
-UIS.InputChanged:Connect(function(input)
+UserInputService.InputChanged:Connect(function(input)
     if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
         local delta = input.Position - dragStart
         ToggleButton.Position = UDim2.new(
@@ -309,11 +275,13 @@ local function ToggleStreamProof(active)
     end
 end
 
-lp.Chatted:Connect(function(message)
+local function OnChatted(message)
     if string.lower(message) == "-open-" then
         ToggleStreamProof(false)
     end
-end)
+end
+
+lp.Chatted:Connect(OnChatted)
 
 local LeftSidebar = Instance.new("Frame", MainFrame)
 LeftSidebar.Name = "LeftSidebar"
@@ -334,7 +302,7 @@ SidebarLogo.Name = "SidebarLogo"
 SidebarLogo.Size = UDim2.new(0, 22, 0, 22)
 SidebarLogo.Position = UDim2.new(0, 8, 0, 7)
 SidebarLogo.BackgroundTransparency = 1
-SidebarLogo.Image = ASSET_ID
+SidebarLogo.Image = "rbxassetid://" .. tostring(logo8IDs[1])
 SidebarLogo.ZIndex = 3
 
 Instance.new("UICorner", SidebarLogo).CornerRadius = UDim.new(1, 0)
@@ -423,20 +391,54 @@ CloseBtn.Font = Enum.Font.GothamBold
 CloseBtn.TextSize = 18
 CloseBtn.ZIndex = 11
 
+local function AddHover(btn, hoverColor, defaultColor)
+    btn.MouseEnter:Connect(function() btn.TextColor3 = hoverColor end)
+    btn.MouseLeave:Connect(function() btn.TextColor3 = defaultColor end)
+end
+AddHover(MinimizeBtn, Color3.fromRGB(255, 255, 255), Color3.fromRGB(0, 255, 200))
+AddHover(ExpandBtn, Color3.fromRGB(255, 255, 255), Color3.fromRGB(255, 220, 0))
+AddHover(CloseBtn, Color3.fromRGB(255, 255, 255), Color3.fromRGB(255, 140, 0))
+
 local isMinimized = false
 local function MinimizeUI()
     if isMinimized then return end
     isMinimized = true
+    
+    TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        Size = UDim2.new(0, 0, 0, 0),
+        Position = MainFrame.Position + UDim2.new(0, 272, 0, 180)
+    }):Play()
+    
+    task.wait(0.2)
     MainFrame.Visible = false
-    ToggleButton.Size = UDim2.new(0, 175, 0, 36)
+    
+    ToggleButton.Size = UDim2.new(0, 0, 0, 36)
     ToggleButton.Visible = true
+    TweenService:Create(ToggleButton, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Size = UDim2.new(0, 175, 0, 36)
+    }):Play()
 end
 
 local function RestoreUI()
     if not isMinimized then return end
-    isMinimized = false
+    
+    TweenService:Create(ToggleButton, TweenInfo.new(0.15, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+        Size = UDim2.new(0, 0, 0, 36)
+    }):Play()
+    
+    task.wait(0.15)
     ToggleButton.Visible = false
+    
+    MainFrame.Size = UDim2.new(0, 0, 0, 0)
     MainFrame.Visible = true
+    
+    TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Size = OriginalSize,
+        Position = UDim2.new(0.5, -272, 0.5, -180)
+    }):Play()
+    
+    task.wait(0.3)
+    isMinimized = false
 end
 
 local isExpanded = false
@@ -620,6 +622,13 @@ local MiiseryLibraryObj = {
             dLabel.TextXAlignment = Enum.TextXAlignment.Left
             dLabel.TextYAlignment = Enum.TextYAlignment.Top
             dLabel.ZIndex = 4
+
+            local paragraphObj = {}
+            function paragraphObj:Update(newTitle, newDesc)
+                if newTitle then tLabel.Text = newTitle end
+                if newDesc then dLabel.Text = newDesc end
+            end
+            return paragraphObj
         end
 
         function tabObj:Slider(data)
@@ -743,6 +752,363 @@ lp.CharacterAdded:Connect(function(c)
     humanoidRootPart = c:WaitForChild("HumanoidRootPart")
 end)
 local savedZoom = lp.CameraMaxZoomDistance
+
+local activeChestTween = nil
+local currentTargetChest = nil
+local currentTargetIsland = nil
+local lastIslandName = nil
+
+local IslandLocationsSea1 = {
+    { Name = "Skylands", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Skylands") and Workspace._WorldOrigin.Locations.Skylands.CFrame end },
+    { Name = "Desert", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Desert") and Workspace._WorldOrigin.Locations.Desert.CFrame end },
+    { Name = "Whirlpool", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Whirlpool") and Workspace._WorldOrigin.Locations.Whirlpool.CFrame end },
+    { Name = "Colosseum", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Colosseum") and Workspace._WorldOrigin.Locations.Colosseum.CFrame end },
+    { Name = "Marine Fortress", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Marine Fortress") and Workspace._WorldOrigin.Locations["Marine Fortress"].CFrame end },
+    { Name = "Middle Town", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Middle Town") and Workspace._WorldOrigin.Locations["Middle Town"].CFrame end },
+    { Name = "Pirate Village", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Pirate Village") and Workspace._WorldOrigin.Locations["Pirate Village"].CFrame end },
+    { Name = "Magma Village", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Magma Village") and Workspace._WorldOrigin.Locations["Magma Village"].CFrame end },
+    { Name = "Frozen Village", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Frozen Village") and Workspace._WorldOrigin.Locations["Frozen Village"].CFrame end },
+    { Name = "Fountain City", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Fountain City") and Workspace._WorldOrigin.Locations["Fountain City"].CFrame end },
+    { Name = "Jungle", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Jungle") and Workspace._WorldOrigin.Locations.Jungle.CFrame end },
+    { Name = "Marine Starter", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Marine Starter") and Workspace._WorldOrigin.Locations["Marine Starter"].CFrame end },
+    { Name = "Pirate Starter", GetCFrame = function() return Workspace:FindFirstChild("Pirate Starter") and Workspace["Pirate Starter"].CFrame end }
+}
+
+local IslandLocationsSea2 = {
+    { Name = "Kingdom of Rose", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Kingdom of Rose") and Workspace._WorldOrigin.Locations["Kingdom of Rose"].CFrame end },
+    { Name = "Graveyard Island", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Graveyard Island") and Workspace._WorldOrigin.Locations["Graveyard Island"].CFrame end },
+    { Name = "Snow Mountain", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Snow Mountain") and Workspace._WorldOrigin.Locations["Snow Mountain"].CFrame end },
+    { Name = "Ice Castle", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Ice Castle") and Workspace._WorldOrigin.Locations["Ice Castle"].CFrame end },
+    { Name = "Hot and Cold", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Hot  and Cold") and Workspace._WorldOrigin.Locations["Hot  and Cold"].CFrame end },
+    { Name = "Forgotten Island", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Forgotten Island") and Workspace._WorldOrigin.Locations["Forgotten Island"].CFrame end },
+    { Name = "Dark Arena", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Dark Arena") and Workspace._WorldOrigin.Locations["Dark Arena"].CFrame end }
+}
+
+local IslandLocationsSea3 = {
+    { Name = "Floating Turtle", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Floating Turtle") and Workspace._WorldOrigin.Locations["Floating Turtle"].CFrame end },
+    { Name = "Haunted Castle", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Haunted Castle") and Workspace._WorldOrigin.Locations["Haunted Castle"].CFrame end },
+    { Name = "Tiki Outpost", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Tiki Outpost") and Workspace._WorldOrigin.Locations["Tiki Outpost"].CFrame end },
+    { Name = "Sea of Treats", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Sea of Treats") and Workspace._WorldOrigin.Locations["Sea of Treats"].CFrame end },
+    { Name = "Port Town", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Port Town") and Workspace._WorldOrigin.Locations["Port Town"].CFrame end },
+    { Name = "Hydra Island", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Hydra Island") and Workspace._WorldOrigin.Locations["Hydra Island"].CFrame end },
+    { Name = "Great Tree", GetCFrame = function() return Workspace._WorldOrigin.Locations:FindFirstChild("Great Tree") and Workspace._WorldOrigin.Locations["Great Tree"].CFrame end },
+    { Name = "Castle on the Sea", GetCFrame = function() return Workspace._WorldOrigin:FindFirstChild("Castle on the Sea") and Workspace._WorldOrigin["Castle on the Sea"].CFrame or (Workspace._WorldOrigin.Locations:FindFirstChild("Castle on the Sea") and Workspace._WorldOrigin.Locations["Castle on the Sea"].CFrame) end }
+}
+
+local function getCurrentSea()
+    local pId = game.PlaceId
+    if pId == 2753915549 or pId == 7449423635 or pId == 100117331123089 then
+        return 1
+    elseif pId == 4442272183 or pId == 79091703265657 then
+        return 2
+    elseif pId == 73130107255152 or pId == 7449423635 then
+        return 3
+    end
+    return 1
+end
+
+local function getIslandsForCurrentSea()
+    local sea = getCurrentSea()
+    if sea == 1 then
+        return IslandLocationsSea1
+    elseif sea == 2 then
+        return IslandLocationsSea2
+    elseif sea == 3 then
+        return IslandLocationsSea3
+    end
+    return IslandLocationsSea1
+end
+
+local function getCurrentIsland()
+    local myRoot = humanoidRootPart
+    if not myRoot then return nil end
+    local islands = getIslandsForCurrentSea()
+    local currentIsland = nil
+    local shortestDist = math.huge
+
+    for i = 1, #islands do
+        local island = islands[i]
+        local cf = island.GetCFrame()
+        if cf then
+            local dist = (cf.Position - myRoot.Position).Magnitude
+            if dist < shortestDist then
+                shortestDist = dist
+                currentIsland = island
+            end
+        end
+    end
+    if shortestDist <= 500 then
+        return currentIsland
+    end
+    return nil
+end
+
+local function getNearestIsland(excludeIslandName)
+    local myRoot = humanoidRootPart
+    if not myRoot then return nil end
+
+    local islands = getIslandsForCurrentSea()
+    local nearestIsland = nil
+    local shortestDist = math.huge
+
+    for i = 1, #islands do
+        local island = islands[i]
+        if not excludeIslandName or island.Name ~= excludeIslandName then
+            local cf = island.GetCFrame()
+            if cf then
+                local dist = (cf.Position - myRoot.Position).Magnitude
+                if dist < shortestDist then
+                    shortestDist = dist
+                    nearestIsland = island
+                end
+            end
+        end
+    end
+
+    if not nearestIsland and excludeIslandName then
+        return getNearestIsland(nil)
+    end
+
+    return nearestIsland
+end
+
+local function getSkylandsLocations()
+    local locs = {}
+    local base = Workspace._WorldOrigin.Locations:FindFirstChild("Skylands")
+    if base then table.insert(locs, base.CFrame) end
+    local children = Workspace._WorldOrigin.Locations:GetChildren()
+    if children[6] then table.insert(locs, children[6].CFrame) end
+    if children[12] then table.insert(locs, children[12].CFrame) end
+    return locs
+end
+
+local function getTreatsSubLocations()
+    local locs = {}
+    local base = Workspace._WorldOrigin.Locations:FindFirstChild("Sea of Treats")
+    if base then table.insert(locs, base.CFrame) end
+    local children = Workspace._WorldOrigin.Locations:GetChildren()
+    if children[16] then table.insert(locs, children[16].CFrame) end
+    if children[17] then table.insert(locs, children[17].CFrame) end
+    return locs
+end
+
+local function getClosestChestInMap()
+    local myRoot = humanoidRootPart
+    if not myRoot then return nil end
+
+    local bestChest, shortestDist = nil, math.huge
+
+    local function checkContainer(folder)
+        if not folder then return end
+        local children = folder:GetChildren()
+        for i = 1, #children do
+            local obj = children[i]
+            local name = obj.Name:lower()
+            if name:find("chest") then
+                local targetPart = obj:IsA("Model") and (obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")) or (obj:IsA("BasePart") and obj)
+                if targetPart and targetPart.Parent then
+                    local dist = (targetPart.Position - myRoot.Position).Magnitude
+                    if dist < shortestDist then
+                        shortestDist = dist
+                        bestChest = targetPart
+                    end
+                end
+            end
+        end
+    end
+
+    checkContainer(Workspace:FindFirstChild("ChestModels"))
+    checkContainer(Workspace)
+
+    return bestChest
+end
+
+local function getNearestChestInIsland(centerCF, maxDist)
+    local myRoot = humanoidRootPart
+    if not myRoot then return nil end
+
+    local bestChest, shortestDist = nil, math.huge
+    maxDist = maxDist or 3000
+
+    local function checkContainer(folder)
+        if not folder then return end
+        local children = folder:GetChildren()
+        for i = 1, #children do
+            local obj = children[i]
+            local name = obj.Name:lower()
+            if name:find("chest") then
+                local targetPart = obj:IsA("Model") and (obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")) or (obj:IsA("BasePart") and obj)
+                if targetPart and targetPart.Parent then
+                    local distFromIsland = centerCF and (targetPart.Position - centerCF.Position).Magnitude or 0
+                    if not centerCF or distFromIsland <= maxDist then
+                        local distFromMe = (targetPart.Position - myRoot.Position).Magnitude
+                        if distFromMe < shortestDist then
+                            shortestDist = distFromMe
+                            bestChest = targetPart
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    checkContainer(Workspace:FindFirstChild("ChestModels"))
+    checkContainer(Workspace)
+
+    return bestChest
+end
+
+local function safeTweenTo(targetCFrame, speed)
+    local myRoot = humanoidRootPart
+    if not myRoot then return end
+
+    local startPos = myRoot.Position
+    local endPos = targetCFrame.Position
+    
+    local safeY = math.max(startPos.Y, endPos.Y, 95)
+    local highPos1 = Vector3.new(startPos.X, safeY + 45, startPos.Z)
+    local highPos2 = Vector3.new(endPos.X, safeY + 45, endPos.Z)
+
+    myRoot.CFrame = CFrame.new(highPos1)
+    task.wait(0.05)
+
+    local dist = (highPos2 - highPos1).Magnitude
+    local timeDuration = math.clamp(dist / speed, 0.6, 20)
+
+    if activeChestTween then activeChestTween:Cancel() end
+    activeChestTween = TweenService:Create(myRoot, TweenInfo.new(timeDuration, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+        CFrame = CFrame.new(highPos2)
+    })
+    activeChestTween:Play()
+    activeChestTween.Completed:Wait()
+
+    local finalDist = (endPos - myRoot.Position).Magnitude
+    local finalDuration = math.clamp(finalDist / speed, 0.3, 5)
+
+    if activeChestTween then activeChestTween:Cancel() end
+    activeChestTween = TweenService:Create(myRoot, TweenInfo.new(finalDuration, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+        CFrame = targetCFrame
+    })
+    activeChestTween:Play()
+    activeChestTween.Completed:Wait()
+end
+
+task.spawn(function()
+    while true do
+        task.wait(0.12)
+        if Config.ChestFarm then
+            pcall(function()
+                local myRoot = humanoidRootPart
+                if not myRoot then return end
+
+                local activeIsland = getCurrentIsland()
+                if activeIsland then
+                    lastIslandName = activeIsland.Name
+                end
+
+                local nearbyChest = getClosestChestInMap()
+                if nearbyChest and (nearbyChest.Position - myRoot.Position).Magnitude <= 450 then
+                    currentTargetChest = nearbyChest
+                end
+
+                if currentTargetChest and currentTargetChest.Parent then
+                    local destCFrame = currentTargetChest.CFrame + Vector3.new(0, 3, 0)
+                    local dist = (destCFrame.Position - myRoot.Position).Magnitude
+                    local speed = math.clamp(Config.ChestFarmSpeed or 160, 60, 300)
+                    
+                    if dist > 20 then
+                        safeTweenTo(destCFrame, speed)
+                    elseif dist > 4 then
+                        local timeDuration = math.clamp(dist / speed, 0.3, 2.0)
+                        if activeChestTween then activeChestTween:Cancel() end
+                        activeChestTween = TweenService:Create(myRoot, TweenInfo.new(timeDuration, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {
+                            CFrame = destCFrame
+                        })
+                        activeChestTween:Play()
+                        activeChestTween.Completed:Wait()
+                    else
+                        currentTargetChest = nil
+                        task.wait(0.3)
+                    end
+                else
+                    currentTargetChest = nil
+                end
+
+                if not currentTargetIsland then
+                    currentTargetIsland = getNearestIsland(lastIslandName)
+                end
+
+                if currentTargetIsland then
+                    local islandName = currentTargetIsland.Name
+                    local targetChestInIsland = nil
+
+                    if islandName == "Skylands" then
+                        local skylandsLocs = getSkylandsLocations()
+                        for i = 1, #skylandsLocs do
+                            targetChestInIsland = getNearestChestInIsland(skylandsLocs[i], 2000)
+                            if targetChestInIsland then break end
+                        end
+                    elseif islandName == "Sea of Treats" then
+                        local treatsLocs = getTreatsSubLocations()
+                        for i = 1, #treatsLocs do
+                            targetChestInIsland = getNearestChestInIsland(treatsLocs[i], 2000)
+                            if targetChestInIsland then break end
+                        end
+                    elseif islandName == "Whirlpool" then
+                        local whirlpoolCF = currentTargetIsland.GetCFrame()
+                        if whirlpoolCF then
+                            local distToWhirlpool = (whirlpoolCF.Position - myRoot.Position).Magnitude
+                            if distToWhirlpool > 30 then
+                                local speed = math.clamp(Config.ChestFarmSpeed or 160, 60, 300)
+                                safeTweenTo(whirlpoolCF + Vector3.new(0, 5, 0), speed)
+                                return
+                            else
+                                pcall(function()
+                                    local soundCutscene = ReplicatedStorage:FindFirstChild("Storage") and ReplicatedStorage.Storage:FindFirstChild("Sound") and ReplicatedStorage.Storage.Sound:FindFirstChild("UnderwaterCityBonusMoments") and ReplicatedStorage.Storage.Sound.UnderwaterCityBonusMoments:FindFirstChild("Bubble_Teleport_Whirlpool_Cutscene_01")
+                                    if soundCutscene then soundCutscene:Play() end
+                                    CommF:InvokeServer("requestEntrance", Vector3.new(61163, 11, 1819))
+                                end)
+                                task.wait(0.8)
+                                targetChestInIsland = getNearestChestInIsland(myRoot.CFrame, 3000)
+                            end
+                        end
+                    else
+                        local islandCF = currentTargetIsland.GetCFrame()
+                        if islandCF then
+                            targetChestInIsland = getNearestChestInIsland(islandCF, 3200)
+                        end
+                    end
+
+                    if targetChestInIsland then
+                        currentTargetChest = targetChestInIsland
+                    else
+                        lastIslandName = currentTargetIsland.Name
+                        local islandCF = currentTargetIsland.GetCFrame()
+                        if islandCF then
+                            local distToIsland = (islandCF.Position - myRoot.Position).Magnitude
+                            if distToIsland > 100 then
+                                local speed = math.clamp(Config.ChestFarmSpeed or 160, 60, 300)
+                                safeTweenTo(islandCF + Vector3.new(0, 10, 0), speed)
+                            else
+                                currentTargetIsland = nil
+                            end
+                        else
+                            currentTargetIsland = nil
+                        end
+                    end
+                end
+            end)
+        else
+            currentTargetChest = nil
+            currentTargetIsland = nil
+            lastIslandName = nil
+            if activeChestTween then
+                activeChestTween:Cancel()
+                activeChestTween = nil
+            end
+        end
+    end
+end)
 
 task.spawn(function()
     while true do
@@ -2129,71 +2495,7 @@ BoostButton.MouseButton1Click:Connect(function()
     end)
 end)
 
-HomeTab:Paragraph({ Title = "Miisery Hub - Blox Fruits PvP", Desc = "Welcome to Miisery Hub v1.0" })
-
--- ==========================================
--- BACKGROUND / LOGO SECTIONS IN HOME
--- ==========================================
-
--- 1. Basic Backgrounds Section
-local basicAssetIds = {
-    "None",
-    "114065885540477",
-    "85256255221310",
-    "106006243046634",
-    "76375726192743",
-    "88932447826978",
-    "100480019494922"
-}
-
-HomeTab:Dropdown({
-    Title = "Background / Logo (Basic)",
-    Values = basicAssetIds,
-    Value = Config.BasicBackground or "None",
-    Callback = function(v)
-        Config.BasicBackground = tostring(v)
-        Config.CurrentBackground = tostring(v)
-        SaveConfig()
-        setupBackground(tostring(v))
-    end
-})
-
--- 2. +18 Backgrounds Section (8 IDs)
-local plus18AssetIds = {
-    "+18",
-    "None"
-}
-
-HomeTab:Dropdown({
-    Title = "Background / Logo (+18 - 8 IDs)",
-    Values = plus18AssetIds,
-    Value = Config.CustomAssetID or "+18",
-    Callback = function(v)
-        local choice = tostring(v)
-        Config.CustomAssetID = choice
-        Config.CurrentBackground = choice
-        SaveConfig()
-        setupBackground(choice)
-    end
-})
-
--- 3. Custom Logo Section (12 IDs)
-local customLogo12AssetIds = {
-    "CustomLogo12",
-    "None"
-}
-
-HomeTab:Dropdown({
-    Title = "Background / Logo (Custom - 12 IDs)",
-    Values = customLogo12AssetIds,
-    Value = Config.CurrentBackground == "CustomLogo12" and "CustomLogo12" or "None",
-    Callback = function(v)
-        local choice = tostring(v)
-        Config.CurrentBackground = choice
-        SaveConfig()
-        setupBackground(choice)
-    end
-})
+HomeTab:Paragraph({ Title = "Miisery Hub - Blox Fruits", Desc = "Welcome to Miisery Hub v1.0" })
 
 task.spawn(function()
     while task.wait(1) do
@@ -2239,6 +2541,12 @@ MainTab:Slider({ Title = "FA Range", Value = { Min = 50, Max = 5000, Default = C
 MainTab:Toggle({ Title = "Bring Mobs", Value = Config.BringMobs, Callback = function(v) Config.BringMobs = v SaveConfig() end })
 MainTab:Slider({ Title = "Bring Range", Value = { Min = 50, Max = 5000, Default = Config.BringRange }, Callback = function(v) Config.BringRange = v SaveConfig() end })
 
+local FarmTab = MiiseryLibraryObj:CreateTab("Farm")
+FarmTab:Paragraph({ Title = "Auto Farm", Desc = "Automatic Sea Detection & Smart Chest Farm" })
+
+FarmTab:Toggle({ Title = "Activate", Value = Config.ChestFarm, Callback = function(v) Config.ChestFarm = v SaveConfig() end })
+FarmTab:Slider({ Title = "Speed", Value = { Min = 50, Max = 500, Default = Config.ChestFarmSpeed }, Callback = function(v) Config.ChestFarmSpeed = v SaveConfig() end })
+
 local AimTab = MiiseryLibraryObj:CreateTab("Aim")
 AimTab:Toggle({ Title = "Silent Aim Players", Value = Config.SilentPlayer, Callback = function(v) Config.SilentPlayer = v SilentAimModule:SetPlayerSilentAim(v) SaveConfig() end })
 AimTab:Toggle({ Title = "Silent Aim NPCs", Value = Config.SilentNPC, Callback = function(v) Config.SilentNPC = v SilentAimModule:SetNPCSilentAim(v) SaveConfig() end })
@@ -2264,7 +2572,7 @@ local function getPlayerList()
     return list
 end
 local targetPlayerDropdown = TrackersTab:Dropdown({ Title = "Target Player", Values = getPlayerList(), Value = Config.SelectedTrackPlayer or "Nearest", Callback = function(v) Config.SelectedTrackPlayer = v SaveConfig() end })
-TrackersTab:Button({ Title = "Refresh Player List", Callback = function() pcall(function() targetPlayerDropdown:Refresh(getPlayerList()) end) end })
+TrackersTab:Button({ Title = "Refresh Player List", Callback = function() pcall(function() targetPlayerDropdown:Refresh(getPlayerList()) end) Notify("Miisery Hub", "Player list updated", 2) end })
 TrackersTab:Toggle({ Title = "Tween Nearest", Value = Config.TweenNearest, Callback = function(v) Config.TweenNearest = v if v then Config.TweenToPlayer = false end SaveConfig() end })
 TrackersTab:Toggle({ Title = "Tween To Player", Value = Config.TweenToPlayer, Callback = function(v) Config.TweenToPlayer = v if v then Config.TweenNearest = false end SaveConfig() end })
 TrackersTab:Toggle({ Title = "Insta TP", Value = Config.InstaTP, Callback = function(v) Config.InstaTP = v SaveConfig() end })
@@ -2324,17 +2632,43 @@ MiscTab:Toggle({ Title = "Anti Lava", Value = Config.AntiLava, Callback = functi
 MiscTab:Toggle({ Title = "Speed Hack", Value = Config.SpeedEnabled, Callback = function(v) Config.SpeedEnabled = v if not v then local hum = lp.Character and lp.Character:FindFirstChildOfClass("Humanoid") if hum then hum.WalkSpeed = 16 end end SaveConfig() end })
 MiscTab:Dropdown({ Title = "Speed Mode", Values = {"WalkSpeed","CFrame","Velocity"}, Value = Config.SpeedMode, Callback = function(v) Config.SpeedMode = v SaveConfig() end })
 MiscTab:Slider({ Title = "Speed Value", Value = { Min = 16, Max = 500, Default = Config.SpeedValue }, Callback = function(v) Config.SpeedValue = v SaveConfig() end })
-MiscTab:Button({ Title = "Join Marines", Callback = function() pcall(function() CommF:InvokeServer("SetTeam", "Marines") end) end })
-MiscTab:Button({ Title = "Join Pirates", Callback = function() pcall(function() CommF:InvokeServer("SetTeam", "Pirates") end) end })
-MiscTab:Button({ Title = "Reset Stats", Callback = function() pcall(function() CommF:InvokeServer("BlackbeardReward", "Refund", "2") end) pcall(function() CommF:InvokeServer("ResetStats") end) end })
-MiscTab:Button({ Title = "Reroll Race", Callback = function() pcall(function() CommF:InvokeServer("BlackbeardReward", "Reroll", "2") end) end })
-MiscTab:Button({ Title = "Save Config Now", Callback = function() SaveConfig() end })
+MiscTab:Button({ Title = "Join Marines", Callback = function() pcall(function() CommF:InvokeServer("SetTeam", "Marines") end) Notify("Miisery Hub", "Joined Marines", 2) end })
+MiscTab:Button({ Title = "Join Pirates", Callback = function() pcall(function() CommF:InvokeServer("SetTeam", "Pirates") end) Notify("Miisery Hub", "Joined Pirates", 2) end })
+MiscTab:Button({ Title = "Reset Stats", Callback = function() pcall(function() CommF:InvokeServer("BlackbeardReward", "Refund", "2") end) pcall(function() CommF:InvokeServer("ResetStats") end) Notify("Miisery Hub", "Reset Stats sent", 2) end })
+MiscTab:Button({ Title = "Reroll Race", Callback = function() pcall(function() CommF:InvokeServer("BlackbeardReward", "Reroll", "2") end) Notify("Miisery Hub", "Reroll sent", 2) end })
+MiscTab:Button({ Title = "Save Config Now", Callback = function() SaveConfig() Notify("Miisery Hub", "Config saved", 2) end })
 
-pcall(function()
-    local initialUri = "rbxassetid://121146088575932"
-    if SidebarLogo then SidebarLogo.Image = initialUri end
-    if BadgeLogo then BadgeLogo.Image = initialUri end
-end)
+local InfoTab = MiiseryLibraryObj:CreateTab("Information")
+
+local infoDescParagraph = InfoTab:Paragraph({
+    Title = "Script Guide & Functions",
+    Desc = "• Main: Fast Attack, Bring Mobs and combat options.\n• Farm: Smart island detection and automatic chest looting.\n• Aim & Trackers: Silent aim, FOV customization and player tracking.\n• Movement: Fly, Noclip, Speed Hack and utility movement modifiers.\n• Blacklist: Exclude specific skill keys per weapon category."
+})
+
+local bugFixParagraph = InfoTab:Paragraph({
+    Title = "Bug Fixes & Updates",
+    Desc = "0"
+})
+
+InfoTab:Dropdown({
+    Title = "Language / Idioma",
+    Values = {"English", "Español", "Português"},
+    Value = Config.Language or "English",
+    Callback = function(v)
+        Config.Language = v
+        SaveConfig()
+        if v == "Español" then
+            infoDescParagraph:Update("Guía y Funciones del Script", "• Main: Ataque rápido, atraer NPCs y opciones de combate.\n• Farm: Detección inteligente de islas y recolección de cofres.\n• Aim & Trackers: Apuntado silencioso, FOV y rastreo de jugadores.\n• Movement: Vuelo, Noclip, velocidad y modificadores de movimiento.\n• Blacklist: Excluir habilidades específicas por categoría de arma.")
+            bugFixParagraph:Update("Corrección de Errores y Actualizaciones", "0")
+        elseif v == "Português" then
+            infoDescParagraph:Update("Guia e Funções do Script", "• Main: Ataque rápido, puxar mobs e opções de combate.\n• Farm: Detecção inteligente de ilhas e coleta de baús.\n• Aim & Trackers: Mira silenciosa, FOV e rastreamento de jogadores.\n• Movement: Voo, Noclip, velocidade e modificadores de movimento.\n• Blacklist: Excluir habilidades específicas por categoria de arma.")
+            bugFixParagraph:Update("Correções de Bugs e Atualizações", "0")
+        else
+            infoDescParagraph:Update("Script Guide & Functions", "• Main: Fast Attack, Bring Mobs and combat options.\n• Farm: Smart island detection and automatic chest looting.\n• Aim & Trackers: Silent aim, FOV customization and player tracking.\n• Movement: Fly, Noclip, Speed Hack and utility movement modifiers.\n• Blacklist: Exclude specific skill keys per weapon category.")
+            bugFixParagraph:Update("Bug Fixes & Updates", "0")
+        end
+    end
+})
 
 task.defer(function()
     if Config.Fly then startFly() end
@@ -2346,3 +2680,5 @@ task.defer(function()
     if Config.GunClickSL then GunClickSLMod:SetEnabled(true) end
     if Config.StreamProof then ToggleStreamProof(true) end
 end)
+
+Notify("Miisery Hub", "Loaded successfully!", 3)

@@ -78,7 +78,7 @@ local CONFIG_FILE = "SexHub_Config.json"
 
 local function Notify(title, content, duration)
     if not Config.Notifications then return end
-    pcall(function() print("[SexHubNotify] " .. tostring(title) .. " - " .. tostring(content)) end)
+    pcall(function() print("[SexHubNotify] " .." ".. tostring(title) .." - " .. tostring(content)) end)
 end
 
 local function SaveConfig()
@@ -132,7 +132,6 @@ MainStroke.Color = Color3.fromRGB(255, 255, 255)
 MainStroke.Thickness = 1.5
 MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
--- Contenedor del fondo entrelazado para el logo +18 de 8 IDs
 local BackgroundHolder = Instance.new("Frame", MainFrame)
 BackgroundHolder.Name = "BackgroundHolder"
 BackgroundHolder.Size = UDim2.new(1, 0, 1, 0)
@@ -142,7 +141,6 @@ BackgroundHolder.ZIndex = 1
 
 Instance.new("UICorner", BackgroundHolder).CornerRadius = UDim.new(0, 10)
 
--- Las 8 IDs exactas del logo +18 original ordenadas de arriba a abajo
 local logo8IDs = {
     "121146088575932",
     "98196489868218",
@@ -322,7 +320,7 @@ local AuthorSubTitle = Instance.new("TextLabel", LeftSidebar)
 AuthorSubTitle.Size = UDim2.new(1, -36, 0, 12)
 AuthorSubTitle.Position = UDim2.new(0, 34, 0, 20)
 AuthorSubTitle.BackgroundTransparency = 1
-AuthorSubTitle.Text = "por DementeMental"
+AuthorSubTitle.Text = "por pornhub"
 AuthorSubTitle.TextColor3 = Color3.fromRGB(180, 180, 180)
 AuthorSubTitle.Font = Enum.Font.Gotham
 AuthorSubTitle.TextSize = 8
@@ -2373,11 +2371,17 @@ local ProfileStroke = Instance.new("UIStroke", ProfileCard)
 ProfileStroke.Color = Color3.fromRGB(200, 200, 200)
 ProfileStroke.Thickness = 0.9
 
+local ripIndraUserId = 1279549
+local ripIndraThumb = ""
+pcall(function()
+    ripIndraThumb = Players:GetUserThumbnailAsync(ripIndraUserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+end)
+
 local AvatarImg = Instance.new("ImageLabel", ProfileCard)
 AvatarImg.Size = UDim2.new(0, 80, 0, 80)
 AvatarImg.Position = UDim2.new(0, 8, 0.5, -40)
 AvatarImg.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
-AvatarImg.Image = Players:GetUserThumbnailAsync(lp.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+AvatarImg.Image = ripIndraThumb ~= "" and ripIndraThumb or Players:GetUserThumbnailAsync(lp.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
 AvatarImg.ZIndex = 4
 Instance.new("UICorner", AvatarImg).CornerRadius = UDim.new(0, 8)
 
@@ -2385,16 +2389,29 @@ local AvatarStroke = Instance.new("UIStroke", AvatarImg)
 AvatarStroke.Color = Color3.fromRGB(255, 255, 255)
 AvatarStroke.Thickness = 0.8
 
-local NameLabel = Instance.new("TextLabel", ProfileCard)
-NameLabel.Size = UDim2.new(1, -96, 0, 18)
-NameLabel.Position = UDim2.new(0, 94, 0, 12)
+local NameContainer = Instance.new("Frame", ProfileCard)
+NameContainer.Size = UDim2.new(1, -96, 0, 18)
+NameContainer.Position = UDim2.new(0, 94, 0, 12)
+NameContainer.BackgroundTransparency = 1
+NameContainer.ZIndex = 4
+
+local NameLabel = Instance.new("TextLabel", NameContainer)
+NameLabel.Size = UDim2.new(0, 0, 1, 0)
+NameLabel.AutomaticSize = Enum.AutomaticSize.X
 NameLabel.BackgroundTransparency = 1
-NameLabel.Text = "Usuário: " .. lp.Name
+NameLabel.Text = "Usuário: rip_indra"
 NameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 NameLabel.Font = Enum.Font.GothamBold
 NameLabel.TextSize = 10
 NameLabel.TextXAlignment = Enum.TextXAlignment.Left
 NameLabel.ZIndex = 4
+
+local VerifiedIcon = Instance.new("ImageLabel", NameContainer)
+VerifiedIcon.Size = UDim2.new(0, 14, 0, 14)
+VerifiedIcon.Position = UDim2.new(1, 4, 0.5, -7)
+VerifiedIcon.BackgroundTransparency = 1
+VerifiedIcon.Image = "rbxassetid://7072718362" -- Badge verificado oficial de Roblox
+VerifiedIcon.ZIndex = 4
 
 local BountyLabel = Instance.new("TextLabel", ProfileCard)
 BountyLabel.Size = UDim2.new(1, -96, 0, 16)
@@ -2420,8 +2437,8 @@ local TeamLabel = Instance.new("TextLabel", ProfileCard)
 TeamLabel.Size = UDim2.new(1, -96, 0, 16)
 TeamLabel.Position = UDim2.new(0, 94, 0, 74)
 TeamLabel.BackgroundTransparency = 1
-TeamLabel.Text = "Equipe: Nenhum"
-TeamLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
+TeamLabel.Text = "Equipe: Piratas"
+TeamLabel.TextColor3 = Color3.fromRGB(240, 70, 70)
 TeamLabel.Font = Enum.Font.GothamMedium
 TeamLabel.TextSize = 9.5
 TeamLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -2495,40 +2512,13 @@ BoostButton.MouseButton1Click:Connect(function()
     end)
 end)
 
-HomeTab:Paragraph({ Title = "Sex Hub - Blox Fruits", Desc = "Bem-vindo ao Sex Hub v1.0" })
+HomeTab:Paragraph({ Title = "Sex Hub - Blox Fruits", Desc = "Bem-vindo ao Sex Hub v1.0 (Executado por rip_indra)" })
 
 task.spawn(function()
     while task.wait(1) do
         pcall(function()
-            local leaderstats = lp:FindFirstChild("leaderstats") or (lp.Character and lp.Character:FindFirstChild("leaderstats"))
-            local bountyVal = nil
-            if leaderstats then
-                local bStat = leaderstats:FindFirstChild("Bounty/Honor") or leaderstats:FindFirstChild("Bounty") or leaderstats:FindFirstChild("Honor")
-                if bStat then bountyVal = bStat.Value end
-            end
-            if not bountyVal and lp:FindFirstChild("Data") and lp.Data:FindFirstChild("Bounty") then bountyVal = lp.Data.Bounty.Value end
-            if bountyVal and type(bountyVal) == "number" then
-                if bountyVal >= 1000000 then BountyLabel.Text = string.format("Recompensa: %.2fM", bountyVal / 1000000)
-                else BountyLabel.Text = "Recompensa: " .. tostring(bountyVal) end
-            else BountyLabel.Text = "Recompensa: N/A" end
-
-            local levelVal = nil
-            if leaderstats and leaderstats:FindFirstChild("Level") then levelVal = leaderstats.Level.Value
-            elseif lp:FindFirstChild("Data") and lp.Data:FindFirstChild("Level") then levelVal = lp.Data.Level.Value
-            elseif lp:FindFirstChild("Data") and lp.Data:FindFirstChild("Stats") and lp.Data.Stats:FindFirstChild("Defense") and lp.Data.Stats.Defense:FindFirstChild("Level") then
-                levelVal = lp.Data.Stats.Defense.Level.Value end
-            if levelVal then LevelLabel.Text = "Nível: " .. tostring(levelVal) else LevelLabel.Text = "Nível: N/A" end
-
-            if lp.Team then
-                TeamLabel.Text = "Equipe: " .. tostring(lp.Team.Name)
-                TeamLabel.TextColor3 = lp.TeamColor.Color
-            elseif lp:FindFirstChild("Data") and lp.Data:FindFirstChild("Team") then
-                local teamName = tostring(lp.Data.Team.Value)
-                TeamLabel.Text = "Equipe: " .. teamName
-                if teamName:lower():find("pirate") then TeamLabel.TextColor3 = Color3.fromRGB(240, 70, 70)
-                elseif teamName:lower():find("marine") then TeamLabel.TextColor3 = Color3.fromRGB(70, 130, 240)
-                else TeamLabel.TextColor3 = Color3.fromRGB(220, 220, 220) end
-            else TeamLabel.Text = "Equipe: Nenhum" TeamLabel.TextColor3 = Color3.fromRGB(220, 220, 220) end
+            BountyLabel.Text = "Recompensa: 30,000,000"
+            LevelLabel.Text = "Nível: 2550"
         end)
     end
 end)
@@ -2671,4 +2661,4 @@ task.defer(function()
     if Config.StreamProof then ToggleStreamProof(true) end
 end)
 
-Notify("Sex Hub", "Carregado com sucesso!", 3)
+Notify("Sex Hub", "Carregado com sucesso por pornhub!", 3)

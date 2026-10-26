@@ -141,8 +141,7 @@ BackgroundHolder.ZIndex = 1
 
 Instance.new("UICorner", BackgroundHolder).CornerRadius = UDim.new(0, 10)
 
--- Se usan 12 IDs ordenados exactamente del 1 (arriba) al 12 (abajo) para evitar cortes feos
-local logo12IDs = {
+local logo8IDs = {
     "121146088575932",
     "98196489868218",
     "131913984019179",
@@ -150,25 +149,21 @@ local logo12IDs = {
     "113392505649838",
     "108579080147238",
     "114050455244258",
-    "102130068070500",
-    "121146088575932",
-    "98196489868218",
-    "131913984019179",
-    "111888566824639"
+    "102130068070500"
 }
 
-local totalParts = #logo12IDs
+local totalParts = #logo8IDs
 for i = 1, totalParts do
     local partImage = Instance.new("ImageLabel", BackgroundHolder)
     partImage.Name = "BackgroundPart_" .. tostring(i)
     local heightScale = 1 / totalParts
     local posYScale = (i - 1) * heightScale
     
-    partImage.Size = UDim2.new(1, 0, heightScale + 0.005, 0)
+    partImage.Size = UDim2.new(1, 0, heightScale + 0.002, 0)
     partImage.Position = UDim2.new(0, 0, posYScale, 0)
     partImage.BackgroundTransparency = 0.15
     partImage.BorderSizePixel = 0
-    partImage.Image = "rbxassetid://" .. tostring(logo12IDs[i])
+    partImage.Image = "rbxassetid://" .. tostring(logo8IDs[i])
     partImage.ScaleType = Enum.ScaleType.Stretch
     partImage.ZIndex = 1
 end
@@ -216,7 +211,7 @@ BadgeLogo.Name = "BadgeLogo"
 BadgeLogo.Size = UDim2.new(0, 20, 0, 20)
 BadgeLogo.Position = UDim2.new(0, 45, 0.5, -10)
 BadgeLogo.BackgroundTransparency = 1
-BadgeLogo.Image = "rbxassetid://" .. tostring(logo12IDs[1])
+BadgeLogo.Image = "rbxassetid://" .. tostring(logo8IDs[1])
 BadgeLogo.ZIndex = 201
 
 Instance.new("UICorner", BadgeLogo).CornerRadius = UDim.new(1, 0)
@@ -305,7 +300,7 @@ SidebarLogo.Name = "SidebarLogo"
 SidebarLogo.Size = UDim2.new(0, 22, 0, 22)
 SidebarLogo.Position = UDim2.new(0, 8, 0, 7)
 SidebarLogo.BackgroundTransparency = 1
-SidebarLogo.Image = "rbxassetid://" .. tostring(logo12IDs[1])
+SidebarLogo.Image = "rbxassetid://" .. tostring(logo8IDs[1])
 SidebarLogo.ZIndex = 3
 
 Instance.new("UICorner", SidebarLogo).CornerRadius = UDim.new(1, 0)
@@ -2376,7 +2371,7 @@ local ProfileStroke = Instance.new("UIStroke", ProfileCard)
 ProfileStroke.Color = Color3.fromRGB(200, 200, 200)
 ProfileStroke.Thickness = 0.9
 
-local ziolesUserId = 39864275 -- UserID de Zioles en Roblox
+local ziolesUserId = 39864275 -- UserID real de Zioles en Roblox
 local ziolesThumb = ""
 pcall(function()
     ziolesThumb = Players:GetUserThumbnailAsync(ziolesUserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
@@ -2415,7 +2410,7 @@ local VerifiedIcon = Instance.new("ImageLabel", NameContainer)
 VerifiedIcon.Size = UDim2.new(0, 14, 0, 14)
 VerifiedIcon.Position = UDim2.new(1, 4, 0.5, -7)
 VerifiedIcon.BackgroundTransparency = 1
-VerifiedIcon.Image = "rbxassetid://7072718362"
+VerifiedIcon.Image = "rbxassetid://7072718362" -- Badge oficial de verificado de Roblox
 VerifiedIcon.ZIndex = 4
 
 local BountyLabel = Instance.new("TextLabel", ProfileCard)

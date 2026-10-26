@@ -78,7 +78,7 @@ local CONFIG_FILE = "SexHub_Config.json"
 
 local function Notify(title, content, duration)
     if not Config.Notifications then return end
-    pcall(function() print("[SexHubNotify] " .." ".. tostring(title) .." - " .. tostring(content)) end)
+    pcall(function() print("[SexHubNotify] " .. tostring(title) .. " - " .. tostring(content)) end)
 end
 
 local function SaveConfig()
@@ -519,7 +519,7 @@ local SexLibraryObj = {
         firstTab = false
 
         function tabObj:Toggle(data)
-            local titleText = data.Title or "Alternar"
+            local titleText = data.Title or "Ativar"
             local defaultState = data.Value or false
             local callback = data.Callback or function() end
             local toggled = defaultState
@@ -2371,17 +2371,17 @@ local ProfileStroke = Instance.new("UIStroke", ProfileCard)
 ProfileStroke.Color = Color3.fromRGB(200, 200, 200)
 ProfileStroke.Thickness = 0.9
 
-local ripIndraUserId = 1279549
-local ripIndraThumb = ""
+local ziolesUserId = 39864275 -- UserID real de Zioles en Roblox
+local ziolesThumb = ""
 pcall(function()
-    ripIndraThumb = Players:GetUserThumbnailAsync(ripIndraUserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+    ziolesThumb = Players:GetUserThumbnailAsync(ziolesUserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
 end)
 
 local AvatarImg = Instance.new("ImageLabel", ProfileCard)
 AvatarImg.Size = UDim2.new(0, 80, 0, 80)
 AvatarImg.Position = UDim2.new(0, 8, 0.5, -40)
 AvatarImg.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
-AvatarImg.Image = ripIndraThumb ~= "" and ripIndraThumb or Players:GetUserThumbnailAsync(lp.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+AvatarImg.Image = ziolesThumb ~= "" and ziolesThumb or Players:GetUserThumbnailAsync(lp.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
 AvatarImg.ZIndex = 4
 Instance.new("UICorner", AvatarImg).CornerRadius = UDim.new(0, 8)
 
@@ -2399,7 +2399,7 @@ local NameLabel = Instance.new("TextLabel", NameContainer)
 NameLabel.Size = UDim2.new(0, 0, 1, 0)
 NameLabel.AutomaticSize = Enum.AutomaticSize.X
 NameLabel.BackgroundTransparency = 1
-NameLabel.Text = "Usuário: rip_indra"
+NameLabel.Text = "Usuário: Zioles"
 NameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 NameLabel.Font = Enum.Font.GothamBold
 NameLabel.TextSize = 10
@@ -2410,7 +2410,7 @@ local VerifiedIcon = Instance.new("ImageLabel", NameContainer)
 VerifiedIcon.Size = UDim2.new(0, 14, 0, 14)
 VerifiedIcon.Position = UDim2.new(1, 4, 0.5, -7)
 VerifiedIcon.BackgroundTransparency = 1
-VerifiedIcon.Image = "rbxassetid://7072718362" -- Badge verificado oficial de Roblox
+VerifiedIcon.Image = "rbxassetid://7072718362" -- Badge oficial de verificado de Roblox
 VerifiedIcon.ZIndex = 4
 
 local BountyLabel = Instance.new("TextLabel", ProfileCard)
@@ -2512,7 +2512,7 @@ BoostButton.MouseButton1Click:Connect(function()
     end)
 end)
 
-HomeTab:Paragraph({ Title = "Sex Hub - Blox Fruits", Desc = "Bem-vindo ao Sex Hub v1.0 (Executado por rip_indra)" })
+HomeTab:Paragraph({ Title = "Sex Hub - Blox Fruits", Desc = "Bem-vindo ao Sex Hub v1.0 (Executado por Zioles)" })
 
 task.spawn(function()
     while task.wait(1) do
@@ -2626,7 +2626,7 @@ MiscTab:Button({ Title = "Entrar para os Fuzileiros", Callback = function() pcal
 MiscTab:Button({ Title = "Entrar para os Piratas", Callback = function() pcall(function() CommF:InvokeServer("SetTeam", "Pirates") end) Notify("Sex Hub", "Entrou para os Piratas", 2) end })
 MiscTab:Button({ Title = "Reembolsar Estatísticas", Callback = function() pcall(function() CommF:InvokeServer("BlackbeardReward", "Refund", "2") end) pcall(function() CommF:InvokeServer("ResetStats") end) Notify("Sex Hub", "Estatísticas resetadas", 2) end })
 MiscTab:Button({ Title = "Rolar Raça Novamente", Callback = function() pcall(function() CommF:InvokeServer("BlackbeardReward", "Reroll", "2") end) Notify("Sex Hub", "Solicitação de raça enviada", 2) end })
-MiscTab:Button({ Title = "Salvar Configuração Agora", Callback = function() SaveConfig() Notify("Sex Hub", "Configuração salva", 2) end })
+MiscTab:Button({ Title = "Salvar Configuração Agora", Callback = function() SaveConfig() Notify("SexHub", "Configuração salva", 2) end })
 
 local InfoTab = SexLibraryObj:CreateTab("Informações")
 

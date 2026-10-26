@@ -31,17 +31,17 @@ local ShootGunEvent = Net:FindFirstChild("Remotes") and Net.Remotes:FindFirstChi
 local Validator2 = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Validator2")
 
 pcall(function()
-    if CoreGui:FindFirstChild("MiiseryLib_UI") then CoreGui.MiiseryLib_UI:Destroy() end
-    if playerGui:FindFirstChild("MiiseryLib_UI") then playerGui.MiiseryLib_UI:Destroy() end
-    if playerGui:FindFirstChild("MiiseryStatsGui") then playerGui.MiiseryStatsGui:Destroy() end
-    if Workspace:FindFirstChild("MiiserySilentAimTracer") then Workspace.MiiserySilentAimTracer:Destroy() end
-    if Workspace:FindFirstChild("MiiseryWaterPlatform") then Workspace.MiiseryWaterPlatform:Destroy() end
-    if CoreGui:FindFirstChild("Miisery_FOV") then CoreGui.Miisery_FOV:Destroy() end
-    if playerGui:FindFirstChild("Miisery_FOV") then playerGui.Miisery_FOV:Destroy() end
+    if CoreGui:FindFirstChild("SexHub_UI") then CoreGui.SexHub_UI:Destroy() end
+    if playerGui:FindFirstChild("SexHub_UI") then playerGui.SexHub_UI:Destroy() end
+    if playerGui:FindFirstChild("SexHubStatsGui") then playerGui.SexHubStatsGui:Destroy() end
+    if Workspace:FindFirstChild("SexHubSilentAimTracer") then Workspace.SexHubSilentAimTracer:Destroy() end
+    if Workspace:FindFirstChild("SexHubWaterPlatform") then Workspace.SexHubWaterPlatform:Destroy() end
+    if CoreGui:FindFirstChild("SexHub_FOV") then CoreGui.SexHub_FOV:Destroy() end
+    if playerGui:FindFirstChild("SexHub_FOV") then playerGui.SexHub_FOV:Destroy() end
 end)
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "MiiseryLib_UI"
+ScreenGui.Name = "SexHub_UI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = (gethui and gethui()) or CoreGui or playerGui
 
@@ -58,27 +58,27 @@ local Config = {
     AutoFlee = false, AutoFleeHP = 30,
     TweenNearest = false, TweenToPlayer = false, TweenSpeed = 350,
     TweenOX = 0, TweenOY = 1.5, TweenOZ = 3.5, InstaTP = false, Spectate = false,
-    SelectedTrackPlayer = "Nearest", PredictionStrength = 0.1,
+    SelectedTrackPlayer = "Mais Próximo", PredictionStrength = 0.1,
     M1Extender = false, M1Range = 50, GunClickSL = false,
-    SilentPlayer = false, SilentNPC = false, AimMode = "360", AimPriority = "Nearest",
+    SilentPlayer = false, SilentNPC = false, AimMode = "360", AimPriority = "Mais Próximo",
     ShowFOV = false, FOVMode = "V1", FOVRadius = 150, AimMaxRange = 2000,
-    Tracer = false, TracerColor = "Red",
-    BypassTpNpc = false, BypassTpRange = 500, BypassTpMode = "Nearest", BypassTpAbove = true, BypassTpHeight = 12,
+    Tracer = false, TracerColor = "Vermelho",
+    BypassTpNpc = false, BypassTpRange = 500, BypassTpMode = "Mais Próximo", BypassTpAbove = true, BypassTpHeight = 12,
     LowGraphics = false, DisableShadows = false, NoFog = false, NoGfxMode = "Off",
     BL_Melee_Z = false, BL_Melee_X = false, BL_Melee_C = false, BL_Melee_V = false, BL_Melee_F = false,
     BL_Sword_Z = false, BL_Sword_X = false, BL_Sword_C = false, BL_Sword_V = false, BL_Sword_F = false,
     BL_Fruit_Z = false, BL_Fruit_X = false, BL_Fruit_C = false, BL_Fruit_V = false, BL_Fruit_F = false, BL_Fruit_TAP = false,
     BL_Gun_Z = false, BL_Gun_X = false, BL_Gun_C = false, BL_Gun_V = false, BL_Gun_F = false,
     ChestFarm = false, ChestFarmSpeed = 160,
-    Language = "English",
+    Language = "Português",
     StreamProof = false
 }
 
-local CONFIG_FILE = "MiiseryHub_Config.json"
+local CONFIG_FILE = "SexHub_Config.json"
 
 local function Notify(title, content, duration)
     if not Config.Notifications then return end
-    pcall(function() print("[MiiseryNotify] " .. tostring(title) .. " - " .. tostring(content)) end)
+    pcall(function() print("[SexHubNotify] " .. tostring(title) .. " - " .. tostring(content)) end)
 end
 
 local function SaveConfig()
@@ -222,7 +222,7 @@ local BadgeText = Instance.new("TextLabel", ToggleButton)
 BadgeText.Size = UDim2.new(1, -72, 1, 0)
 BadgeText.Position = UDim2.new(0, 70, 0, 0)
 BadgeText.BackgroundTransparency = 1
-BadgeText.Text = "Miisery Hub"
+BadgeText.Text = "Sex Hub"
 BadgeText.TextColor3 = Color3.fromRGB(255, 255, 255)
 BadgeText.Font = Enum.Font.GothamBold
 BadgeText.TextSize = 11
@@ -311,7 +311,7 @@ local HubTitle = Instance.new("TextLabel", LeftSidebar)
 HubTitle.Size = UDim2.new(1, -36, 0, 16)
 HubTitle.Position = UDim2.new(0, 34, 0, 4)
 HubTitle.BackgroundTransparency = 1
-HubTitle.Text = "Miisery Hub"
+HubTitle.Text = "Sex Hub"
 HubTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
 HubTitle.Font = Enum.Font.GothamBold
 HubTitle.TextSize = 11
@@ -322,7 +322,7 @@ local AuthorSubTitle = Instance.new("TextLabel", LeftSidebar)
 AuthorSubTitle.Size = UDim2.new(1, -36, 0, 12)
 AuthorSubTitle.Position = UDim2.new(0, 34, 0, 20)
 AuthorSubTitle.BackgroundTransparency = 1
-AuthorSubTitle.Text = "by DementeMental"
+AuthorSubTitle.Text = "por DementeMental"
 AuthorSubTitle.TextColor3 = Color3.fromRGB(180, 180, 180)
 AuthorSubTitle.Font = Enum.Font.Gotham
 AuthorSubTitle.TextSize = 8
@@ -460,7 +460,7 @@ CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
 local firstTab = true
 local tabCounter = 0
 
-local MiiseryLibraryObj = {
+local SexLibraryObj = {
     CreateTab = function(self, tabName)
         tabCounter = tabCounter + 1
         local currentOrder = tabCounter
@@ -521,7 +521,7 @@ local MiiseryLibraryObj = {
         firstTab = false
 
         function tabObj:Toggle(data)
-            local titleText = data.Title or "Toggle"
+            local titleText = data.Title or "Alternar"
             local defaultState = data.Value or false
             local callback = data.Callback or function() end
             local toggled = defaultState
@@ -564,7 +564,7 @@ local MiiseryLibraryObj = {
         end
 
         function tabObj:Button(data)
-            local titleText = data.Title or "Button"
+            local titleText = data.Title or "Botão"
             local callback = data.Callback or function() end
 
             local btn = Instance.new("TextButton", Page)
@@ -632,7 +632,7 @@ local MiiseryLibraryObj = {
         end
 
         function tabObj:Slider(data)
-            local titleText = data.Title or "Slider"
+            local titleText = data.Title or "Controle"
             local min = data.Value and data.Value.Min or 0
             local max = data.Value and data.Value.Max or 100
             local default = data.Value and data.Value.Default or min
@@ -697,9 +697,9 @@ local MiiseryLibraryObj = {
         end
 
         function tabObj:Dropdown(data)
-            local titleText = data.Title or "Dropdown"
+            local titleText = data.Title or "Menu"
             local values = data.Values or {}
-            local currentVal = data.Value or values[1] or "None"
+            local currentVal = data.Value or values[1] or "Nenhum"
             local callback = data.Callback or function() end
             local idx = 1
             for i, v in ipairs(values) do
@@ -735,7 +735,7 @@ local MiiseryLibraryObj = {
             function dropdownObj:Refresh(newValues)
                 values = newValues or {}
                 idx = 1
-                currentVal = values[1] or "None"
+                currentVal = values[1] or "Nenhum"
                 btn.Text = "  " .. titleText .. ": " .. tostring(currentVal)
             end
             return dropdownObj
@@ -1229,8 +1229,8 @@ end
 
 local activeTrackTween = nil
 local function getTrackTargetHRP()
-    local name = Config.SelectedTrackPlayer or "Nearest"
-    if name ~= "Nearest" then
+    local name = Config.SelectedTrackPlayer or "Mais Próximo"
+    if name ~= "Mais Próximo" then
         local p = Players:FindFirstChild(name)
         if p and p.Character then return p.Character:FindFirstChild("HumanoidRootPart"), p end
         return nil, nil
@@ -1378,7 +1378,7 @@ local statsScreen, statsLabel, statsConn, statsFrame
 local statsFpsCount, statsFpsLast, statsFpsValue = 0, tick(), 60
 pcall(function()
     statsScreen = Instance.new("ScreenGui")
-    statsScreen.Name = "MiiseryStatsGui"
+    statsScreen.Name = "SexHubStatsGui"
     statsScreen.ResetOnSpawn = false
     statsScreen.Enabled = false
     statsScreen.Parent = playerGui
@@ -1457,14 +1457,14 @@ local function ensureFlyMovers(hrp)
     if not hrp then return end
     if not flyBV or not flyBV.Parent then
         flyBV = Instance.new("BodyVelocity")
-        flyBV.Name = "MiiseryFlyBV"
+        flyBV.Name = "SexHubFlyBV"
         flyBV.MaxForce = Vector3.new(9e9, 9e9, 9e9)
         flyBV.Velocity = Vector3.zero
         flyBV.Parent = hrp
     end
     if not flyBG or not flyBG.Parent then
         flyBG = Instance.new("BodyGyro")
-        flyBG.Name = "MiiseryFlyBG"
+        flyBG.Name = "SexHubFlyBG"
         flyBG.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
         flyBG.P = 3e4
         flyBG.Parent = hrp
@@ -1561,7 +1561,7 @@ task.spawn(function()
                 waterPart.Transparency = 1
                 waterPart.Anchored = true
                 waterPart.CanCollide = false
-                waterPart.Name = "MiiseryWaterPlatform"
+                waterPart.Name = "SexHubWaterPlatform"
                 waterPart.Parent = Workspace
             end
             if hrp and hrp.Position.Y >= 9.5 then
@@ -1630,11 +1630,11 @@ local SilentAimModule = (function()
     local FOVRadius = 150
     local FOVMode = "V1"
     local AimMode = "360"
-    local TargetPriority = "Nearest"
+    local TargetPriority = "Mais Próximo"
     local maxRange = 2000
 
     local TracerEnabled = false
-    local TracerColor = "Red"
+    local TracerColor = "Vermelho"
     local tracerModel, tracerAttachment0, tracerAttachment1, tracerBeam = nil, nil, nil, nil
 
     local renderConnection, heartbeatConnection = nil, nil
@@ -1655,7 +1655,7 @@ local SilentAimModule = (function()
     local OverrideGodhumanSanguineEnabled = true
 
     local FOVGui = Instance.new("ScreenGui")
-    FOVGui.Name = "Miisery_FOV"
+    FOVGui.Name = "SexHub_FOV"
     FOVGui.ResetOnSpawn = false
     FOVGui.IgnoreGuiInset = true
     pcall(function() if syn and syn.protect_gui then syn.protect_gui(FOVGui) end end)
@@ -1811,7 +1811,7 @@ local SilentAimModule = (function()
 
     local function getClosestplayer(lpHRP)
         if not lpHRP then return nil end
-        if TargetPriority == "Lock Player" then
+        if TargetPriority == "Travar Jogador" then
             if Selectedplayer and Selectedplayer.Character and Selectedplayer.Character.Parent then
                 if isTargetProtected(Selectedplayer) then return nil end
                 local hum = Selectedplayer.Character:FindFirstChildWhichIsA("Humanoid")
@@ -1837,10 +1837,10 @@ local SilentAimModule = (function()
         end
         if #valid == 0 then return nil end
         if AimMode == "360" or AimMode == "180" then
-            if TargetPriority == "Nearest" then table.sort(valid, function(a, b) return a.Distance < b.Distance end)
-            elseif TargetPriority == "Low HP" or TargetPriority == "LowestHP" then table.sort(valid, function(a, b) return a.Humanoid.Health < b.Humanoid.Health end)
-            elseif TargetPriority == "HighestHP" then table.sort(valid, function(a, b) return a.Humanoid.Health > b.Humanoid.Health end)
-            elseif TargetPriority == "Looking At Me" then
+            if TargetPriority == "Mais Próximo" then table.sort(valid, function(a, b) return a.Distance < b.Distance end)
+            elseif TargetPriority == "Menor HP" then table.sort(valid, function(a, b) return a.Humanoid.Health < b.Humanoid.Health end)
+            elseif TargetPriority == "Maior HP" then table.sort(valid, function(a, b) return a.Humanoid.Health > b.Humanoid.Health end)
+            elseif TargetPriority == "Olhando Para Mim" then
                 table.sort(valid, function(a, b)
                     local dirA = (lpHRP.Position - a.HRP.Position).Unit
                     local dirB = (lpHRP.Position - b.HRP.Position).Unit
@@ -1880,13 +1880,13 @@ local SilentAimModule = (function()
 
     local function updateTracerColor()
         if not tracerBeam then return end
-        local colorMap = { Red = Color3.fromRGB(240, 240, 240), Green = Color3.fromRGB(200, 200, 200), Blue = Color3.fromRGB(150, 150, 150), Yellow = Color3.fromRGB(220, 220, 220), White = Color3.fromRGB(255, 255, 255) }
-        tracerBeam.Color = ColorSequence.new(colorMap[TracerColor] or colorMap.Red)
+        local colorMap = { Vermelho = Color3.fromRGB(240, 240, 240), Verde = Color3.fromRGB(200, 200, 200), Azul = Color3.fromRGB(150, 150, 150), Amarelo = Color3.fromRGB(220, 220, 220), Branco = Color3.fromRGB(255, 255, 255) }
+        tracerBeam.Color = ColorSequence.new(colorMap[TracerColor] or colorMap.Vermelho)
     end
     local function createTracer()
         if tracerModel then return end
         tracerModel = Instance.new("Model")
-        tracerModel.Name = "MiiserySilentAimTracer"
+        tracerModel.Name = "SexHubSilentAimTracer"
         tracerModel.Parent = Workspace
         tracerAttachment0 = Instance.new("Attachment", tracerModel)
         tracerAttachment1 = Instance.new("Attachment", tracerModel)
@@ -2092,7 +2092,7 @@ local SilentAimModule = (function()
     function module:SetFOVRadius(num) FOVRadius = num end
     function module:SetFOVMode(mode) FOVMode = mode end
     function module:SetDistanceLimit(num) if type(num) == "number" then maxRange = num end end
-    function module:SetSelectedPlayer(playerName) Selectedplayer = (playerName and playerName ~= "" and playerName ~= "None" and playerName ~= "Nearest") and Players:FindFirstChild(playerName) or nil end
+    function module:SetSelectedPlayer(playerName) Selectedplayer = (playerName and playerName ~= "" and playerName ~= "Nenhum" and playerName ~= "Mais Próximo") and Players:FindFirstChild(playerName) or nil end
     function module:SetTracerEnabled(state) TracerEnabled = state if state then createTracer() else destroyTracer() end end
     function module:SetTracerColor(color) TracerColor = color; updateTracerColor() end
     return module
@@ -2101,7 +2101,7 @@ end)()
 SilentAimModule:SetPlayerSilentAim(Config.SilentPlayer == true)
 SilentAimModule:SetNPCSilentAim(Config.SilentNPC == true)
 SilentAimModule:SetAimMode(Config.AimMode or "360")
-SilentAimModule:SetTargetPriority(Config.AimPriority or "Nearest")
+SilentAimModule:SetTargetPriority(Config.AimPriority or "Mais Próximo")
 SilentAimModule:SetShowFOVCircle(Config.ShowFOV == true)
 SilentAimModule:SetFOVMode(Config.FOVMode or "V1")
 SilentAimModule:SetFOVRadius(Config.FOVRadius or 150)
@@ -2354,9 +2354,9 @@ local function StopHipHeight()
     if hum then hum.HipHeight = 2 end
 end
 
-local HomeTab = MiiseryLibraryObj:CreateTab("Home")
+local HomeTab = SexLibraryObj:CreateTab("Início")
 
-local HomeHeaderContainer = Instance.new("Frame", PagesFolder:FindFirstChild("HomePage"))
+local HomeHeaderContainer = Instance.new("Frame", PagesFolder:FindFirstChild("InícioPage"))
 HomeHeaderContainer.Size = UDim2.new(1, -6, 0, 115)
 HomeHeaderContainer.BackgroundTransparency = 1
 HomeHeaderContainer.ZIndex = 3
@@ -2389,7 +2389,7 @@ local NameLabel = Instance.new("TextLabel", ProfileCard)
 NameLabel.Size = UDim2.new(1, -96, 0, 18)
 NameLabel.Position = UDim2.new(0, 94, 0, 12)
 NameLabel.BackgroundTransparency = 1
-NameLabel.Text = "User: " .. lp.Name
+NameLabel.Text = "Usuário: " .. lp.Name
 NameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 NameLabel.Font = Enum.Font.GothamBold
 NameLabel.TextSize = 10
@@ -2420,7 +2420,7 @@ local TeamLabel = Instance.new("TextLabel", ProfileCard)
 TeamLabel.Size = UDim2.new(1, -96, 0, 16)
 TeamLabel.Position = UDim2.new(0, 94, 0, 74)
 TeamLabel.BackgroundTransparency = 1
-TeamLabel.Text = "Team: None"
+TeamLabel.Text = "Equipe: Nenhum"
 TeamLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
 TeamLabel.Font = Enum.Font.GothamMedium
 TeamLabel.TextSize = 9.5
@@ -2443,7 +2443,7 @@ local StreamTitle = Instance.new("TextLabel", StreamCard)
 StreamTitle.Size = UDim2.new(1, -10, 0, 22)
 StreamTitle.Position = UDim2.new(0, 5, 0, 10)
 StreamTitle.BackgroundTransparency = 1
-StreamTitle.Text = "Stream Proof"
+StreamTitle.Text = "Anti-Stream"
 StreamTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
 StreamTitle.Font = Enum.Font.GothamBold
 StreamTitle.TextSize = 10
@@ -2453,7 +2453,7 @@ local StreamDesc = Instance.new("TextLabel", StreamCard)
 StreamDesc.Size = UDim2.new(1, -12, 0, 32)
 StreamDesc.Position = UDim2.new(0, 6, 0, 34)
 StreamDesc.BackgroundTransparency = 1
-StreamDesc.Text = "Type \"-open-\" in chat to restore UI"
+StreamDesc.Text = "Digite \"-open-\" no chat para restaurar"
 StreamDesc.TextColor3 = Color3.fromRGB(170, 170, 170)
 StreamDesc.Font = Enum.Font.Gotham
 StreamDesc.TextSize = 8
@@ -2472,11 +2472,11 @@ StreamProofSwitchBtn.MouseButton1Click:Connect(function()
     ToggleStreamProof(not Config.StreamProof)
 end)
 
-local BoostButton = Instance.new("TextButton", PagesFolder:FindFirstChild("HomePage"))
+local BoostButton = Instance.new("TextButton", PagesFolder:FindFirstChild("InícioPage"))
 BoostButton.Size = UDim2.new(1, -6, 0, 34)
 BoostButton.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
 BoostButton.BackgroundTransparency = 0.2
-BoostButton.Text = "  Miisery Boost"
+BoostButton.Text = "  Sex Boost"
 BoostButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 BoostButton.Font = Enum.Font.GothamBold
 BoostButton.TextSize = 10
@@ -2495,7 +2495,7 @@ BoostButton.MouseButton1Click:Connect(function()
     end)
 end)
 
-HomeTab:Paragraph({ Title = "Miisery Hub - Blox Fruits", Desc = "Welcome to Miisery Hub v1.0" })
+HomeTab:Paragraph({ Title = "Sex Hub - Blox Fruits", Desc = "Bem-vindo ao Sex Hub v1.0" })
 
 task.spawn(function()
     while task.wait(1) do
@@ -2508,62 +2508,62 @@ task.spawn(function()
             end
             if not bountyVal and lp:FindFirstChild("Data") and lp.Data:FindFirstChild("Bounty") then bountyVal = lp.Data.Bounty.Value end
             if bountyVal and type(bountyVal) == "number" then
-                if bountyVal >= 1000000 then BountyLabel.Text = string.format("Bounty/Honor: %.2fM", bountyVal / 1000000)
-                else BountyLabel.Text = "Bounty/Honor: " .. tostring(bountyVal) end
-            else BountyLabel.Text = "Bounty/Honor: N/A" end
+                if bountyVal >= 1000000 then BountyLabel.Text = string.format("Recompensa: %.2fM", bountyVal / 1000000)
+                else BountyLabel.Text = "Recompensa: " .. tostring(bountyVal) end
+            else BountyLabel.Text = "Recompensa: N/A" end
 
             local levelVal = nil
             if leaderstats and leaderstats:FindFirstChild("Level") then levelVal = leaderstats.Level.Value
             elseif lp:FindFirstChild("Data") and lp.Data:FindFirstChild("Level") then levelVal = lp.Data.Level.Value
             elseif lp:FindFirstChild("Data") and lp.Data:FindFirstChild("Stats") and lp.Data.Stats:FindFirstChild("Defense") and lp.Data.Stats.Defense:FindFirstChild("Level") then
                 levelVal = lp.Data.Stats.Defense.Level.Value end
-            if levelVal then LevelLabel.Text = "Level: " .. tostring(levelVal) else LevelLabel.Text = "Level: N/A" end
+            if levelVal then LevelLabel.Text = "Nível: " .. tostring(levelVal) else LevelLabel.Text = "Nível: N/A" end
 
             if lp.Team then
-                TeamLabel.Text = "Team: " .. tostring(lp.Team.Name)
+                TeamLabel.Text = "Equipe: " .. tostring(lp.Team.Name)
                 TeamLabel.TextColor3 = lp.TeamColor.Color
             elseif lp:FindFirstChild("Data") and lp.Data:FindFirstChild("Team") then
                 local teamName = tostring(lp.Data.Team.Value)
-                TeamLabel.Text = "Team: " .. teamName
+                TeamLabel.Text = "Equipe: " .. teamName
                 if teamName:lower():find("pirate") then TeamLabel.TextColor3 = Color3.fromRGB(240, 70, 70)
                 elseif teamName:lower():find("marine") then TeamLabel.TextColor3 = Color3.fromRGB(70, 130, 240)
                 else TeamLabel.TextColor3 = Color3.fromRGB(220, 220, 220) end
-            else TeamLabel.Text = "Team: None" TeamLabel.TextColor3 = Color3.fromRGB(220, 220, 220) end
+            else TeamLabel.Text = "Equipe: Nenhum" TeamLabel.TextColor3 = Color3.fromRGB(220, 220, 220) end
         end)
     end
 end)
 
-local MainTab = MiiseryLibraryObj:CreateTab("Main")
-MainTab:Toggle({ Title = "Fast Attack", Value = Config.FastAttack, Callback = function(v) Config.FastAttack = v SaveConfig() end })
-MainTab:Toggle({ Title = "Attack Players", Value = Config.FAPlayers, Callback = function(v) Config.FAPlayers = v SaveConfig() end })
-MainTab:Toggle({ Title = "Attack NPCs", Value = Config.FAMobs, Callback = function(v) Config.FAMobs = v SaveConfig() end })
-MainTab:Slider({ Title = "FA Range", Value = { Min = 50, Max = 5000, Default = Config.FARange }, Callback = function(v) Config.FARange = v SaveConfig() end })
-MainTab:Toggle({ Title = "Bring Mobs", Value = Config.BringMobs, Callback = function(v) Config.BringMobs = v SaveConfig() end })
-MainTab:Slider({ Title = "Bring Range", Value = { Min = 50, Max = 5000, Default = Config.BringRange }, Callback = function(v) Config.BringRange = v SaveConfig() end })
+local MainTab = SexLibraryObj:CreateTab("Principal")
+MainTab:Toggle({ Title = "Ataque Rápido", Value = Config.FastAttack, Callback = function(v) Config.FastAttack = v SaveConfig() end })
+MainTab:Toggle({ Title = "Atacar Jogadores", Value = Config.FAPlayers, Callback = function(v) Config.FAPlayers = v SaveConfig() end })
+MainTab:Toggle({ Title = "Atacar NPCs", Value = Config.FAMobs, Callback = function(v) Config.FAMobs = v SaveConfig() end })
+MainTab:Slider({ Title = "Alcance do Ataque Rápido", Value = { Min = 50, Max = 5000, Default = Config.FARange }, Callback = function(v) Config.FARange = v SaveConfig() end })
+MainTab:Toggle({ Title = "Puxar Mobs", Value = Config.BringMobs, Callback = function(v) Config.BringMobs = v SaveConfig() end })
+MainTab:Slider({ Title = "Alcance para Puxar", Value = { Min = 50, Max = 5000, Default = Config.BringRange }, Callback = function(v) Config.BringRange = v SaveConfig() end })
 
-local FarmTab = MiiseryLibraryObj:CreateTab("Farm")
-FarmTab:Paragraph({ Title = "Auto Farm", Desc = "Automatic Sea Detection & Smart Chest Farm" })
+local FarmTab = SexLibraryObj:CreateTab("Farm")
+FarmTab:Paragraph({ Title = "Auto Farm", Desc = "Detecção de Sea Automática & Farm de Baús Inteligente" })
 
-FarmTab:Toggle({ Title = "Activate", Value = Config.ChestFarm, Callback = function(v) Config.ChestFarm = v SaveConfig() end })
-FarmTab:Slider({ Title = "Speed", Value = { Min = 50, Max = 500, Default = Config.ChestFarmSpeed }, Callback = function(v) Config.ChestFarmSpeed = v SaveConfig() end })
+FarmTab:Toggle({ Title = "Ativar", Value = Config.ChestFarm, Callback = function(v) Config.ChestFarm = v SaveConfig() end })
+FarmTab:Slider({ Title = "Velocidade", Value = { Min = 50, Max = 500, Default = Config.ChestFarmSpeed }, Callback = function(v) Config.ChestFarmSpeed = v SaveConfig() end })
 
-local AimTab = MiiseryLibraryObj:CreateTab("Aim")
-AimTab:Toggle({ Title = "Silent Aim Players", Value = Config.SilentPlayer, Callback = function(v) Config.SilentPlayer = v SilentAimModule:SetPlayerSilentAim(v) SaveConfig() end })
+local AimTab = SexLibraryObj:CreateTab("Mira")
+AimTab:Toggle({ Title = "Silent Aim Jogadores", Value = Config.SilentPlayer, Callback = function(v) Config.SilentPlayer = v SilentAimModule:SetPlayerSilentAim(v) SaveConfig() end })
 AimTab:Toggle({ Title = "Silent Aim NPCs", Value = Config.SilentNPC, Callback = function(v) Config.SilentNPC = v SilentAimModule:SetNPCSilentAim(v) SaveConfig() end })
-AimTab:Dropdown({ Title = "Aim Mode", Values = {"360", "180", "FOV"}, Value = Config.AimMode or "360", Callback = function(v) Config.AimMode = v SilentAimModule:SetAimMode(v) SaveConfig() end })
-AimTab:Dropdown({ Title = "Priority", Values = {"Nearest", "Low HP", "HighestHP", "Looking At Me", "Lock Player"}, Value = Config.AimPriority or "Nearest", Callback = function(v) Config.AimPriority = v SilentAimModule:SetTargetPriority(v) SaveConfig() end })
-AimTab:Dropdown({ Title = "FOV Mode", Values = {"V1", "V2"}, Value = Config.FOVMode or "V1", Callback = function(v) Config.FOVMode = v SilentAimModule:SetFOVMode(v) SaveConfig() end })
-AimTab:Toggle({ Title = "Show FOV Circle", Value = Config.ShowFOV, Callback = function(v) Config.ShowFOV = v SilentAimModule:SetShowFOVCircle(v) SaveConfig() end })
-AimTab:Slider({ Title = "FOV Radius", Value = { Min = 10, Max = 2000, Default = Config.FOVRadius or 150 }, Callback = function(v) Config.FOVRadius = v SilentAimModule:SetFOVRadius(v) SaveConfig() end })
-AimTab:Slider({ Title = "Max Range", Value = { Min = 50, Max = 10000, Default = Config.AimMaxRange or 2000 }, Callback = function(v) Config.AimMaxRange = v SilentAimModule:SetDistanceLimit(v) SaveConfig() end })
-AimTab:Toggle({ Title = "M1 Extender (Range Only)", Value = Config.M1Extender, Callback = function(v) Config.M1Extender = v M1ExtenderMod:Toggle(v) SaveConfig() end })
-AimTab:Slider({ Title = "M1 Range", Value = { Min = 10, Max = 300, Default = Config.M1Range or 50 }, Callback = function(v) Config.M1Range = v M1ExtenderMod:SetRange(v) SaveConfig() end })
-AimTab:Toggle({ Title = "Gun Click SL", Value = Config.GunClickSL, Callback = function(v) Config.GunClickSL = v GunClickSLMod:SetEnabled(v) SaveConfig() end })
-AimTab:Toggle({ Title = "Tracer", Value = Config.Tracer, Callback = function(v) Config.Tracer = v SilentAimModule:SetTracerEnabled(v) SaveConfig() end })
+AimTab:Dropdown({ Title = "Modo de Mira", Values = {"360", "180", "FOV"}, Value = Config.AimMode or "360", Callback = function(v) Config.AimMode = v SilentAimModule:SetAimMode(v) SaveConfig() end })
+AimTab:Dropdown({ Title = "Prioridade", Values = {"Mais Próximo", "Menor HP", "Maior HP", "Olhando Para Mim", "Travar Jogador"}, Value = Config.AimPriority or "Mais Próximo", Callback = function(v) Config.AimPriority = v SilentAimModule:SetTargetPriority(v) SaveConfig() end })
+AimTab:Dropdown({ Title = "Modo FOV", Values = {"V1", "V2"}, Value = Config.FOVMode or "V1", Callback = function(v) Config.FOVMode = v SilentAimModule:SetFOVMode(v) SaveConfig() end })
+AimTab:Toggle({ Title = "Mostrar Círculo FOV", Value = Config.ShowFOV, Callback = function(v) Config.ShowFOV = v SilentAimModule:SetShowFOVCircle(v) SaveConfig() end })
+AimTab:Slider({ Title = "Raio do FOV", Value = { Min = 10, Max = 2000, Default = Config.FOVRadius or 150 }, Callback = function(v) Config.FOVRadius = v SilentAimModule:SetFOVRadius(v) SaveConfig() end })
+AimTab:Slider({ Title = "Distância Máxima", Value = { Min = 50, Max = 10000, Default = Config.AimMaxRange or 2000 }, Callback = function(v) Config.AimMaxRange = v SilentAimModule:SetDistanceLimit(v) SaveConfig() end })
+AimTab:Toggle({ Title = "Extensor M1 (Apenas Alcance)", Value = Config.M1Extender, Callback = function(v) Config.M1Extender = v M1ExtenderMod:Toggle(v) SaveConfig() end })
+AimTab:Slider({ Title = "Alcance M1", Value = { Min = 10, Max = 300, Default = Config.M1Range or 50 }, Callback = function(v) Config.M1Range = v M1ExtenderMod:SetRange(v) SaveConfig() end })
+AimTab:Toggle({ Title = "Tiro de Arma com Clique", Value = Config.GunClickSL, Callback = function(v) Config.GunClickSL = v GunClickSLMod:SetEnabled(v) SaveConfig() end })
+AimTab:Toggle({ Title = "Rastreador (Tracer)", Value = Config.Tracer, Callback = function(v) Config.Tracer = v SilentAimModule:SetTracerEnabled(v) SaveConfig() end })
 
-local TrackersTab = MiiseryLibraryObj:CreateTab("Trackers")
+local TrackersTab = SexLibraryObj:CreateTab("Rastreadores")
 local function getPlayerList()
-    local list = {"Nearest"}
+    local list = {"Mais Próximo"}
     local players = Players:GetPlayers()
     for i = 1, #players do
         local p = players[i]
@@ -2571,102 +2571,92 @@ local function getPlayerList()
     end
     return list
 end
-local targetPlayerDropdown = TrackersTab:Dropdown({ Title = "Target Player", Values = getPlayerList(), Value = Config.SelectedTrackPlayer or "Nearest", Callback = function(v) Config.SelectedTrackPlayer = v SaveConfig() end })
-TrackersTab:Button({ Title = "Refresh Player List", Callback = function() pcall(function() targetPlayerDropdown:Refresh(getPlayerList()) end) Notify("Miisery Hub", "Player list updated", 2) end })
-TrackersTab:Toggle({ Title = "Tween Nearest", Value = Config.TweenNearest, Callback = function(v) Config.TweenNearest = v if v then Config.TweenToPlayer = false end SaveConfig() end })
-TrackersTab:Toggle({ Title = "Tween To Player", Value = Config.TweenToPlayer, Callback = function(v) Config.TweenToPlayer = v if v then Config.TweenNearest = false end SaveConfig() end })
-TrackersTab:Toggle({ Title = "Insta TP", Value = Config.InstaTP, Callback = function(v) Config.InstaTP = v SaveConfig() end })
-TrackersTab:Slider({ Title = "Tween Speed", Value = { Min = 50, Max = 800, Default = Config.TweenSpeed or 350 }, Callback = function(v) Config.TweenSpeed = v SaveConfig() end })
-TrackersTab:Slider({ Title = "Offset X", Value = { Min = -20, Max = 20, Default = Config.TweenOX or 0 }, Callback = function(v) Config.TweenOX = v SaveConfig() end })
-TrackersTab:Slider({ Title = "Offset Y", Value = { Min = -20, Max = 50, Default = Config.TweenOY or 1.5 }, Callback = function(v) Config.TweenOY = v SaveConfig() end })
-TrackersTab:Slider({ Title = "Offset Z", Value = { Min = -20, Max = 20, Default = Config.TweenOZ or 3.5 }, Callback = function(v) Config.TweenOZ = v SaveConfig() end })
-TrackersTab:Toggle({ Title = "Tracker Orbit / Fly", Value = Config.TrackerFly, Callback = function(v) Config.TrackerFly = v if v then StartTrackerFly() else StopTrackerFly() end SaveConfig() end })
-TrackersTab:Slider({ Title = "Tracker Speed", Value = { Min = 50, Max = 500, Default = Config.TrackerFlySpeed }, Callback = function(v) Config.TrackerFlySpeed = v SaveConfig() end })
-TrackersTab:Slider({ Title = "Orbit Radius", Value = { Min = 5, Max = 150, Default = Config.TrackerOrbitRadius }, Callback = function(v) Config.TrackerOrbitRadius = v SaveConfig() end })
-TrackersTab:Toggle({ Title = "Auto Flee", Value = Config.AutoFlee, Callback = function(v) Config.AutoFlee = v if v then StartAutoFlee() else StopAutoFlee() end SaveConfig() end })
-TrackersTab:Slider({ Title = "Auto Flee HP %", Value = { Min = 5, Max = 80, Default = Config.AutoFleeHP }, Callback = function(v) Config.AutoFleeHP = v SaveConfig() end })
-TrackersTab:Toggle({ Title = "Spectate Target", Value = Config.Spectate, Callback = function(v) Config.Spectate = v if not v then pcall(function() Workspace.CurrentCamera.CameraSubject = lp.Character:FindFirstChildOfClass("Humanoid") end) end SaveConfig() end })
+local targetPlayerDropdown = TrackersTab:Dropdown({ Title = "Jogador Alvo", Values = getPlayerList(), Value = Config.SelectedTrackPlayer or "Mais Próximo", Callback = function(v) Config.SelectedTrackPlayer = v SaveConfig() end })
+TrackersTab:Button({ Title = "Atualizar Lista de Jogadores", Callback = function() pcall(function() targetPlayerDropdown:Refresh(getPlayerList()) end) Notify("Sex Hub", "Lista de jogadores atualizada", 2) end })
+TrackersTab:Toggle({ Title = "Tween para o Mais Próximo", Value = Config.TweenNearest, Callback = function(v) Config.TweenNearest = v if v then Config.TweenToPlayer = false end SaveConfig() end })
+TrackersTab:Toggle({ Title = "Tween para Jogador", Value = Config.TweenToPlayer, Callback = function(v) Config.TweenToPlayer = v if v then Config.TweenNearest = false end SaveConfig() end })
+TrackersTab:Toggle({ Title = "Teleporte Instantâneo", Value = Config.InstaTP, Callback = function(v) Config.InstaTP = v SaveConfig() end })
+TrackersTab:Slider({ Title = "Velocidade do Tween", Value = { Min = 50, Max = 800, Default = Config.TweenSpeed or 350 }, Callback = function(v) Config.TweenSpeed = v SaveConfig() end })
+TrackersTab:Slider({ Title = "Deslocamento X", Value = { Min = -20, Max = 20, Default = Config.TweenOX or 0 }, Callback = function(v) Config.TweenOX = v SaveConfig() end })
+TrackersTab:Slider({ Title = "Deslocamento Y", Value = { Min = -20, Max = 50, Default = Config.TweenOY or 1.5 }, Callback = function(v) Config.TweenOY = v SaveConfig() end })
+TrackersTab:Slider({ Title = "Deslocamento Z", Value = { Min = -20, Max = 20, Default = Config.TweenOZ or 3.5 }, Callback = function(v) Config.TweenOZ = v SaveConfig() end })
+TrackersTab:Toggle({ Title = "Órbita / Voo Rastreador", Value = Config.TrackerFly, Callback = function(v) Config.TrackerFly = v if v then StartTrackerFly() else StopTrackerFly() end SaveConfig() end })
+TrackersTab:Slider({ Title = "Velocidade do Rastreador", Value = { Min = 50, Max = 500, Default = Config.TrackerFlySpeed }, Callback = function(v) Config.TrackerFlySpeed = v SaveConfig() end })
+TrackersTab:Slider({ Title = "Raio da Órbita", Value = { Min = 5, Max = 150, Default = Config.TrackerOrbitRadius }, Callback = function(v) Config.TrackerOrbitRadius = v SaveConfig() end })
+TrackersTab:Toggle({ Title = "Fuga Automática", Value = Config.AutoFlee, Callback = function(v) Config.AutoFlee = v if v then StartAutoFlee() else StopAutoFlee() end SaveConfig() end })
+TrackersTab:Slider({ Title = "HP % para Fuga Automática", Value = { Min = 5, Max = 80, Default = Config.AutoFleeHP }, Callback = function(v) Config.AutoFleeHP = v SaveConfig() end })
+TrackersTab:Toggle({ Title = "Espectar Alvo", Value = Config.Spectate, Callback = function(v) Config.Spectate = v if not v then pcall(function() Workspace.CurrentCamera.CameraSubject = lp.Character:FindFirstChildOfClass("Humanoid") end) end SaveConfig() end })
 
-local MovementTab = MiiseryLibraryObj:CreateTab("Movement")
-MovementTab:Toggle({ Title = "Fly", Value = Config.Fly, Callback = function(v) Config.Fly = v if v then startFly() else stopFly() end SaveConfig() end })
-MovementTab:Slider({ Title = "Fly Speed", Value = { Min = 50, Max = 500, Default = Config.FlySpeed or 250 }, Callback = function(v) Config.FlySpeed = v SaveConfig() end })
+local MovementTab = SexLibraryObj:CreateTab("Movimento")
+MovementTab:Toggle({ Title = "Voo", Value = Config.Fly, Callback = function(v) Config.Fly = v if v then startFly() else stopFly() end SaveConfig() end })
+MovementTab:Slider({ Title = "Velocidade do Voo", Value = { Min = 50, Max = 500, Default = Config.FlySpeed or 250 }, Callback = function(v) Config.FlySpeed = v SaveConfig() end })
 MovementTab:Toggle({ Title = "Noclip", Value = false, Callback = function(v) if v then StartNoclip() else StopNoclip() end SaveConfig() end })
-MovementTab:Toggle({ Title = "Infinite Jump", Value = false, Callback = function(v) if v then StartInfiniteJump() else StopInfiniteJump() end SaveConfig() end })
-MovementTab:Toggle({ Title = "Super Jump", Value = false, Callback = function(v) MovementState.SuperJump = v SaveConfig() end })
-MovementTab:Slider({ Title = "Super Jump Power", Value = { Min = 50, Max = 300, Default = 100 }, Callback = function(v) MovementState.SuperJumpPower = v SaveConfig() end })
+MovementTab:Toggle({ Title = "Pulo Infinito", Value = false, Callback = function(v) if v then StartInfiniteJump() else StopInfiniteJump() end SaveConfig() end })
+MovementTab:Toggle({ Title = "Super Pulo", Value = false, Callback = function(v) MovementState.SuperJump = v SaveConfig() end })
+MovementTab:Slider({ Title = "Força do Super Pulo", Value = { Min = 50, Max = 300, Default = 100 }, Callback = function(v) MovementState.SuperJumpPower = v SaveConfig() end })
 MovementTab:Toggle({ Title = "Bunny Hop", Value = false, Callback = function(v) if v then StartBunnyHop() else StopBunnyHop() end SaveConfig() end })
-MovementTab:Toggle({ Title = "No Fall Damage", Value = false, Callback = function(v) if v then StartNoFall() else StopNoFall() end SaveConfig() end })
-MovementTab:Toggle({ Title = "Dash Distance", Value = false, Callback = function(v) if v then StartDashDistance() else StopDashDistance() end SaveConfig() end })
-MovementTab:Slider({ Title = "Dash Length", Value = { Min = 10, Max = 200, Default = 50 }, Callback = function(v) MovementState.DashLength = v SaveConfig() end })
-MovementTab:Toggle({ Title = "Custom Hip Height", Value = false, Callback = function(v) if v then StartHipHeight() else StopHipHeight() end SaveConfig() end })
-MovementTab:Slider({ Title = "Hip Height Value", Value = { Min = 0, Max = 20, Default = 2 }, Callback = function(v) MovementState.HipHeightValue = v SaveConfig() end })
+MovementTab:Toggle({ Title = "Sem Dano de Queda", Value = false, Callback = function(v) if v then StartNoFall() else StopNoFall() end SaveConfig() end })
+MovementTab:Toggle({ Title = "Distância do Dash", Value = false, Callback = function(v) if v then StartDashDistance() else StopDashDistance() end SaveConfig() end })
+MovementTab:Slider({ Title = "Comprimento do Dash", Value = { Min = 10, Max = 200, Default = 50 }, Callback = function(v) MovementState.DashLength = v SaveConfig() end })
+MovementTab:Toggle({ Title = "Altura do Quadril Personalizada", Value = false, Callback = function(v) if v then StartHipHeight() else StopHipHeight() end SaveConfig() end })
+MovementTab:Slider({ Title = "Valor da Altura do Quadril", Value = { Min = 0, Max = 20, Default = 2 }, Callback = function(v) MovementState.HipHeightValue = v SaveConfig() end })
 
-local BlacklistTab = MiiseryLibraryObj:CreateTab("Blacklist")
+local BlacklistTab = SexLibraryObj:CreateTab("Lista Negra")
 local function blToggle(cat, key)
     local ck = "BL_" .. cat .. "_" .. key
-    BlacklistTab:Toggle({ Title = cat .. ": Blacklist " .. key, Value = Config[ck] == true, Callback = function(v) Config[ck] = v SilentAimModule:SetBlacklistKey(cat, key, v) SaveConfig() end })
+    BlacklistTab:Toggle({ Title = cat .. ": Bloquear " .. key, Value = Config[ck] == true, Callback = function(v) Config[ck] = v SilentAimModule:SetBlacklistKey(cat, key, v) SaveConfig() end })
 end
-BlacklistTab:Paragraph({ Title = "MELEES", Desc = "Z / X / C" })
+BlacklistTab:Paragraph({ Title = "ESTILOS DE LUTA", Desc = "Z / X / C" })
 local meleeKeys = {"Z", "X", "C"}
 for i = 1, #meleeKeys do blToggle("Melee", meleeKeys[i]) end
-BlacklistTab:Paragraph({ Title = "FRUITS", Desc = "Z / X / C / V / F / TAP" })
+BlacklistTab:Paragraph({ Title = "FRUTAS", Desc = "Z / X / C / V / F / TAP" })
 local fruitKeys = {"Z", "X", "C", "V", "F", "TAP"}
 for i = 1, #fruitKeys do blToggle("Fruit", fruitKeys[i]) end
-BlacklistTab:Paragraph({ Title = "SWORDS", Desc = "Z / X" })
+BlacklistTab:Paragraph({ Title = "ESPADAS", Desc = "Z / X" })
 local swordKeys = {"Z", "X"}
 for i = 1, #swordKeys do blToggle("Sword", swordKeys[i]) end
-BlacklistTab:Paragraph({ Title = "GUNS", Desc = "Z / X" })
+BlacklistTab:Paragraph({ Title = "ARMAS", Desc = "Z / X" })
 local gunKeys = {"Z", "X"}
 for i = 1, #gunKeys do blToggle("Gun", gunKeys[i]) end
 
-local MiscTab = MiiseryLibraryObj:CreateTab("Misc")
-MiscTab:Toggle({ Title = "Notifications", Value = Config.Notifications, Callback = function(v) Config.Notifications = v SaveConfig() end })
+local MiscTab = SexLibraryObj:CreateTab("Diversos")
+MiscTab:Toggle({ Title = "Notificações", Value = Config.Notifications, Callback = function(v) Config.Notifications = v SaveConfig() end })
 MiscTab:Toggle({ Title = "Anti AFK", Value = Config.AntiAFK, Callback = function(v) Config.AntiAFK = v SaveConfig() end })
 MiscTab:Toggle({ Title = "Auto V3", Value = Config.AutoV3, Callback = function(v) Config.AutoV3 = v SaveConfig() end })
 MiscTab:Toggle({ Title = "Auto V4", Value = Config.AutoV4, Callback = function(v) Config.AutoV4 = v SaveConfig() end })
 MiscTab:Toggle({ Title = "Auto PvP", Value = Config.AutoPvP, Callback = function(v) Config.AutoPvP = v SaveConfig() end })
-MiscTab:Toggle({ Title = "Infinite Zoom", Value = Config.InfiniteZoom, Callback = function(v) Config.InfiniteZoom = v lp.CameraMaxZoomDistance = v and math.huge or savedZoom SaveConfig() end })
-MiscTab:Toggle({ Title = "Stats Gui", Value = Config.StatsGui, Callback = function(v) setStatsGui(v) SaveConfig() end })
-MiscTab:Toggle({ Title = "Walk on Water", Value = Config.WalkOnWater, Callback = function(v) Config.WalkOnWater = v SaveConfig() end })
+MiscTab:Toggle({ Title = "Zoom Infinito", Value = Config.InfiniteZoom, Callback = function(v) Config.InfiniteZoom = v lp.CameraMaxZoomDistance = v and math.huge or savedZoom SaveConfig() end })
+MiscTab:Toggle({ Title = "Interface de Estatísticas", Value = Config.StatsGui, Callback = function(v) setStatsGui(v) SaveConfig() end })
+MiscTab:Toggle({ Title = "Andar sobre a Água", Value = Config.WalkOnWater, Callback = function(v) Config.WalkOnWater = v SaveConfig() end })
 MiscTab:Toggle({ Title = "Anti Lava", Value = Config.AntiLava, Callback = function(v) Config.AntiLava = v if v then startAntiLava() else stopAntiLava() end SaveConfig() end })
 MiscTab:Toggle({ Title = "Speed Hack", Value = Config.SpeedEnabled, Callback = function(v) Config.SpeedEnabled = v if not v then local hum = lp.Character and lp.Character:FindFirstChildOfClass("Humanoid") if hum then hum.WalkSpeed = 16 end end SaveConfig() end })
-MiscTab:Dropdown({ Title = "Speed Mode", Values = {"WalkSpeed","CFrame","Velocity"}, Value = Config.SpeedMode, Callback = function(v) Config.SpeedMode = v SaveConfig() end })
-MiscTab:Slider({ Title = "Speed Value", Value = { Min = 16, Max = 500, Default = Config.SpeedValue }, Callback = function(v) Config.SpeedValue = v SaveConfig() end })
-MiscTab:Button({ Title = "Join Marines", Callback = function() pcall(function() CommF:InvokeServer("SetTeam", "Marines") end) Notify("Miisery Hub", "Joined Marines", 2) end })
-MiscTab:Button({ Title = "Join Pirates", Callback = function() pcall(function() CommF:InvokeServer("SetTeam", "Pirates") end) Notify("Miisery Hub", "Joined Pirates", 2) end })
-MiscTab:Button({ Title = "Reset Stats", Callback = function() pcall(function() CommF:InvokeServer("BlackbeardReward", "Refund", "2") end) pcall(function() CommF:InvokeServer("ResetStats") end) Notify("Miisery Hub", "Reset Stats sent", 2) end })
-MiscTab:Button({ Title = "Reroll Race", Callback = function() pcall(function() CommF:InvokeServer("BlackbeardReward", "Reroll", "2") end) Notify("Miisery Hub", "Reroll sent", 2) end })
-MiscTab:Button({ Title = "Save Config Now", Callback = function() SaveConfig() Notify("Miisery Hub", "Config saved", 2) end })
+MiscTab:Dropdown({ Title = "Modo de Velocidade", Values = {"WalkSpeed","CFrame","Velocity"}, Value = Config.SpeedMode, Callback = function(v) Config.SpeedMode = v SaveConfig() end })
+MiscTab:Slider({ Title = "Valor da Velocidade", Value = { Min = 16, Max = 500, Default = Config.SpeedValue }, Callback = function(v) Config.SpeedValue = v SaveConfig() end })
+MiscTab:Button({ Title = "Entrar para os Fuzileiros", Callback = function() pcall(function() CommF:InvokeServer("SetTeam", "Marines") end) Notify("Sex Hub", "Entrou para os Fuzileiros", 2) end })
+MiscTab:Button({ Title = "Entrar para os Piratas", Callback = function() pcall(function() CommF:InvokeServer("SetTeam", "Pirates") end) Notify("Sex Hub", "Entrou para os Piratas", 2) end })
+MiscTab:Button({ Title = "Reembolsar Estatísticas", Callback = function() pcall(function() CommF:InvokeServer("BlackbeardReward", "Refund", "2") end) pcall(function() CommF:InvokeServer("ResetStats") end) Notify("Sex Hub", "Estatísticas resetadas", 2) end })
+MiscTab:Button({ Title = "Rolar Raça Novamente", Callback = function() pcall(function() CommF:InvokeServer("BlackbeardReward", "Reroll", "2") end) Notify("Sex Hub", "Solicitação de raça enviada", 2) end })
+MiscTab:Button({ Title = "Salvar Configuração Agora", Callback = function() SaveConfig() Notify("Sex Hub", "Configuração salva", 2) end })
 
-local InfoTab = MiiseryLibraryObj:CreateTab("Information")
+local InfoTab = SexLibraryObj:CreateTab("Informações")
 
 local infoDescParagraph = InfoTab:Paragraph({
-    Title = "Script Guide & Functions",
-    Desc = "• Main: Fast Attack, Bring Mobs and combat options.\n• Farm: Smart island detection and automatic chest looting.\n• Aim & Trackers: Silent aim, FOV customization and player tracking.\n• Movement: Fly, Noclip, Speed Hack and utility movement modifiers.\n• Blacklist: Exclude specific skill keys per weapon category."
+    Title = "Guia e Funções do Script",
+    Desc = "• Principal: Ataque rápido, puxar mobs e opções de combate.\n• Farm: Detecção inteligente de ilhas e coleta automática de baús.\n• Mira e Rastreadores: Aim silencioso, personalização de FOV e rastreamento de jogadores.\n• Movimento: Voo, Noclip, Speed Hack e modificadores de movimento utilitários.\n• Lista Negra: Excluir teclas de habilidades específicas por categoria de arma."
 })
 
 local bugFixParagraph = InfoTab:Paragraph({
-    Title = "Bug Fixes & Updates",
+    Title = "Correções de Bugs e Atualizações",
     Desc = "0"
 })
 
 InfoTab:Dropdown({
-    Title = "Language / Idioma",
-    Values = {"English", "Español", "Português"},
-    Value = Config.Language or "English",
+    Title = "Idioma",
+    Values = {"Português", "Español", "English"},
+    Value = "Português",
     Callback = function(v)
         Config.Language = v
         SaveConfig()
-        if v == "Español" then
-            infoDescParagraph:Update("Guía y Funciones del Script", "• Main: Ataque rápido, atraer NPCs y opciones de combate.\n• Farm: Detección inteligente de islas y recolección de cofres.\n• Aim & Trackers: Apuntado silencioso, FOV y rastreo de jugadores.\n• Movement: Vuelo, Noclip, velocidad y modificadores de movimiento.\n• Blacklist: Excluir habilidades específicas por categoría de arma.")
-            bugFixParagraph:Update("Corrección de Errores y Actualizaciones", "0")
-        elseif v == "Português" then
-            infoDescParagraph:Update("Guia e Funções do Script", "• Main: Ataque rápido, puxar mobs e opções de combate.\n• Farm: Detecção inteligente de ilhas e coleta de baús.\n• Aim & Trackers: Mira silenciosa, FOV e rastreamento de jogadores.\n• Movement: Voo, Noclip, velocidade e modificadores de movimento.\n• Blacklist: Excluir habilidades específicas por categoria de arma.")
-            bugFixParagraph:Update("Correções de Bugs e Atualizações", "0")
-        else
-            infoDescParagraph:Update("Script Guide & Functions", "• Main: Fast Attack, Bring Mobs and combat options.\n• Farm: Smart island detection and automatic chest looting.\n• Aim & Trackers: Silent aim, FOV customization and player tracking.\n• Movement: Fly, Noclip, Speed Hack and utility movement modifiers.\n• Blacklist: Exclude specific skill keys per weapon category.")
-            bugFixParagraph:Update("Bug Fixes & Updates", "0")
-        end
     end
 })
 
@@ -2681,4 +2671,4 @@ task.defer(function()
     if Config.StreamProof then ToggleStreamProof(true) end
 end)
 
-Notify("Miisery Hub", "Loaded successfully!", 3)
+Notify("Sex Hub", "Carregado com sucesso!", 3)

@@ -16,13 +16,12 @@ pcall(function()
     if Workspace:FindFirstChild("SupremeKamuiRealm") then Workspace.SupremeKamuiRealm:Destroy() end
 end)
 
--- 2. NUEVO ESTILO DE UI: BOTÓN FUTURISTA / CYBER-SHARINGAN
+-- 2. Interfaz de UI Cyber / Futurista (INTACTA)
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "CyberKamuiGui"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = PlayerGui
 
--- Contenedor principal con diseño flotante translúcido y esquinas estilizadas
 local KamuiButton = Instance.new("TextButton", ScreenGui)
 KamuiButton.Size = UDim2.new(0, 115, 0, 115)
 KamuiButton.Position = UDim2.new(0.80, 0, 0.30, 0)
@@ -34,16 +33,13 @@ KamuiButton.Active = true
 KamuiButton.Draggable = true
 KamuiButton.ZIndex = 10
 
--- Esquinas redondeadas modernas
 local buttonCorner = Instance.new("UICorner", KamuiButton)
 buttonCorner.CornerRadius = UDim.new(0.3, 0)
 
--- Borde brillante de neón púrpura y rojo
 local buttonStroke = Instance.new("UIStroke", KamuiButton)
 buttonStroke.Thickness = 3
 buttonStroke.Color = Color3.fromRGB(180, 50, 255)
 
--- Anillo exterior con diseño tecnológico giratorio
 local OuterRing = Instance.new("ImageLabel", KamuiButton)
 OuterRing.AnchorPoint = Vector2.new(0.5, 0.5)
 OuterRing.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -53,7 +49,6 @@ OuterRing.Image = "rbxassetid://80182942447236"
 OuterRing.ImageColor3 = Color3.fromRGB(255, 60, 120)
 OuterRing.ZIndex = 11
 
--- Icono central con efecto holográfico
 local InnerIcon = Instance.new("TextLabel", KamuiButton)
 InnerIcon.Size = UDim2.new(1, 0, 1, 0)
 InnerIcon.BackgroundTransparency = 1
@@ -61,7 +56,6 @@ InnerIcon.Text = "⚡"
 InnerIcon.TextSize = 42
 InnerIcon.ZIndex = 12
 
--- Animación pasiva para el anillo del botón
 task.spawn(function()
     while KamuiButton and KamuiButton.Parent do
         OuterRing.Rotation = OuterRing.Rotation - 4
@@ -69,14 +63,14 @@ task.spawn(function()
     end
 end)
 
--- Rueda Mangekyo Sharingan centrada perfectamente en pantalla para la cinemática
+-- Rueda Mangekyo Sharingan (INTACTA, centrada y con su efecto carmesí original)
 local KamuiRing = Instance.new("ImageLabel", ScreenGui)
 KamuiRing.AnchorPoint = Vector2.new(0.5, 0.5)
 KamuiRing.Position = UDim2.new(0.5, 0, 0.5, 0)
 KamuiRing.Size = UDim2.new(0, 0, 0, 0)
 KamuiRing.BackgroundTransparency = 1
 KamuiRing.Image = "rbxassetid://80182942447236"
-KamuiRing.ImageColor3 = Color3.fromRGB(200, 50, 255)
+KamuiRing.ImageColor3 = Color3.fromRGB(255, 20, 20)
 KamuiRing.Visible = false
 KamuiRing.ZIndex = 999999
 
@@ -86,56 +80,69 @@ KamuiSound.SoundId = "rbxassetid://70698855144717"
 KamuiSound.Volume = 10
 KamuiSound.RollOffMaxDistance = 100000
 
--- 3. CONSTRUCCIÓN DE LA DIMENSIÓN CON NUBES, CASTILLO Y TRONO
+-- 3. CONSTRUCCIÓN MEJORADA DE LA ISLA Y LOS BLOQUES (BLOQUES DE MÁRMOL Y ORO REFINADOS)
 local dimensionFolder = Instance.new("Folder")
 dimensionFolder.Name = "SupremeKamuiRealm"
 dimensionFolder.Parent = Workspace
 
 local basePos = Vector3.new(-9500.6, 6500.4, -8155.7)
 
+-- Suelo Principal Mejorado con Bloques de Mármol Estilizados
 local floor = Instance.new("Part")
-floor.Size = Vector3.new(6000, 25, 6000)
+floor.Size = Vector3.new(6500, 30, 6500)
 floor.Position = basePos
 floor.Anchored = true
-floor.Color = Color3.fromRGB(245, 248, 255)
+floor.Color = Color3.fromRGB(248, 250, 255)
 floor.Material = Enum.Material.Marble
 floor.Parent = dimensionFolder
 
+-- Capa de Base Inferior (Efecto de Isla Flotante de Bloques)
+local islandBase = Instance.new("Part")
+islandBase.Size = Vector3.new(5800, 150, 5800)
+islandBase.Position = basePos - Vector3.new(0, 90, 0)
+islandBase.Anchored = true
+islandBase.Color = Color3.fromRGB(40, 45, 55)
+islandBase.Material = Enum.Material.Slate
+islandBase.Parent = dimensionFolder
+
+-- Alfombra Imperial Roja Mejorada con Bloques de Grosor Dinámico
 local carpet = Instance.new("Part")
-carpet.Size = Vector3.new(250, 25.4, 4500)
+carpet.Size = Vector3.new(280, 31, 4800)
 carpet.Position = basePos + Vector3.new(0, 0, -1000)
 carpet.Anchored = true
 carpet.Color = Color3.fromRGB(160, 10, 30)
 carpet.Material = Enum.Material.Fabric
 carpet.Parent = dimensionFolder
 
+-- Trono de Oro Supremo con Estructura de Bloques Geométricos
 local throneBase = Instance.new("Part")
-throneBase.Size = Vector3.new(140, 40, 100)
-throneBase.Position = basePos + Vector3.new(0, 40, -3000)
+throneBase.Size = Vector3.new(160, 45, 110)
+throneBase.Position = basePos + Vector3.new(0, 45, -3200)
 throneBase.Anchored = true
 throneBase.Color = Color3.fromRGB(255, 215, 0)
 throneBase.Material = Enum.Material.Metal
 throneBase.Parent = dimensionFolder
 
 local throneSeat = Instance.new("Part")
-throneSeat.Size = Vector3.new(90, 60, 60)
-throneSeat.Position = basePos + Vector3.new(0, 85, -3000)
+throneSeat.Size = Vector3.new(100, 70, 70)
+throneSeat.Position = basePos + Vector3.new(0, 95, -3200)
 throneSeat.Anchored = true
 throneSeat.Color = Color3.fromRGB(150, 10, 30)
 throneSeat.Material = Enum.Material.Fabric
 throneSeat.Parent = dimensionFolder
 
 local throneBack = Instance.new("Part")
-throneBack.Size = Vector3.new(120, 350, 35)
-throneBack.Position = basePos + Vector3.new(0, 215, -3040)
+throneBack.Size = Vector3.new(130, 380, 40)
+throneBack.Position = basePos + Vector3.new(0, 235, -3245)
 throneBack.Anchored = true
 throneBack.Color = Color3.fromRGB(255, 215, 0)
 throneBack.Material = Enum.Material.Metal
 throneBack.Parent = dimensionFolder
 
+-- Pilares Monumentales de Bloques Perfectamente Alineados
 local function makeMegaPillar(pos)
     local p = Instance.new("Part")
-    p.Size = Vector3.new(80, 1000, 80)
+    p.Size = Vector3.new(90, 1100, 90)
     p.Position = pos
     p.Anchored = true
     p.Color = Color3.fromRGB(255, 255, 255)
@@ -143,15 +150,16 @@ local function makeMegaPillar(pos)
     p.Parent = dimensionFolder
 end
 
-for i = -2500, 2500, 400 do
-    makeMegaPillar(basePos + Vector3.new(-600, 500, i))
-    makeMegaPillar(basePos + Vector3.new(600, 500, i))
+for i = -2600, 2600, 400 do
+    makeMegaPillar(basePos + Vector3.new(-700, 550, i))
+    makeMegaPillar(basePos + Vector3.new(700, 550, i))
 end
 
+-- Nubes Volumétricas Alrededor de la Isla
 local function createCloud(pos)
     local cloud = Instance.new("Part")
     cloud.Shape = Enum.PartType.Ball
-    cloud.Size = Vector3.new(1200, 350, 1200)
+    cloud.Size = Vector3.new(1300, 380, 1300)
     cloud.Position = pos
     cloud.Anchored = true
     cloud.Transparency = 0.2
@@ -162,12 +170,12 @@ end
 
 for angle = 0, 360, 40 do
     local rad = math.rad(angle)
-    local xOff = math.cos(rad) * 2200
-    local zOff = math.sin(rad) * 2200
-    createCloud(basePos + Vector3.new(xOff, -50, zOff))
+    local xOff = math.cos(rad) * 2400
+    local zOff = math.sin(rad) * 2400
+    createCloud(basePos + Vector3.new(xOff, -60, zOff))
 end
 
--- 4. SHADERS CINEMATOGRÁFICOS
+-- 4. Shaders Cinemáticos
 local activeAtmosphere, activeCorrection, activeBloom = nil, nil, nil
 
 local function enableAnimeShaders()
@@ -276,7 +284,7 @@ local function executeKamui()
 
     insideRealm = not insideRealm
 
-    -- BOLA PÚRPURA MEJORADA
+    -- Bola Púrpura Épica con Giro Fling
     local vortex = Instance.new("Part")
     vortex.Size = Vector3.new(2, 2, 2)
     vortex.Transparency = 1
@@ -366,4 +374,4 @@ end
 KamuiButton.MouseButton1Click:Connect(executeKamui)
 KamuiButton.TouchTap:Connect(executeKamui)
 
-print("¡UI Estilo Cyber / Futurista Cargada con Éxito!")
+print("¡Isla y Bloques Mejorados con Éxito!")

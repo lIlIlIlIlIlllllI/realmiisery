@@ -10,13 +10,13 @@ local Workspace = game:GetService("Workspace")
 local lp = Players.LocalPlayer
 local PlayerGui = lp:WaitForChild("PlayerGui")
 
--- 1. Limpieza absoluta previa
+-- 1. Limpieza absoluta previa para evitar conflictos de memoria
 pcall(function()
     if PlayerGui:FindFirstChild("CyberKamuiGui") then PlayerGui.CyberKamuiGui:Destroy() end
-    if Workspace:FindFirstChild("NarutoKamuiRealm") then Workspace.NarutoKamuiRealm:Destroy() end
+    if Workspace:FindFirstChild("EpicBloxFruitsHalloweenRealm") then Workspace.EpicBloxFruitsHalloweenRealm:Destroy() end
 end)
 
--- 2. Interfaz de UI Cyber / Futurista (INALTERABLE)
+-- 2. Interfaz de UI Cyber / Futurista (INALTERABLE Y PERFECTA)
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "CyberKamuiGui"
 ScreenGui.ResetOnSpawn = false
@@ -80,77 +80,150 @@ KamuiSound.SoundId = "rbxassetid://70698855144717"
 KamuiSound.Volume = 10
 KamuiSound.RollOffMaxDistance = 100000
 
--- 3. NUEVA DIMENSIÓN ESTILO NARUTO: ROCAS PUNTIAGUDAS Y MUNDO ROJO CARMESÍ
+-- 3. CONSTRUCCIÓN MASIVA DE LA ISLA ESTILO BLOX FRUITS Y HALLOWEEN
 local dimensionFolder = Instance.new("Folder")
-dimensionFolder.Name = "NarutoKamuiRealm"
+dimensionFolder.Name = "EpicBloxFruitsHalloweenRealm"
 dimensionFolder.Parent = Workspace
 
 local basePos = Vector3.new(-9500.6, 6500.4, -8155.7)
 
--- Plataforma de piedra oscura y desgastada
-local mainPlatform = Instance.new("Part")
-mainPlatform.Size = Vector3.new(4000, 40, 4000)
-mainPlatform.Position = basePos
-mainPlatform.Anchored = true
-mainPlatform.Color = Color3.fromRGB(45, 45, 50)
-mainPlatform.Material = Enum.Material.Slate
-mainPlatform.Parent = dimensionFolder
+-- Suelo Principal Masivo de Piedra Oscura
+local ground = Instance.new("Part")
+ground.Size = Vector3.new(7000, 45, 7000)
+ground.Position = basePos
+ground.Anchored = true
+ground.Color = Color3.fromRGB(25, 25, 30)
+ground.Material = Enum.Material.Slate
+ground.Parent = dimensionFolder
 
--- Función para generar rocas puntiagudas gigantescas estilo anime
-local function createSpikeRock(pos, size, rot)
-    local spike = Instance.new("Part")
-    spike.Shape = Enum.PartType.Wedge
-    spike.Size = size
-    spike.Position = pos
-    spike.Orientation = rot
-    spike.Anchored = true
-    spike.Color = Color3.fromRGB(35, 35, 40)
-    spike.Material = Enum.Material.Rock
-    spike.Parent = dimensionFolder
+-- Base Inferior de Roca Sólida (Efecto de Isla Flotante Gigante)
+local islandBase = Instance.new("Part")
+islandBase.Size = Vector3.new(6200, 300, 6200)
+islandBase.Position = basePos - Vector3.new(0, 170, 0)
+islandBase.Anchored = true
+islandBase.Color = Color3.fromRGB(35, 35, 40)
+islandBase.Material = Enum.Material.Rock
+islandBase.Parent = dimensionFolder
+
+-- Camino Central de Adoquines Estilo Blox Fruits
+local path = Instance.new("Part")
+path.Size = Vector3.new(300, 47, 5500)
+path.Position = basePos + Vector3.new(0, 0, -1000)
+path.Anchored = true
+path.Color = Color3.fromRGB(45, 40, 45)
+path.Material = Enum.Material.Cobblestone
+path.Parent = dimensionFolder
+
+-- Gran Arco Tétrico de Entrada (Inspirado en la Referencia)
+local archLeft = Instance.new("Part")
+archLeft.Size = Vector3.new(80, 500, 80)
+archLeft.Position = basePos + Vector3.new(-180, 250, -2000)
+archLeft.Anchored = true
+archLeft.Color = Color3.fromRGB(60, 40, 30)
+archLeft.Material = Enum.Material.WoodPlanks
+archLeft.Parent = dimensionFolder
+
+local archRight = Instance.new("Part")
+archRight.Size = Vector3.new(80, 500, 80)
+archRight.Position = basePos + Vector3.new(180, 250, -2000)
+archRight.Anchored = true
+archRight.Color = Color3.fromRGB(60, 40, 30)
+archRight.Material = Enum.Material.WoodPlanks
+archRight.Parent = dimensionFolder
+
+local archTop = Instance.new("Part")
+archTop.Size = Vector3.new(440, 80, 80)
+archTop.Position = basePos + Vector3.new(0, 470, -2000)
+archTop.Anchored = true
+archTop.Color = Color3.fromRGB(60, 40, 30)
+archTop.Material = Enum.Material.WoodPlanks
+archTop.Parent = dimensionFolder
+
+-- El Ángel / Guardián Celestial en el Altar Central
+local angelBase = Instance.new("Part")
+angelBase.Shape = Enum.PartType.Ball
+angelBase.Size = Vector3.new(120, 120, 120)
+angelBase.Position = basePos + Vector3.new(0, 120, -3200)
+angelBase.Anchored = true
+angelBase.Color = Color3.fromRGB(240, 245, 255)
+angelBase.Material = Enum.Material.Neon
+angelBase.Parent = dimensionFolder
+
+local wingLeft = Instance.new("Part")
+wingLeft.Size = Vector3.new(200, 150, 20)
+wingLeft.Position = basePos + Vector3.new(-110, 150, -3200)
+wingLeft.Orientation = Vector3.new(0, 25, 15)
+wingLeft.Anchored = true
+wingLeft.Color = Color3.fromRGB(255, 255, 255)
+wingLeft.Material = Enum.Material.Glass
+wingLeft.Parent = dimensionFolder
+
+local wingRight = Instance.new("Part")
+wingRight.Size = Vector3.new(200, 150, 20)
+wingRight.Position = basePos + Vector3.new(110, 150, -3200)
+wingRight.Orientation = Vector3.new(0, -25, -15)
+wingRight.Anchored = true
+wingRight.Color = Color3.fromRGB(255, 255, 255)
+wingRight.Material = Enum.Material.Glass
+wingRight.Parent = dimensionFolder
+
+-- Pilares Masivos de Ruinas alrededor de la Isla
+local function makeRuinedPillar(pos)
+    local p = Instance.new("Part")
+    p.Size = Vector3.new(90, 1200, 90)
+    p.Position = pos
+    p.Anchored = true
+    p.Color = Color3.fromRGB(50, 50, 60)
+    p.Material = Enum.Material.Basalt
+    p.Parent = dimensionFolder
 end
 
--- Generar un anillo de formaciones rocosas puntiagudas alrededor del jugador
-math.randomseed(1337)
-for i = 1, 30 do
-    local angle = math.rad(i * (360 / 30))
-    local dist = math.random(400, 1500)
-    local x = basePos.X + math.cos(angle) * dist
-    local z = basePos.Z + math.sin(angle) * dist
-    local height = math.random(400, 900)
-    local thickness = math.random(150, 300)
-    
-    createSpikeRock(
-        Vector3.new(x, basePos.Y + (height / 2), z), 
-        Vector3.new(thickness, height, thickness), 
-        Vector3.new(math.random(-15, 15), math.random(0, 360), math.random(-15, 15))
-    )
+for i = -2800, 2800, 500 do
+    makeRuinedPillar(basePos + Vector3.new(-800, 600, i))
+    makeRuinedPillar(basePos + Vector3.new(800, 600, i))
 end
 
--- Shaders y Atmósfera Roja Carmesí Total para la Dimensión
+-- Generación de Llápidas y Calabazas Ambientales (Estilo Halloween)[span_1](start_span)[span_1](end_span)
+local function makeGravestone(pos)
+    local stone = Instance.new("Part")
+    stone.Size = Vector3.new(40, 60, 15)
+    stone.Position = pos
+    stone.Anchored = true
+    stone.Color = Color3.fromRGB(60, 60, 65)
+    stone.Material = Enum.Material.Slate
+    stone.Parent = dimensionFolder
+end
+
+for i = -2000, 2000, 300 do
+    makeGravestone(basePos + Vector3.new(-350, 30, i))
+    makeGravestone(basePos + Vector3.new(350, 30, i))
+end
+
+-- 4. Shaders Nocturnos de Halloween y Cinematografía
 local activeAtmosphere, activeCorrection, activeBloom = nil, nil, nil
 
-local function enableNarutoCrimsonShaders()
+local function enableHalloweenShaders()
     pcall(function()
         if activeAtmosphere then activeAtmosphere:Destroy() end
         if activeCorrection then activeCorrection:Destroy() end
         if activeBloom then activeBloom:Destroy() end
 
         activeAtmosphere = Instance.new("Atmosphere")
-        activeAtmosphere.Name = "NarutoAtmos"
-        activeAtmosphere.Density = 0.65
-        activeAtmosphere.Color = Color3.fromRGB(200, 20, 20)
-        activeAtmosphere.Decay = Color3.fromRGB(40, 0, 0)
+        activeAtmosphere.Name = "HalloweenAtmos"
+        activeAtmosphere.Density = 0.55
+        activeAtmosphere.Color = Color3.fromRGB(25, 15, 35)
+        activeAtmosphere.Decay = Color3.fromRGB(10, 5, 20)
         activeAtmosphere.Parent = Lighting
 
         activeCorrection = Instance.new("ColorCorrectionEffect")
-        activeCorrection.Name = "NarutoCorr"
-        activeCorrection.TintColor = Color3.fromRGB(255, 60, 60)
-        activeCorrection.Brightness = -0.05
-        activeCorrection.Contrast = 0.55
+        activeCorrection.Name = "HalloweenCorr"
+        activeCorrection.TintColor = Color3.fromRGB(210, 190, 255)
+        activeCorrection.Brightness = -0.08
+        activeCorrection.Contrast = 0.45
         activeCorrection.Parent = Lighting
 
         activeBloom = Instance.new("BloomEffect")
-        activeBloom.Name = "NarutoBloom"
+        activeBloom.Name = "HalloweenBloom"
         activeBloom.Intensity = 1.5
         activeBloom.Size = 35
         activeBloom.Threshold = 0.4
@@ -158,7 +231,7 @@ local function enableNarutoCrimsonShaders()
     end)
 end
 
-local function disableNarutoCrimsonShaders()
+local function disableHalloweenShaders()
     pcall(function()
         if activeAtmosphere then activeAtmosphere:Destroy() end
         if activeCorrection then activeCorrection:Destroy() end
@@ -196,7 +269,7 @@ local function executeKamui()
         originalCFrame = root.CFrame
     end
 
-    -- 1. Sonido y Mangekyo girando en pantalla (INALTERABLE)
+    -- 1. Sonido y Mangekyo girando perfectamente centrado (INALTERABLE)
     pcall(function()
         KamuiSound.TimePosition = 0
         KamuiSound:Play()
@@ -222,10 +295,10 @@ local function executeKamui()
     KamuiRing.Visible = false
     if spinGuiConn then spinGuiConn:Disconnect() end
 
-    -- 2. Activar la dimensión roja carmesí con rocas puntiagudas
-    enableNarutoCrimsonShaders()
+    -- 2. Activar shaders y teletransporte a la isla masiva de Halloween
+    enableHalloweenShaders()
 
-    local targetPos = not insideRealm and (basePos + Vector3.new(0, 120, 0)) or (originalCFrame and originalCFrame.Position or (basePos + Vector3.new(0, 60, 0)))
+    local targetPos = not insideRealm and (basePos + Vector3.new(0, 150, 0)) or (originalCFrame and originalCFrame.Position or (basePos + Vector3.new(0, 60, 0)))
 
     pcall(function()
         hum.PlatformStand = true
@@ -237,7 +310,7 @@ local function executeKamui()
 
     insideRealm = not insideRealm
 
-    -- 3. Bola Púrpura Épica con Partículas y Giro Fling Estilo Anime
+    -- 3. Núcleo Púrpura de Alta Densidad y Giro Fling Estilo Anime
     local vortex = Instance.new("Part")
     vortex.Size = Vector3.new(2, 2, 2)
     vortex.Transparency = 1
@@ -278,7 +351,7 @@ local function executeKamui()
     appParticle2.Parent = vortex
 
     TweenService:Create(purpleCore, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-        Size = Vector3.new(8.5, 8.5, 8.5)
+        Size = Vector3.new(9, 9, 9)
     }):Play()
 
     root.Anchored = true
@@ -304,7 +377,7 @@ local function executeKamui()
             root.Anchored = false
             hum.PlatformStand = false
             if activeVortex then activeVortex:Destroy() end
-            disableNarutoCrimsonShaders()
+            disableHalloweenShaders()
         end)
         activeState = false
     end)
@@ -317,7 +390,7 @@ local function executeKamui()
                 root.Anchored = false
                 hum.PlatformStand = false
                 if activeVortex then activeVortex:Destroy() end
-                disableNarutoCrimsonShaders()
+                disableHalloweenShaders()
             end)
             activeState = false
         end
@@ -327,4 +400,4 @@ end
 KamuiButton.MouseButton1Click:Connect(executeKamui)
 KamuiButton.TouchTap:Connect(executeKamui)
 
-print("¡Dimensión Naruto Estilo Carmesí con Rocas Cargada con Éxito!")
+print("¡Isla Masiva Estilo Blox Fruits Halloween Cargada con Éxito!")

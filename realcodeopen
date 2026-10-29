@@ -10,17 +10,18 @@ local Workspace = game:GetService("Workspace")
 local lp = Players.LocalPlayer
 local PlayerGui = lp:WaitForChild("PlayerGui")
 
--- SELLO DE VERSIÓN: 🔇🦅⚡ (Audio Original Kamui + Silenciador Global de Juego + Cuervos)
-print("Cargando versión oficial con sello: 🔇🦅⚡")
+-- SELLO DE VERSIÓN: 📂🌐🗡️ (Estructura Pocket Dimension nativa de Roblox)
+print("Cargando versión oficial con sello: 📂🌐🗡️")
 
+-- 1. Limpieza absoluta previa
 pcall(function()
-    if PlayerGui:FindFirstChild("MuteKamuiGui") then PlayerGui.MuteKamuiGui:Destroy() end
-    if Workspace:FindFirstChild("MuteKamuiRealm") then Workspace.MuteKamuiRealm:Destroy() end
+    if PlayerGui:FindFirstChild("PocketKamuiGui") then PlayerGui.PocketKamuiGui:Destroy() end
+    if Workspace:FindFirstChild("_WorldOrigin") then Workspace._WorldOrigin:Destroy() end
 end)
 
--- 1. Interfaz de UI con el sello 🔇🦅⚡
+-- 2. Interfaz de UI con el sello 📂🌐🗡️
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "MuteKamuiGui"
+ScreenGui.Name = "PocketKamuiGui"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = PlayerGui
 
@@ -40,7 +41,7 @@ buttonCorner.CornerRadius = UDim.new(0.3, 0)
 
 local buttonStroke = Instance.new("UIStroke", KamuiButton)
 buttonStroke.Thickness = 3
-buttonStroke.Color = Color3.fromRGB(255, 0, 100)
+buttonStroke.Color = Color3.fromRGB(120, 0, 255)
 
 local OuterRing = Instance.new("ImageLabel", KamuiButton)
 OuterRing.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -48,13 +49,13 @@ OuterRing.Position = UDim2.new(0.5, 0, 0.5, 0)
 OuterRing.Size = UDim2.new(0, 100, 0, 100)
 OuterRing.BackgroundTransparency = 1
 OuterRing.Image = "rbxassetid://80182942447236"
-OuterRing.ImageColor3 = Color3.fromRGB(255, 0, 100)
+OuterRing.ImageColor3 = Color3.fromRGB(120, 0, 255)
 OuterRing.ZIndex = 11
 
 local InnerIcon = Instance.new("TextLabel", KamuiButton)
 InnerIcon.Size = UDim2.new(1, 0, 1, 0)
 InnerIcon.BackgroundTransparency = 1
-InnerIcon.Text = "🔇" -- Sello de silencio global
+InnerIcon.Text = "📂" -- Sello de carpeta oficial
 InnerIcon.TextSize = 42
 InnerIcon.ZIndex = 12
 
@@ -76,7 +77,7 @@ KamuiRing.ImageColor3 = Color3.fromRGB(255, 20, 20)
 KamuiRing.Visible = false
 KamuiRing.ZIndex = 999999
 
--- AUDIO ORIGINAL MAESTRO DE KAMUI (¡Se mantiene intacto!)
+-- AUDIO ORIGINAL MAESTRO DE KAMUI
 local KamuiSound = Instance.new("Sound", SoundService)
 KamuiSound.SoundId = "rbxassetid://70698855144717"
 KamuiSound.Volume = 10
@@ -88,7 +89,7 @@ CrowSound.SoundId = "rbxassetid://9114175376"
 CrowSound.Volume = 6
 CrowSound.RollOffMaxDistance = 100000
 
--- Función para silenciar/eliminar todos los sonidos del juego y dejar solo los nuestros
+-- Función para silenciar los sonidos del juego base
 local function muteGameSounds(state)
     pcall(function()
         SoundService.AmbientReverb = Enum.ReverbType.NoReverb
@@ -100,13 +101,22 @@ local function muteGameSounds(state)
     end)
 end
 
--- 2. CONSTRUCCIÓN DE LA DIMENSIÓN INTERACTIVA CON OBJETOS Y ARMAS
-local dimensionFolder = Instance.new("Folder")
-dimensionFolder.Name = "MuteKamuiRealm"
-dimensionFolder.Parent = Workspace
+-- 3. REPLICANDO LA ESTRUCTURA OFICIAL: Workspace._WorldOrigin.Locations["Pocket Dimension"]
+local worldOrigin = Instance.new("Folder")
+worldOrigin.Name = "_WorldOrigin"
+worldOrigin.Parent = Workspace
+
+local locationsFolder = Instance.new("Folder")
+locationsFolder.Name = "Locations"
+locationsFolder.Parent = worldOrigin
+
+local pocketDimensionFolder = Instance.new("Folder")
+pocketDimensionFolder.Name = "Pocket Dimension"
+pocketDimensionFolder.Parent = locationsFolder
 
 local basePos = Vector3.new(-9500.6, 6500.4, -8155.7)
 
+-- Construcción de la isla dentro de la Pocket Dimension
 local mainIsland = Instance.new("Part")
 mainIsland.Shape = Enum.PartType.Ball
 mainIsland.Size = Vector3.new(2000, 400, 2000)
@@ -114,7 +124,7 @@ mainIsland.Position = basePos
 mainIsland.Anchored = true
 mainIsland.Color = Color3.fromRGB(20, 20, 25)
 mainIsland.Material = Enum.Material.Slate
-mainIsland.Parent = dimensionFolder
+mainIsland.Parent = pocketDimensionFolder
 
 local function createFloatingRing(size, color)
     local ring = Instance.new("Part")
@@ -127,12 +137,12 @@ local function createFloatingRing(size, color)
     ring.Transparency = 0.2
     ring.Color = color
     ring.Material = Enum.Material.Neon
-    ring.Parent = dimensionFolder
+    ring.Parent = pocketDimensionFolder
 end
 
 createFloatingRing(Vector3.new(15, 3500, 3500), Color3.fromRGB(140, 0, 255))
 
-local function createInteractiveWeapon(offset, name, color)
+local function createInteractiveWeapon(offset, color)
     local weaponPedestal = Instance.new("Part")
     weaponPedestal.Shape = Enum.PartType.Cylinder
     weaponPedestal.Size = Vector3.new(10, 40, 10)
@@ -140,7 +150,7 @@ local function createInteractiveWeapon(offset, name, color)
     weaponPedestal.Anchored = true
     weaponPedestal.Color = Color3.fromRGB(50, 50, 60)
     weaponPedestal.Material = Enum.Material.Metal
-    weaponPedestal.Parent = dimensionFolder
+    weaponPedestal.Parent = pocketDimensionFolder
 
     local weaponOrb = Instance.new("Part")
     weaponOrb.Shape = Enum.PartType.Ball
@@ -150,7 +160,7 @@ local function createInteractiveWeapon(offset, name, color)
     weaponOrb.CanCollide = false
     weaponOrb.Color = color
     weaponOrb.Material = Enum.Material.Neon
-    weaponOrb.Parent = dimensionFolder
+    weaponOrb.Parent = pocketDimensionFolder
 
     task.spawn(function()
         local t = math.random(1, 100)
@@ -162,11 +172,11 @@ local function createInteractiveWeapon(offset, name, color)
     end)
 end
 
-createInteractiveWeapon(Vector3.new(200, 0, -200), "Espada Mística", Color3.fromRGB(255, 50, 50))
-createInteractiveWeapon(Vector3.new(-200, 0, -200), "Orbe Dimensional", Color3.fromRGB(100, 0, 255))
-createInteractiveWeapon(Vector3.new(0, 0, -350), "Kunai Susanoo", Color3.fromRGB(255, 215, 0))
+createInteractiveWeapon(Vector3.new(200, 0, -200), Color3.fromRGB(255, 50, 50))
+createInteractiveWeapon(Vector3.new(-200, 0, -200), Color3.fromRGB(100, 0, 255))
+createInteractiveWeapon(Vector3.new(0, 0, -350), Color3.fromRGB(255, 215, 0))
 
--- 3. Shaders Dinámicos (Rojo exclusivo en la pantalla durante el asset)
+-- 4. Shaders Dinámicos (Rojo exclusivo en pantalla durante el asset)
 local activeAtmosphere, activeCorrection, activeBloom = nil, nil, nil
 
 local function enableFlashShaders()
@@ -236,7 +246,6 @@ local function executeKamui()
         originalCFrame = root.CFrame
     end
 
-    -- Silenciar sonidos del juego, activar audio maestro Kamui, cuervos y destello rojo en pantalla
     muteGameSounds(true)
     pcall(function()
         KamuiSound.TimePosition = 0
@@ -267,7 +276,6 @@ local function executeKamui()
     if spinGuiConn then spinGuiConn:Disconnect() end
     disableFlashShaders()
 
-    -- Teletransporte a la isla interactiva
     local targetPos = not insideRealm and (basePos + Vector3.new(0, 250, 0)) or (originalCFrame and originalCFrame.Position or (basePos + Vector3.new(0, 100, 0)))
 
     pcall(function()
@@ -286,7 +294,7 @@ local function executeKamui()
     vortex.Anchored = true
     vortex.CanCollide = false
     vortex.CFrame = root.CFrame
-    vortex.Parent = Workspace
+    vortex.Parent = pocketDimensionFolder
     activeVortex = vortex
 
     local purpleCore = Instance.new("Part")
@@ -337,7 +345,7 @@ local function executeKamui()
             hum.PlatformStand = false
             if activeVortex then activeVortex:Destroy() end
             disableFlashShaders()
-            muteGameSounds(false) -- Restaura el sonido del juego al salir
+            muteGameSounds(false)
         end)
         activeState = false
     end)
@@ -361,4 +369,4 @@ end
 KamuiButton.MouseButton1Click:Connect(executeKamui)
 KamuiButton.TouchTap:Connect(executeKamui)
 
-print("¡Versión 🔇🦅⚡ cargada perfectamente en tu tablet!")
+print("¡Versión 📂🌐🗡️ cargada con la estructura Pocket Dimension exacta!")

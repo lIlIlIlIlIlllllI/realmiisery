@@ -13,10 +13,10 @@ local PlayerGui = lp:WaitForChild("PlayerGui")
 -- 1. Limpieza absoluta previa
 pcall(function()
     if PlayerGui:FindFirstChild("CyberKamuiGui") then PlayerGui.CyberKamuiGui:Destroy() end
-    if Workspace:FindFirstChild("SupremeKamuiRealm") then Workspace.SupremeKamuiRealm:Destroy() end
+    if Workspace:FindFirstChild("NarutoKamuiRealm") then Workspace.NarutoKamuiRealm:Destroy() end
 end)
 
--- 2. Interfaz de UI Cyber / Futurista (INTACTA)
+-- 2. Interfaz de UI Cyber / Futurista (INALTERABLE)
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "CyberKamuiGui"
 ScreenGui.ResetOnSpawn = false
@@ -63,7 +63,7 @@ task.spawn(function()
     end
 end)
 
--- Rueda Mangekyo Sharingan (INTACTA, centrada y con su efecto carmesí original)
+-- Rueda Mangekyo Sharingan (INTACTA Y PERFECTAMENTE CENTRADA)
 local KamuiRing = Instance.new("ImageLabel", ScreenGui)
 KamuiRing.AnchorPoint = Vector2.new(0.5, 0.5)
 KamuiRing.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -80,134 +80,85 @@ KamuiSound.SoundId = "rbxassetid://70698855144717"
 KamuiSound.Volume = 10
 KamuiSound.RollOffMaxDistance = 100000
 
--- 3. CONSTRUCCIÓN MEJORADA DE LA ISLA Y LOS BLOQUES (BLOQUES DE MÁRMOL Y ORO REFINADOS)
+-- 3. NUEVA DIMENSIÓN ESTILO NARUTO: ROCAS PUNTIAGUDAS Y MUNDO ROJO CARMESÍ
 local dimensionFolder = Instance.new("Folder")
-dimensionFolder.Name = "SupremeKamuiRealm"
+dimensionFolder.Name = "NarutoKamuiRealm"
 dimensionFolder.Parent = Workspace
 
 local basePos = Vector3.new(-9500.6, 6500.4, -8155.7)
 
--- Suelo Principal Mejorado con Bloques de Mármol Estilizados
-local floor = Instance.new("Part")
-floor.Size = Vector3.new(6500, 30, 6500)
-floor.Position = basePos
-floor.Anchored = true
-floor.Color = Color3.fromRGB(248, 250, 255)
-floor.Material = Enum.Material.Marble
-floor.Parent = dimensionFolder
+-- Plataforma de piedra oscura y desgastada
+local mainPlatform = Instance.new("Part")
+mainPlatform.Size = Vector3.new(4000, 40, 4000)
+mainPlatform.Position = basePos
+mainPlatform.Anchored = true
+mainPlatform.Color = Color3.fromRGB(45, 45, 50)
+mainPlatform.Material = Enum.Material.Slate
+mainPlatform.Parent = dimensionFolder
 
--- Capa de Base Inferior (Efecto de Isla Flotante de Bloques)
-local islandBase = Instance.new("Part")
-islandBase.Size = Vector3.new(5800, 150, 5800)
-islandBase.Position = basePos - Vector3.new(0, 90, 0)
-islandBase.Anchored = true
-islandBase.Color = Color3.fromRGB(40, 45, 55)
-islandBase.Material = Enum.Material.Slate
-islandBase.Parent = dimensionFolder
-
--- Alfombra Imperial Roja Mejorada con Bloques de Grosor Dinámico
-local carpet = Instance.new("Part")
-carpet.Size = Vector3.new(280, 31, 4800)
-carpet.Position = basePos + Vector3.new(0, 0, -1000)
-carpet.Anchored = true
-carpet.Color = Color3.fromRGB(160, 10, 30)
-carpet.Material = Enum.Material.Fabric
-carpet.Parent = dimensionFolder
-
--- Trono de Oro Supremo con Estructura de Bloques Geométricos
-local throneBase = Instance.new("Part")
-throneBase.Size = Vector3.new(160, 45, 110)
-throneBase.Position = basePos + Vector3.new(0, 45, -3200)
-throneBase.Anchored = true
-throneBase.Color = Color3.fromRGB(255, 215, 0)
-throneBase.Material = Enum.Material.Metal
-throneBase.Parent = dimensionFolder
-
-local throneSeat = Instance.new("Part")
-throneSeat.Size = Vector3.new(100, 70, 70)
-throneSeat.Position = basePos + Vector3.new(0, 95, -3200)
-throneSeat.Anchored = true
-throneSeat.Color = Color3.fromRGB(150, 10, 30)
-throneSeat.Material = Enum.Material.Fabric
-throneSeat.Parent = dimensionFolder
-
-local throneBack = Instance.new("Part")
-throneBack.Size = Vector3.new(130, 380, 40)
-throneBack.Position = basePos + Vector3.new(0, 235, -3245)
-throneBack.Anchored = true
-throneBack.Color = Color3.fromRGB(255, 215, 0)
-throneBack.Material = Enum.Material.Metal
-throneBack.Parent = dimensionFolder
-
--- Pilares Monumentales de Bloques Perfectamente Alineados
-local function makeMegaPillar(pos)
-    local p = Instance.new("Part")
-    p.Size = Vector3.new(90, 1100, 90)
-    p.Position = pos
-    p.Anchored = true
-    p.Color = Color3.fromRGB(255, 255, 255)
-    p.Material = Enum.Material.Marble
-    p.Parent = dimensionFolder
+-- Función para generar rocas puntiagudas gigantescas estilo anime
+local function createSpikeRock(pos, size, rot)
+    local spike = Instance.new("Part")
+    spike.Shape = Enum.PartType.Wedge
+    spike.Size = size
+    spike.Position = pos
+    spike.Orientation = rot
+    spike.Anchored = true
+    spike.Color = Color3.fromRGB(35, 35, 40)
+    spike.Material = Enum.Material.Rock
+    spike.Parent = dimensionFolder
 end
 
-for i = -2600, 2600, 400 do
-    makeMegaPillar(basePos + Vector3.new(-700, 550, i))
-    makeMegaPillar(basePos + Vector3.new(700, 550, i))
+-- Generar un anillo de formaciones rocosas puntiagudas alrededor del jugador
+math.randomseed(1337)
+for i = 1, 30 do
+    local angle = math.rad(i * (360 / 30))
+    local dist = math.random(400, 1500)
+    local x = basePos.X + math.cos(angle) * dist
+    local z = basePos.Z + math.sin(angle) * dist
+    local height = math.random(400, 900)
+    local thickness = math.random(150, 300)
+    
+    createSpikeRock(
+        Vector3.new(x, basePos.Y + (height / 2), z), 
+        Vector3.new(thickness, height, thickness), 
+        Vector3.new(math.random(-15, 15), math.random(0, 360), math.random(-15, 15))
+    )
 end
 
--- Nubes Volumétricas Alrededor de la Isla
-local function createCloud(pos)
-    local cloud = Instance.new("Part")
-    cloud.Shape = Enum.PartType.Ball
-    cloud.Size = Vector3.new(1300, 380, 1300)
-    cloud.Position = pos
-    cloud.Anchored = true
-    cloud.Transparency = 0.2
-    cloud.Color = Color3.fromRGB(255, 255, 255)
-    cloud.Material = Enum.Material.SmoothPlastic
-    cloud.Parent = dimensionFolder
-end
-
-for angle = 0, 360, 40 do
-    local rad = math.rad(angle)
-    local xOff = math.cos(rad) * 2400
-    local zOff = math.sin(rad) * 2400
-    createCloud(basePos + Vector3.new(xOff, -60, zOff))
-end
-
--- 4. Shaders Cinemáticos
+-- Shaders y Atmósfera Roja Carmesí Total para la Dimensión
 local activeAtmosphere, activeCorrection, activeBloom = nil, nil, nil
 
-local function enableAnimeShaders()
+local function enableNarutoCrimsonShaders()
     pcall(function()
         if activeAtmosphere then activeAtmosphere:Destroy() end
         if activeCorrection then activeCorrection:Destroy() end
         if activeBloom then activeBloom:Destroy() end
 
         activeAtmosphere = Instance.new("Atmosphere")
-        activeAtmosphere.Name = "AnimeAtmos"
-        activeAtmosphere.Density = 0.3
-        activeAtmosphere.Color = Color3.fromRGB(210, 225, 255)
-        activeAtmosphere.Decay = Color3.fromRGB(100, 120, 170)
+        activeAtmosphere.Name = "NarutoAtmos"
+        activeAtmosphere.Density = 0.65
+        activeAtmosphere.Color = Color3.fromRGB(200, 20, 20)
+        activeAtmosphere.Decay = Color3.fromRGB(40, 0, 0)
         activeAtmosphere.Parent = Lighting
 
         activeCorrection = Instance.new("ColorCorrectionEffect")
-        activeCorrection.Name = "AnimeCorr"
-        activeCorrection.TintColor = Color3.fromRGB(255, 240, 245)
-        activeCorrection.Brightness = 0.05
-        activeCorrection.Contrast = 0.3
+        activeCorrection.Name = "NarutoCorr"
+        activeCorrection.TintColor = Color3.fromRGB(255, 60, 60)
+        activeCorrection.Brightness = -0.05
+        activeCorrection.Contrast = 0.55
         activeCorrection.Parent = Lighting
 
         activeBloom = Instance.new("BloomEffect")
-        activeBloom.Name = "AnimeBloom"
-        activeBloom.Intensity = 0.9
-        activeBloom.Size = 24
-        activeBloom.Threshold = 0.7
+        activeBloom.Name = "NarutoBloom"
+        activeBloom.Intensity = 1.5
+        activeBloom.Size = 35
+        activeBloom.Threshold = 0.4
         activeBloom.Parent = Lighting
     end)
 end
 
-local function disableAnimeShaders()
+local function disableNarutoCrimsonShaders()
     pcall(function()
         if activeAtmosphere then activeAtmosphere:Destroy() end
         if activeCorrection then activeCorrection:Destroy() end
@@ -245,6 +196,7 @@ local function executeKamui()
         originalCFrame = root.CFrame
     end
 
+    -- 1. Sonido y Mangekyo girando en pantalla (INALTERABLE)
     pcall(function()
         KamuiSound.TimePosition = 0
         KamuiSound:Play()
@@ -270,9 +222,10 @@ local function executeKamui()
     KamuiRing.Visible = false
     if spinGuiConn then spinGuiConn:Disconnect() end
 
-    enableAnimeShaders()
+    -- 2. Activar la dimensión roja carmesí con rocas puntiagudas
+    enableNarutoCrimsonShaders()
 
-    local targetPos = not insideRealm and (basePos + Vector3.new(0, 150, 0)) or (originalCFrame and originalCFrame.Position or (basePos + Vector3.new(0, 60, 0)))
+    local targetPos = not insideRealm and (basePos + Vector3.new(0, 120, 0)) or (originalCFrame and originalCFrame.Position or (basePos + Vector3.new(0, 60, 0)))
 
     pcall(function()
         hum.PlatformStand = true
@@ -284,7 +237,7 @@ local function executeKamui()
 
     insideRealm = not insideRealm
 
-    -- Bola Púrpura Épica con Giro Fling
+    -- 3. Bola Púrpura Épica con Partículas y Giro Fling Estilo Anime
     local vortex = Instance.new("Part")
     vortex.Size = Vector3.new(2, 2, 2)
     vortex.Transparency = 1
@@ -351,7 +304,7 @@ local function executeKamui()
             root.Anchored = false
             hum.PlatformStand = false
             if activeVortex then activeVortex:Destroy() end
-            disableAnimeShaders()
+            disableNarutoCrimsonShaders()
         end)
         activeState = false
     end)
@@ -364,7 +317,7 @@ local function executeKamui()
                 root.Anchored = false
                 hum.PlatformStand = false
                 if activeVortex then activeVortex:Destroy() end
-                disableAnimeShaders()
+                disableNarutoCrimsonShaders()
             end)
             activeState = false
         end
@@ -374,4 +327,4 @@ end
 KamuiButton.MouseButton1Click:Connect(executeKamui)
 KamuiButton.TouchTap:Connect(executeKamui)
 
-print("¡Isla y Bloques Mejorados con Éxito!")
+print("¡Dimensión Naruto Estilo Carmesí con Rocas Cargada con Éxito!")

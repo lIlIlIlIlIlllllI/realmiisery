@@ -181,7 +181,6 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if input.KeyCode == Enum.KeyCode.Z and Config.ZBoostEnabled then doBoost() end
 end)
 
--- FAST ATTACK LOGIC
 task.spawn(function()
     while true do
         task.wait(0.08)
@@ -552,7 +551,6 @@ local function StopBypassTpNpc()
     BypassTpConn = nil
 end
 
--- SILENT AIM & SORU MODULE
 local SilentAimModule = (function()
     local module = {}
     local SilentAimPlayersEnabled = false
@@ -752,7 +750,6 @@ UserInputService.InputEnded:Connect(function(input)
     elseif input.KeyCode == Enum.KeyCode.LeftShift then holdDown = false end
 end)
 
--- UI CONSTRUCTION (MIISERY HUB ORIGINAL UI)
 local ToggleButton = Instance.new("ImageButton", ScreenGui)
 ToggleButton.Name = "OpenCloseToggle"
 ToggleButton.Size = UDim2.new(0, 44, 0, 44)

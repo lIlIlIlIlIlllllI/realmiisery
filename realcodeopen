@@ -24,8 +24,8 @@ ScreenGui.Name = "MiiseryHub_UI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = (gethui and gethui()) or CoreGui or playerGui
 
-local darkBgColor = Color3.fromRGB(10, 10, 10)
-local cardBgColor = Color3.fromRGB(16, 16, 16)
+local darkBgColor = Color3.fromRGB(12, 12, 12)
+local cardBgColor = Color3.fromRGB(18, 18, 18)
 local strokeColor = Color3.fromRGB(255, 255, 255)
 
 local mainLogo = "rbxassetid://99647703570363"
@@ -97,13 +97,6 @@ local Config = {
 
 local CONFIG_FILE = "MiiseryHub_Config.json"
 
-local function Notify(title, content, duration)
-    if not Config.Notifications then return end
-    pcall(function()
-        game:GetService("StarterGui"):SetCore("SendNotification", { Title = title or "Miisery Hub", Text = content or "", Duration = duration or 2 })
-    end)
-end
-
 local function SaveConfig()
     if not writefile then return false end
     local ok = pcall(function()
@@ -114,8 +107,7 @@ local function SaveConfig()
                 data[k] = v
             end
         end
-        local encoded = HttpService:JSONEncode(data)
-        writefile(CONFIG_FILE, encoded)
+        writefile(CONFIG_FILE, HttpService:JSONEncode(data))
     end)
     return ok == true
 end
@@ -137,13 +129,6 @@ local function LoadConfig()
 end
 
 LoadConfig()
-task.spawn(function()
-    while true do
-        task.wait(5)
-        SaveConfig()
-    end
-end)
-pcall(function() game:BindToClose(function() SaveConfig() end) end)
 
 local character = lp.Character or lp.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
@@ -787,20 +772,21 @@ MainStroke.Thickness = 1.5
 
 local TopBar = Instance.new("Frame", MainContainer)
 TopBar.Name = "TopBar"
-TopBar.Size = UDim2.new(1, -16, 0, 38)
-TopBar.Position = UDim2.new(0, 8, 0, 6)
+TopBar.Size = UDim2.new(1, 0, 0, 40)
+TopBar.Position = UDim2.new(0, 0, 0, 0)
 TopBar.BackgroundTransparency = 1
+TopBar.ZIndex = 10
 
 local LogoIcon = Instance.new("ImageLabel", TopBar)
-LogoIcon.Size = UDim2.new(0, 26, 0, 26)
-LogoIcon.Position = UDim2.new(0, 2, 0.5, -13)
+LogoIcon.Size = UDim2.new(0, 24, 0, 24)
+LogoIcon.Position = UDim2.new(0, 10, 0.5, -12)
 LogoIcon.BackgroundTransparency = 1
 LogoIcon.Image = mainLogo
 Instance.new("UICorner", LogoIcon).CornerRadius = UDim.new(0, 6)
 
 local TitleLabel = Instance.new("TextLabel", TopBar)
-TitleLabel.Size = UDim2.new(0, 120, 1, 0)
-TitleLabel.Position = UDim2.new(0, 34, 0, 0)
+TitleLabel.Size = UDim2.new(0, 100, 1, 0)
+TitleLabel.Position = UDim2.new(0, 40, 0, 0)
 TitleLabel.BackgroundTransparency = 1
 TitleLabel.Text = "Miisery Hub"
 TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -808,9 +794,18 @@ TitleLabel.Font = Enum.Font.GothamBold
 TitleLabel.TextSize = 12
 TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-local GearButton = Instance.new("TextButton", TopBar)
+local RightButtonsHolder = Instance.new("Frame", TopBar)
+RightButtonsHolder.Size = UDim2.new(0, 56, 0, 26)
+RightButtonsHolder.Position = UDim2.new(1, -64, 0.5, -13)
+RightButtonsHolder.BackgroundTransparency = 1
+
+local RightLayout = Instance.new("UIListLayout", RightButtonsHolder)
+RightLayout.FillDirection = Enum.FillDirection.Horizontal
+RightLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+RightLayout.Padding = UDim.new(0, 4)
+
+local GearButton = Instance.new("TextButton", RightButtonsHolder)
 GearButton.Size = UDim2.new(0, 26, 0, 26)
-GearButton.Position = UDim2.new(1, -58, 0.5, -13)
 GearButton.BackgroundColor3 = cardBgColor
 GearButton.Text = "☆"
 GearButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -822,32 +817,35 @@ local GearStroke = Instance.new("UIStroke", GearButton)
 GearStroke.Color = strokeColor
 GearStroke.Thickness = 1
 
+local CloseButton = Instance.new("TextButton", RightButtonsHolder)
+CloseButton.Size = UDim2.new(0, 26, 0, 26)
+CloseButton.BackgroundColor3 = cardBgColor
+CloseButton.Text = "×"
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.Font = Enum.Font.GothamBold
+CloseButton.TextSize = 16
+CloseButton.ZIndex = 15
+Instance.new("UICorner", CloseButton).CornerRadius = UDim.new(0, 6)
+local CloseStroke = Instance.new("UIStroke", CloseButton)
+CloseStroke.Color = strokeColor
+CloseStroke.Thickness = 1
+
 local TabsContainer = Instance.new("ScrollingFrame", TopBar)
+TabsContainer.Name = "TabsContainer"
 TabsContainer.Size = UDim2.new(1, -170, 1, 0)
-TabsContainer.Position = UDim2.new(0, 155, 0, 0)
+TabsContainer.Position = UDim2.new(0, 142, 0, 0)
 TabsContainer.BackgroundTransparency = 1
 TabsContainer.ScrollBarThickness = 0
 TabsContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
 
 local TabsLayout = Instance.new("UIListLayout", TabsContainer)
 TabsLayout.FillDirection = Enum.FillDirection.Horizontal
-TabsLayout.Padding = UDim.new(0, 6)
+TabsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+TabsLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+TabsLayout.Padding = UDim.new(0, 4)
 TabsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-    TabsContainer.CanvasSize = UDim2.new(0, TabsLayout.AbsoluteContentSize.X + 15, 0, 0)
+    TabsContainer.CanvasSize = UDim2.new(0, TabsLayout.AbsoluteContentSize.X + 10, 0, 0)
 end)
-
-local CloseButton = Instance.new("TextButton", TopBar)
-CloseButton.Size = UDim2.new(0, 26, 0, 26)
-CloseButton.Position = UDim2.new(1, -26, 0.5, -13)
-CloseButton.BackgroundColor3 = cardBgColor
-CloseButton.Text = "×"
-CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseButton.Font = Enum.Font.GothamBold
-CloseButton.TextSize = 16
-Instance.new("UICorner", CloseButton).CornerRadius = UDim.new(0, 6)
-local CloseStroke = Instance.new("UIStroke", CloseButton)
-CloseStroke.Color = strokeColor
-CloseStroke.Thickness = 1
 
 local viewport = ScreenGui.AbsoluteSize
 local initialExecutionPos = UDim2.new(0, (viewport.X / 2) - 260, 0, (viewport.Y / 2) - 155)
@@ -879,7 +877,68 @@ local function AnimateUI(open)
 end
 
 ToggleButton.MouseButton1Click:Connect(function() AnimateUI(not isOpen) end)
-CloseButton.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
+
+local ConfirmOverlay = Instance.new("Frame", MainContainer)
+ConfirmOverlay.Name = "ConfirmOverlay"
+ConfirmOverlay.Size = UDim2.new(1, 0, 1, 0)
+ConfirmOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+ConfirmOverlay.BackgroundTransparency = 0.5
+ConfirmOverlay.Visible = false
+ConfirmOverlay.ZIndex = 50
+Instance.new("UICorner", ConfirmOverlay).CornerRadius = UDim.new(0, 10)
+
+local ConfirmBox = Instance.new("Frame", ConfirmOverlay)
+ConfirmBox.Size = UDim2.new(0, 240, 0, 110)
+ConfirmBox.Position = UDim2.new(0.5, -120, 0.5, -55)
+ConfirmBox.BackgroundColor3 = darkBgColor
+ConfirmBox.ZIndex = 51
+Instance.new("UICorner", ConfirmBox).CornerRadius = UDim.new(0, 10)
+local ConfirmStroke = Instance.new("UIStroke", ConfirmBox)
+ConfirmStroke.Color = strokeColor
+ConfirmStroke.Thickness = 1
+
+local ConfirmText = Instance.new("TextLabel", ConfirmBox)
+ConfirmText.Size = UDim2.new(1, -20, 0, 45)
+ConfirmText.Position = UDim2.new(0, 10, 0, 10)
+ConfirmText.BackgroundTransparency = 1
+ConfirmText.Text = "Are you sure you want to close the script?"
+ConfirmText.TextColor3 = Color3.fromRGB(220, 220, 220)
+ConfirmText.Font = Enum.Font.GothamMedium
+ConfirmText.TextSize = 11
+ConfirmText.TextWrapped = true
+ConfirmText.ZIndex = 52
+
+local YesButton = Instance.new("TextButton", ConfirmBox)
+YesButton.Size = UDim2.new(0, 90, 0, 28)
+YesButton.Position = UDim2.new(0, 20, 0, 65)
+YesButton.BackgroundColor3 = cardBgColor
+YesButton.Text = "Close"
+YesButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+YesButton.Font = Enum.Font.GothamBold
+YesButton.TextSize = 10
+YesButton.ZIndex = 52
+Instance.new("UICorner", YesButton).CornerRadius = UDim.new(0, 6)
+local YesStroke = Instance.new("UIStroke", YesButton)
+YesStroke.Color = strokeColor
+YesStroke.Thickness = 1
+
+local NoButton = Instance.new("TextButton", ConfirmBox)
+NoButton.Size = UDim2.new(0, 90, 0, 28)
+NoButton.Position = UDim2.new(1, -110, 0, 65)
+NoButton.BackgroundColor3 = cardBgColor
+NoButton.Text = "No"
+NoButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+NoButton.Font = Enum.Font.GothamBold
+NoButton.TextSize = 10
+NoButton.ZIndex = 52
+Instance.new("UICorner", NoButton).CornerRadius = UDim.new(0, 6)
+local NoStroke = Instance.new("UIStroke", NoButton)
+NoStroke.Color = strokeColor
+NoStroke.Thickness = 1
+
+CloseButton.MouseButton1Click:Connect(function() ConfirmOverlay.Visible = true end)
+YesButton.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
+NoButton.MouseButton1Click:Connect(function() ConfirmOverlay.Visible = false end)
 
 local ConfigOverlay = Instance.new("Frame", MainContainer)
 ConfigOverlay.Size = UDim2.new(1, 0, 1, 0)
@@ -923,8 +982,8 @@ Instance.new("UICorner", ConfigClose).CornerRadius = UDim.new(0, 6)
 ConfigClose.MouseButton1Click:Connect(function() ConfigOverlay.Visible = false end)
 GearButton.MouseButton1Click:Connect(function() ConfigOverlay.Visible = true end)
 
-local allStrokes = {MainStroke, ToggleStroke, GearStroke, CloseStroke, ConfigStroke}
-local allCards = {MainContainer, ToggleButton, GearButton, CloseButton, ConfigBox, ConfigClose}
+local allStrokes = {MainStroke, ToggleStroke, GearStroke, CloseStroke, ConfirmStroke, YesStroke, NoStroke, ConfigStroke}
+local allCards = {MainContainer, ToggleButton, GearButton, CloseButton, ConfirmBox, YesButton, NoButton, ConfigBox}
 
 local function ApplyTheme(customColor)
     strokeColor = customColor
@@ -933,7 +992,7 @@ local function ApplyTheme(customColor)
     for _, str in ipairs(allStrokes) do if str and str.Parent then str.Color = strokeColor end end
     for _, card in ipairs(allCards) do
         if card and card.Parent then
-            if card == MainContainer or card == ConfigBox then card.BackgroundColor3 = darkBgColor
+            if card == MainContainer or card == ConfirmBox or card == ConfigBox then card.BackgroundColor3 = darkBgColor
             else card.BackgroundColor3 = cardBgColor end
         end
     end
@@ -983,9 +1042,9 @@ function HubLibrary:CreateTab(tabName)
     local TabBtn = Instance.new("TextButton", TabsContainer)
     TabBtn.Name = tabName .. "TabBtn"
     TabBtn.Size = UDim2.new(0, 75, 0, 24)
-    TabBtn.BackgroundColor3 = isFirst and Color3.fromRGB(240, 240, 240) or cardBgColor
+    TabBtn.BackgroundColor3 = isFirst and strokeColor or cardBgColor
     TabBtn.Text = tabName
-    TabBtn.TextColor3 = isFirst and Color3.fromRGB(10, 10, 10) or Color3.fromRGB(240, 240, 240)
+    TabBtn.TextColor3 = isFirst and darkBgColor or Color3.fromRGB(240, 240, 240)
     TabBtn.Font = Enum.Font.GothamMedium
     TabBtn.TextSize = 10
     Instance.new("UICorner", TabBtn).CornerRadius = UDim.new(0, 6)
@@ -1287,4 +1346,5 @@ task.defer(function()
     if Config.InfiniteZoom then lp.CameraMaxZoomDistance = math.huge end
     if Config.FruitM1 then FruitM1.SetNormal(true) end
     if Config.BypassTpNpc then StartBypassTpNpc() end
+    AnimateUI(true)
 end)

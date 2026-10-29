@@ -11,9 +11,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local lp = Players.LocalPlayer
 local playerGui = lp:WaitForChild("PlayerGui")
 
-local EffectContainer = ReplicatedStorage:FindFirstChild("EffectContainer")
-local KamuiCam = EffectContainer and EffectContainer:FindFirstChild("KamuiCam")
-
 pcall(function()
     if CoreGui:FindFirstChild("MiiseryHub_UI") then CoreGui.MiiseryHub_UI:Destroy() end
     if playerGui:FindFirstChild("MiiseryHub_UI") then playerGui.MiiseryHub_UI:Destroy() end
@@ -43,19 +40,34 @@ local ToggleStroke = Instance.new("UIStroke", ToggleButton)
 ToggleStroke.Color = strokeColor
 ToggleStroke.Thickness = 1.5
 
--- Anillo Mangekyo Sharingan oficial con el ID que pediste
-local KamuiRing = Instance.new("ImageLabel", ScreenGui)
+local MainContainer = Instance.new("Frame", ScreenGui)
+MainContainer.Name = "MainContainer"
+-- Ancla en el centro exacto (0.5, 0.5) para que gire y colapse sobre su propio centro total
+MainContainer.AnchorPoint = Vector2.new(0.5, 0.5)
+MainContainer.Size = UDim2.new(0, 520, 0, 310)
+MainContainer.BackgroundColor3 = darkBgColor
+MainContainer.ClipsDescendants = false
+MainContainer.Active = true
+MainContainer.Visible = false
+
+Instance.new("UICorner", MainContainer).CornerRadius = UDim.new(0, 10)
+local MainStroke = Instance.new("UIStroke", MainContainer)
+MainStroke.Color = strokeColor
+MainStroke.Thickness = 1.5
+
+-- Anillo Mangekyo centrado y sincronizado
+local KamuiRing = Instance.new("ImageLabel", MainContainer)
 KamuiRing.Name = "KamuiRing"
 KamuiRing.AnchorPoint = Vector2.new(0.5, 0.5)
 KamuiRing.Position = UDim2.new(0.5, 0, 0.5, 0)
 KamuiRing.Size = UDim2.new(0, 0, 0, 0)
 KamuiRing.BackgroundTransparency = 1
 KamuiRing.Image = "rbxassetid://91250318294401"
-KamuiRing.ImageColor3 = Color3.fromRGB(255, 40, 40)
+KamuiRing.ImageColor3 = Color3.fromRGB(255, 30, 30)
 KamuiRing.Visible = false
 KamuiRing.ZIndex = 300
 
--- Grupo de sonido para volumen máximo absoluto (Súper Fuerte)
+-- Grupo de sonido para volumen máximo absoluto
 local maxVolumeGroup = Instance.new("SoundGroup", SoundService)
 maxVolumeGroup.Name = "MiiseryMaxVolume"
 maxVolumeGroup.Volume = 10
@@ -79,19 +91,6 @@ local function playKamuiAudio()
     end)
 end
 
-local MainContainer = Instance.new("Frame", ScreenGui)
-MainContainer.Name = "MainContainer"
-MainContainer.Size = UDim2.new(0, 520, 0, 310)
-MainContainer.BackgroundColor3 = darkBgColor
-MainContainer.ClipsDescendants = true
-MainContainer.Active = true
-MainContainer.Visible = false
-
-Instance.new("UICorner", MainContainer).CornerRadius = UDim.new(0, 10)
-local MainStroke = Instance.new("UIStroke", MainContainer)
-MainStroke.Color = strokeColor
-MainStroke.Thickness = 1.5
-
 local TopBar = Instance.new("Frame", MainContainer)
 TopBar.Name = "TopBar"
 TopBar.Size = UDim2.new(1, -16, 0, 38)
@@ -99,7 +98,7 @@ TopBar.Position = UDim2.new(0, 8, 0, 6)
 TopBar.BackgroundTransparency = 1
 TopBar.ZIndex = 10
 
--- Movible en Celular y PC (Draggable)
+-- Movible manteniendo la proporción de anclaje central
 local dragging, dragInput, dragStart, startPos
 TopBar.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -190,14 +189,14 @@ CloseStroke.Color = strokeColor
 CloseStroke.Thickness = 1
 
 local viewport = ScreenGui.AbsoluteSize
-local initialExecutionPos = UDim2.new(0, (viewport.X / 2) - 260, 0, (viewport.Y / 2) - 155)
+local initialExecutionPos = UDim2.new(0, viewport.X / 2, 0, viewport.Y / 2)
 MainContainer.Position = initialExecutionPos
 
 local isOpen = false
 local animating = false
 local normalSize = UDim2.new(0, 520, 0, 310)
 
--- Secuencia Mangekyo / Kamui (Gira lento 1 segundo, luego acelera rápido)
+-- Animación Kamui con giro exacto sobre su centro total
 local function AnimateUI(open)
     if animating then return end
     animating = true
@@ -212,38 +211,58 @@ local function AnimateUI(open)
     local startTime = tick()
     spinConnection = RunService.RenderStepped:Connect(function()
         local elapsed = tick() - startTime
-        local currentSpeed = (elapsed <= 1) and 4 or 35 -- Lento al inicio (1s), luego rápido
+        local currentSpeed = (elapsed <= 0.8) and 6 else 50
         KamuiRing.Rotation = KamuiRing.Rotation + currentSpeed
+        if open then
+            MainContainer.Rotation = (1 - math.clamp(elapsed/1.5, 0, 1)) * 360
+        else
+            MainContainer.Rotation = math.clamp(elapsed/1.5, 0, 1) * -360
+        end
         if elapsed >= 3 then
             if spinConnection then spinConnection:Disconnect() end
         end
     end)
 
-    local ringTween1 = TweenService:Create(KamuiRing, TweenInfo.new(1.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
-        Size = UDim2.new(0, 850, 0, 850)
-    })
-    ringTween1:Play()
-    ringTween1.Completed:Wait()
-
     if open then
         MainContainer.Visible = true
-        MainContainer.Size = normalSize
+        MainContainer.Size = UDim2.new(0, 0, 0, 0)
         MainContainer.Position = initialExecutionPos
+        
+        TweenService:Create(KamuiRing, TweenInfo.new(1.2, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+            Size = UDim2.new(0, 580, 0, 580)
+        }):Play()
+
+        TweenService:Create(MainContainer, TweenInfo.new(1.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+            Size = normalSize,
+            Rotation = 0
+        }):Play()
     else
-        MainContainer.Visible = false
+        TweenService:Create(KamuiRing, TweenInfo.new(1.2, Enum.EasingStyle.Exponential, Enum.EasingDirection.In), {
+            Size = UDim2.new(0, 580, 0, 580)
+        }):Play()
+
+        TweenService:Create(MainContainer, TweenInfo.new(1.2, Enum.EasingStyle.Exponential, Enum.EasingDirection.In), {
+            Size = UDim2.new(0, 0, 0, 0),
+            Rotation = -360
+        }):Play()
     end
 
     task.wait(1.5)
 
-    local ringTween2 = TweenService:Create(KamuiRing, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+    local fadeOut = TweenService:Create(KamuiRing, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
         Size = UDim2.new(0, 0, 0, 0),
         ImageTransparency = 1
     })
-    ringTween2:Play()
-    ringTween2.Completed:Wait()
+    fadeOut:Play()
+    fadeOut.Completed:Wait()
 
     KamuiRing.Visible = false
     if spinConnection then spinConnection:Disconnect() end
+    MainContainer.Rotation = 0
+
+    if not open then
+        MainContainer.Visible = false
+    end
 
     isOpen = open
     animating = false

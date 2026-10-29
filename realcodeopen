@@ -12,19 +12,18 @@ local PlayerGui = lp:WaitForChild("PlayerGui")
 
 -- 1. Limpieza absoluta previa
 pcall(function()
-    if PlayerGui:FindFirstChild("TabletKamuiGui") then PlayerGui.TabletKamuiGui:Destroy() end
-    if Workspace:FindFirstChild("TabletKamuiRealm") then Workspace.TabletKamuiRealm:Destroy() end
+    if PlayerGui:FindFirstChild("GodKamuiGui") then PlayerGui.GodKamuiGui:Destroy() end
+    if Workspace:FindFirstChild("GodKamuiRealm") then Workspace.GodKamuiRealm:Destroy() end
 end)
 
--- 2. Interfaz gráfica optimizada y de GRAN TAMAÑO para Tablet
+-- 2. Interfaz gráfica optimizada y grande para Tablet
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "TabletKamuiGui"
+ScreenGui.Name = "GodKamuiGui"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = PlayerGui
 
--- Botón principal gigante y cómodo para tablet
 local KamuiButton = Instance.new("TextButton", ScreenGui)
-KamuiButton.Size = UDim2.new(0, 105, 0, 105) -- Tamaño grande perfecto para tablet
+KamuiButton.Size = UDim2.new(0, 110, 0, 110)
 KamuiButton.Position = UDim2.new(0.82, 0, 0.32, 0)
 KamuiButton.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
 KamuiButton.Text = ""
@@ -40,28 +39,25 @@ local buttonStroke = Instance.new("UIStroke", KamuiButton)
 buttonStroke.Thickness = 4
 buttonStroke.Color = Color3.fromRGB(220, 0, 0)
 
--- Anillo exterior giratorio estilo Sharingan adaptado a tablet
 local OuterRing = Instance.new("ImageLabel", KamuiButton)
 OuterRing.AnchorPoint = Vector2.new(0.5, 0.5)
 OuterRing.Position = UDim2.new(0.5, 0, 0.5, 0)
-OuterRing.Size = UDim2.new(0, 120, 0, 120)
+OuterRing.Size = UDim2.new(0, 130, 0, 130)
 OuterRing.BackgroundTransparency = 1
 OuterRing.Image = "rbxassetid://80182942447236"
 OuterRing.ImageColor3 = Color3.fromRGB(255, 30, 30)
 OuterRing.ZIndex = 11
 
--- Icono central
 local InnerIcon = Instance.new("TextLabel", KamuiButton)
 InnerIcon.Size = UDim2.new(1, 0, 1, 0)
 InnerIcon.BackgroundTransparency = 1
 InnerIcon.Text = "🌀"
-InnerIcon.TextSize = 48
+InnerIcon.TextSize = 50
 InnerIcon.ZIndex = 12
 
--- Animación pasiva del borde
 task.spawn(function()
     while KamuiButton and KamuiButton.Parent do
-        OuterRing.Rotation = OuterRing.Rotation + 2.5
+        OuterRing.Rotation = OuterRing.Rotation + 3
         task.wait(0.03)
     end
 end)
@@ -83,41 +79,60 @@ KamuiSound.SoundId = "rbxassetid://70698855144717"
 KamuiSound.Volume = 10
 KamuiSound.RollOffMaxDistance = 100000
 
--- 3. Construcción del Palacio Celestial con Calidad Ultra Realista (Tablet Mode)
+-- 3. CONSTRUCCIÓN DE LA DIMENSIÓN MONUMENTAL (ESCALA DIOS)
 local dimensionFolder = Instance.new("Folder")
-dimensionFolder.Name = "TabletKamuiRealm"
+dimensionFolder.Name = "GodKamuiRealm"
 dimensionFolder.Parent = Workspace
 
-local basePos = Vector3.new(-9500.6, 5500.4, -8155.7)
+local basePos = Vector3.new(-9500.6, 6500.4, -8155.7)
 
+-- Suelo de Mármol Hiper Gigante
 local floor = Instance.new("Part")
-floor.Size = Vector3.new(3500, 20, 3500)
+floor.Size = Vector3.new(6000, 25, 6000)
 floor.Position = basePos
 floor.Anchored = true
 floor.Color = Color3.fromRGB(245, 248, 255)
 floor.Material = Enum.Material.Marble
 floor.Parent = dimensionFolder
 
+-- Alfombra Imperial Roja Masiva hacia el Horizonte
 local carpet = Instance.new("Part")
-carpet.Size = Vector3.new(150, 20.4, 2500)
-carpet.Position = basePos + Vector3.new(0, 0, -500)
+carpet.Size = Vector3.new(250, 25.4, 4500)
+carpet.Position = basePos + Vector3.new(0, 0, -1000)
 carpet.Anchored = true
-carpet.Color = Color3.fromRGB(170, 10, 30)
+carpet.Color = Color3.fromRGB(160, 10, 30)
 carpet.Material = Enum.Material.Fabric
 carpet.Parent = dimensionFolder
 
-local throne = Instance.new("Part")
-throne.Size = Vector3.new(80, 130, 40)
-throne.Position = basePos + Vector3.new(0, 65, -1500)
-throne.Anchored = true
-throne.Color = Color3.fromRGB(255, 215, 0)
-throne.Material = Enum.Material.Metal
-throne.Parent = dimensionFolder
+-- Trono Celestial Titánico con Oro Puro
+local throneBase = Instance.new("Part")
+throneBase.Size = Vector3.new(140, 40, 100)
+throneBase.Position = basePos + Vector3.new(0, 40, -3000)
+throneBase.Anchored = true
+throneBase.Color = Color3.fromRGB(255, 215, 0)
+throneBase.Material = Enum.Material.Metal
+throneBase.Parent = dimensionFolder
 
--- Pilares monumentales extra para una vista de tablet imponente
-local function makePillar(pos)
+local throneSeat = Instance.new("Part")
+throneSeat.Size = Vector3.new(90, 60, 60)
+throneSeat.Position = basePos + Vector3.new(0, 85, -3000)
+throneSeat.Anchored = true
+throneSeat.Color = Color3.fromRGB(150, 10, 30)
+throneSeat.Material = Enum.Material.Fabric
+throneSeat.Parent = dimensionFolder
+
+local throneBack = Instance.new("Part")
+throneBack.Size = Vector3.new(120, 350, 35)
+throneBack.Position = basePos + Vector3.new(0, 215, -3040)
+throneBack.Anchored = true
+throneBack.Color = Color3.fromRGB(255, 215, 0)
+throneBack.Material = Enum.Material.Metal
+throneBack.Parent = dimensionFolder
+
+-- Pilares Infinitos Gigantescos
+local function makeMegaPillar(pos)
     local p = Instance.new("Part")
-    p.Size = Vector3.new(55, 700, 55)
+    p.Size = Vector3.new(80, 1000, 80)
     p.Position = pos
     p.Anchored = true
     p.Color = Color3.fromRGB(255, 255, 255)
@@ -125,44 +140,44 @@ local function makePillar(pos)
     p.Parent = dimensionFolder
 end
 
-for i = -1200, 1200, 250 do
-    makePillar(basePos + Vector3.new(-350, 350, i))
-    makePillar(basePos + Vector3.new(350, 350, i))
+for i = -2500, 2500, 400 do
+    makeMegaPillar(basePos + Vector3.new(-600, 500, i))
+    makeMegaPillar(basePos + Vector3.new(600, 500, i))
 end
 
--- 4. Gráficos y Post-Procesamiento Ultra Realista (Efectos de Anime / Tablet Pro)
+-- 4. Gráficos Ultra Realistas para Tablet Pro
 local activeAtmosphere, activeCorrection, activeBloom = nil, nil, nil
 
-local function enableUltraGraphics()
+local function enableGodGraphics()
     pcall(function()
         if activeAtmosphere then activeAtmosphere:Destroy() end
         if activeCorrection then activeCorrection:Destroy() end
         if activeBloom then activeBloom:Destroy() end
 
         activeAtmosphere = Instance.new("Atmosphere")
-        activeAtmosphere.Name = "UltraAtmos"
-        activeAtmosphere.Density = 0.5
+        activeAtmosphere.Name = "GodAtmos"
+        activeAtmosphere.Density = 0.55
         activeAtmosphere.Color = Color3.fromRGB(220, 10, 10)
         activeAtmosphere.Decay = Color3.fromRGB(40, 0, 0)
         activeAtmosphere.Parent = Lighting
 
         activeCorrection = Instance.new("ColorCorrectionEffect")
-        activeCorrection.Name = "UltraCorr"
+        activeCorrection.Name = "GodCorr"
         activeCorrection.TintColor = Color3.fromRGB(255, 40, 40)
-        activeCorrection.Brightness = -0.03
-        activeCorrection.Contrast = 0.45
+        activeCorrection.Brightness = -0.04
+        activeCorrection.Contrast = 0.5
         activeCorrection.Parent = Lighting
 
         activeBloom = Instance.new("BloomEffect")
-        activeBloom.Name = "UltraBloom"
-        activeBloom.Intensity = 1.2
-        activeBloom.Size = 35
-        activeBloom.Threshold = 0.6
+        activeBloom.Name = "GodBloom"
+        activeBloom.Intensity = 1.4
+        activeBloom.Size = 40
+        activeBloom.Threshold = 0.55
         activeBloom.Parent = Lighting
     end)
 end
 
-local function disableUltraGraphics()
+local function disableGodGraphics()
     pcall(function()
         if activeAtmosphere then activeAtmosphere:Destroy() end
         if activeCorrection then activeCorrection:Destroy() end
@@ -182,13 +197,12 @@ local function executeKamui()
     if activeState then return end
     activeState = true
 
-    -- Animación táctil fluida adaptada a la tablet
     TweenService:Create(KamuiButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-        Size = UDim2.new(0, 92, 0, 92)
+        Size = UDim2.new(0, 95, 0, 95)
     }):Play()
     task.wait(0.1)
     TweenService:Create(KamuiButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-        Size = UDim2.new(0, 105, 0, 105)
+        Size = UDim2.new(0, 110, 0, 110)
     }):Play()
 
     local char = lp.Character
@@ -201,37 +215,36 @@ local function executeKamui()
         originalCFrame = root.CFrame
     end
 
-    -- 1. Sonido, gráficos ultra y Mangekyo gigante
+    -- 1. Sonido, atmósfera carmesí y Mangekyo gigante
     pcall(function()
         KamuiSound.TimePosition = 0
         KamuiSound:Play()
     end)
-    enableUltraGraphics()
+    enableGodGraphics()
 
     KamuiRing.Visible = true
     KamuiRing.Size = UDim2.new(0, 0, 0, 0)
     KamuiRing.Rotation = 0
 
     TweenService:Create(KamuiRing, TweenInfo.new(0.3, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
-        Size = UDim2.new(0, 700, 0, 700) -- Más grande para aprovechar la pantalla de la tablet
+        Size = UDim2.new(0, 750, 0, 750)
     }):Play()
 
     if spinGuiConn then spinGuiConn:Disconnect() end
     spinGuiConn = RunService.RenderStepped:Connect(function()
         if KamuiRing.Visible then
-            KamuiRing.Rotation = KamuiRing.Rotation + 35
+            KamuiRing.Rotation = KamuiRing.Rotation + 40
         end
     end)
 
     task.wait(1.5)
 
-    -- 2. Limpieza de efectos de pantalla y Mangekyo
-    disableUltraGraphics()
+    disableGodGraphics()
     KamuiRing.Visible = false
     if spinGuiConn then spinGuiConn:Disconnect() end
 
-    -- 3. Teletransporte a la dimensión
-    local targetPos = not insideRealm and (basePos + Vector3.new(0, 120, 0)) or (originalCFrame and originalCFrame.Position or (basePos + Vector3.new(0, 50, 0)))
+    -- 2. Teletransporte al gran santuario
+    local targetPos = not insideRealm and (basePos + Vector3.new(0, 150, 0)) or (originalCFrame and originalCFrame.Position or (basePos + Vector3.new(0, 60, 0)))
 
     pcall(function()
         hum.PlatformStand = true
@@ -243,7 +256,7 @@ local function executeKamui()
 
     insideRealm = not insideRealm
 
-    -- 4. Esfera negra neón ultra detallada y giro salvaje tipo Fling
+    -- 3. ESFERA NEGRA MEJORADA CON PARTÍCULAS DE PODER Y GIRO FFLING SALVAJE
     local vortex = Instance.new("Part")
     vortex.Size = Vector3.new(2, 2, 2)
     vortex.Transparency = 1
@@ -263,19 +276,41 @@ local function executeKamui()
     neonSphere.CFrame = vortex.CFrame
     neonSphere.Parent = vortex
 
+    -- Partículas explosivas alrededor de la bola
+    local p1 = Instance.new("ParticleEmitter")
+    p1.Color = ColorSequence.new(Color3.fromRGB(150, 0, 255), Color3.fromRGB(0, 0, 0))
+    p1.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(1, 4)})
+    p1.Texture = "rbxassetid://258124463"
+    p1.Rate = 1000
+    p1.Speed = NumberRange.new(15, 30)
+    p1.Lifetime = NumberRange.new(0.2, 0.4)
+    p1.SpreadAngle = Vector2.new(360, 360)
+    p1.Parent = vortex
+
+    local p2 = Instance.new("ParticleEmitter")
+    p2.Color = ColorSequence.new(Color3.fromRGB(255, 20, 80), Color3.fromRGB(10, 10, 10))
+    p2.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 1.5), NumberSequenceKeypoint.new(1, 0.1)})
+    p2.Texture = "rbxassetid://1084991215"
+    p2.Rate = 800
+    p2.Speed = NumberRange.new(20, 35)
+    p2.Lifetime = NumberRange.new(0.2, 0.4)
+    p2.SpreadAngle = Vector2.new(180, 180)
+    p2.Parent = vortex
+
     TweenService:Create(neonSphere, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-        Size = Vector3.new(7, 7, 7)
+        Size = Vector3.new(8, 8, 8)
     }):Play()
 
     root.Anchored = true
 
+    -- Giro salvaje tipo Fling mejorado e intenso
     local ax, ay, az = 0, 0, 0
     if vortexFlingConn then vortexFlingConn:Disconnect() end
     vortexFlingConn = RunService.RenderStepped:Connect(function()
         if vortex and vortex.Parent and root and root.Parent then
-            ax = ax + 40
-            ay = ay + 70
-            az = az + 45
+            ax = ax + 50
+            ay = ay + 85
+            az = az + 60
             local wildCF = vortex.CFrame * CFrame.Angles(math.rad(ax), math.rad(ay), math.rad(az))
             vortex.CFrame = wildCF
             root.CFrame = wildCF
@@ -290,7 +325,7 @@ local function executeKamui()
             root.Anchored = false
             hum.PlatformStand = false
             if activeVortex then activeVortex:Destroy() end
-            disableUltraGraphics()
+            disableGodGraphics()
         end)
         activeState = false
     end)
@@ -303,7 +338,7 @@ local function executeKamui()
                 root.Anchored = false
                 hum.PlatformStand = false
                 if activeVortex then activeVortex:Destroy() end
-                disableUltraGraphics()
+                disableGodGraphics()
             end)
             activeState = false
         end
@@ -314,4 +349,4 @@ end
 KamuiButton.MouseButton1Click:Connect(executeKamui)
 KamuiButton.TouchTap:Connect(executeKamui)
 
-print("¡Modo Tablet Ultra Gráficos Activado!")
+print("¡Dimensión God Mode y Esfera Épica Cargadas con Éxito!")

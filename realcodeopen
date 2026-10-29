@@ -12,64 +12,71 @@ local PlayerGui = lp:WaitForChild("PlayerGui")
 
 -- 1. Limpieza absoluta previa
 pcall(function()
-    if PlayerGui:FindFirstChild("GodKamuiGui") then PlayerGui.GodKamuiGui:Destroy() end
-    if Workspace:FindFirstChild("GodKamuiRealm") then Workspace.GodKamuiRealm:Destroy() end
+    if PlayerGui:FindFirstChild("CyberKamuiGui") then PlayerGui.CyberKamuiGui:Destroy() end
+    if Workspace:FindFirstChild("SupremeKamuiRealm") then Workspace.SupremeKamuiRealm:Destroy() end
 end)
 
--- 2. Interfaz gráfica optimizada y grande para Tablet
+-- 2. NUEVO ESTILO DE UI: BOTÓN FUTURISTA / CYBER-SHARINGAN
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "GodKamuiGui"
+ScreenGui.Name = "CyberKamuiGui"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = PlayerGui
 
+-- Contenedor principal con diseño flotante translúcido y esquinas estilizadas
 local KamuiButton = Instance.new("TextButton", ScreenGui)
-KamuiButton.Size = UDim2.new(0, 110, 0, 110)
-KamuiButton.Position = UDim2.new(0.82, 0, 0.32, 0)
-KamuiButton.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+KamuiButton.Size = UDim2.new(0, 115, 0, 115)
+KamuiButton.Position = UDim2.new(0.80, 0, 0.30, 0)
+KamuiButton.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
+KamuiButton.BackgroundTransparency = 0.2
 KamuiButton.Text = ""
 KamuiButton.AutoButtonColor = false
 KamuiButton.Active = true
 KamuiButton.Draggable = true
 KamuiButton.ZIndex = 10
 
+-- Esquinas redondeadas modernas
 local buttonCorner = Instance.new("UICorner", KamuiButton)
-buttonCorner.CornerRadius = UDim.new(0.5, 0)
+buttonCorner.CornerRadius = UDim.new(0.3, 0)
 
+-- Borde brillante de neón púrpura y rojo
 local buttonStroke = Instance.new("UIStroke", KamuiButton)
-buttonStroke.Thickness = 4
-buttonStroke.Color = Color3.fromRGB(220, 0, 0)
+buttonStroke.Thickness = 3
+buttonStroke.Color = Color3.fromRGB(180, 50, 255)
 
+-- Anillo exterior con diseño tecnológico giratorio
 local OuterRing = Instance.new("ImageLabel", KamuiButton)
 OuterRing.AnchorPoint = Vector2.new(0.5, 0.5)
 OuterRing.Position = UDim2.new(0.5, 0, 0.5, 0)
-OuterRing.Size = UDim2.new(0, 130, 0, 130)
+OuterRing.Size = UDim2.new(0, 100, 0, 100)
 OuterRing.BackgroundTransparency = 1
 OuterRing.Image = "rbxassetid://80182942447236"
-OuterRing.ImageColor3 = Color3.fromRGB(255, 30, 30)
+OuterRing.ImageColor3 = Color3.fromRGB(255, 60, 120)
 OuterRing.ZIndex = 11
 
+-- Icono central con efecto holográfico
 local InnerIcon = Instance.new("TextLabel", KamuiButton)
 InnerIcon.Size = UDim2.new(1, 0, 1, 0)
 InnerIcon.BackgroundTransparency = 1
-InnerIcon.Text = "🌀"
-InnerIcon.TextSize = 50
+InnerIcon.Text = "⚡"
+InnerIcon.TextSize = 42
 InnerIcon.ZIndex = 12
 
+-- Animación pasiva para el anillo del botón
 task.spawn(function()
     while KamuiButton and KamuiButton.Parent do
-        OuterRing.Rotation = OuterRing.Rotation + 3
+        OuterRing.Rotation = OuterRing.Rotation - 4
         task.wait(0.03)
     end
 end)
 
--- RUEDA MANGEKYO SHARINGAN CORREGIDA Y CENTRADÍSIMA EN LA PANTALLA
+-- Rueda Mangekyo Sharingan centrada perfectamente en pantalla para la cinemática
 local KamuiRing = Instance.new("ImageLabel", ScreenGui)
 KamuiRing.AnchorPoint = Vector2.new(0.5, 0.5)
-KamuiRing.Position = UDim2.new(0.5, 0, 0.5, 0) -- Centrado perfecto en X y Y
+KamuiRing.Position = UDim2.new(0.5, 0, 0.5, 0)
 KamuiRing.Size = UDim2.new(0, 0, 0, 0)
 KamuiRing.BackgroundTransparency = 1
 KamuiRing.Image = "rbxassetid://80182942447236"
-KamuiRing.ImageColor3 = Color3.fromRGB(255, 20, 20)
+KamuiRing.ImageColor3 = Color3.fromRGB(200, 50, 255)
 KamuiRing.Visible = false
 KamuiRing.ZIndex = 999999
 
@@ -79,9 +86,9 @@ KamuiSound.SoundId = "rbxassetid://70698855144717"
 KamuiSound.Volume = 10
 KamuiSound.RollOffMaxDistance = 100000
 
--- 3. CONSTRUCCIÓN DE LA DIMENSIÓN MONUMENTAL (ESCALA DIOS)
+-- 3. CONSTRUCCIÓN DE LA DIMENSIÓN CON NUBES, CASTILLO Y TRONO
 local dimensionFolder = Instance.new("Folder")
-dimensionFolder.Name = "GodKamuiRealm"
+dimensionFolder.Name = "SupremeKamuiRealm"
 dimensionFolder.Parent = Workspace
 
 local basePos = Vector3.new(-9500.6, 6500.4, -8155.7)
@@ -141,39 +148,58 @@ for i = -2500, 2500, 400 do
     makeMegaPillar(basePos + Vector3.new(600, 500, i))
 end
 
--- 4. Gráficos Ultra Realistas
+local function createCloud(pos)
+    local cloud = Instance.new("Part")
+    cloud.Shape = Enum.PartType.Ball
+    cloud.Size = Vector3.new(1200, 350, 1200)
+    cloud.Position = pos
+    cloud.Anchored = true
+    cloud.Transparency = 0.2
+    cloud.Color = Color3.fromRGB(255, 255, 255)
+    cloud.Material = Enum.Material.SmoothPlastic
+    cloud.Parent = dimensionFolder
+end
+
+for angle = 0, 360, 40 do
+    local rad = math.rad(angle)
+    local xOff = math.cos(rad) * 2200
+    local zOff = math.sin(rad) * 2200
+    createCloud(basePos + Vector3.new(xOff, -50, zOff))
+end
+
+-- 4. SHADERS CINEMATOGRÁFICOS
 local activeAtmosphere, activeCorrection, activeBloom = nil, nil, nil
 
-local function enableGodGraphics()
+local function enableAnimeShaders()
     pcall(function()
         if activeAtmosphere then activeAtmosphere:Destroy() end
         if activeCorrection then activeCorrection:Destroy() end
         if activeBloom then activeBloom:Destroy() end
 
         activeAtmosphere = Instance.new("Atmosphere")
-        activeAtmosphere.Name = "GodAtmos"
-        activeAtmosphere.Density = 0.55
-        activeAtmosphere.Color = Color3.fromRGB(220, 10, 10)
-        activeAtmosphere.Decay = Color3.fromRGB(40, 0, 0)
+        activeAtmosphere.Name = "AnimeAtmos"
+        activeAtmosphere.Density = 0.3
+        activeAtmosphere.Color = Color3.fromRGB(210, 225, 255)
+        activeAtmosphere.Decay = Color3.fromRGB(100, 120, 170)
         activeAtmosphere.Parent = Lighting
 
         activeCorrection = Instance.new("ColorCorrectionEffect")
-        activeCorrection.Name = "GodCorr"
-        activeCorrection.TintColor = Color3.fromRGB(255, 40, 40)
-        activeCorrection.Brightness = -0.04
-        activeCorrection.Contrast = 0.5
+        activeCorrection.Name = "AnimeCorr"
+        activeCorrection.TintColor = Color3.fromRGB(255, 240, 245)
+        activeCorrection.Brightness = 0.05
+        activeCorrection.Contrast = 0.3
         activeCorrection.Parent = Lighting
 
         activeBloom = Instance.new("BloomEffect")
-        activeBloom.Name = "GodBloom"
-        activeBloom.Intensity = 1.4
-        activeBloom.Size = 40
-        activeBloom.Threshold = 0.55
+        activeBloom.Name = "AnimeBloom"
+        activeBloom.Intensity = 0.9
+        activeBloom.Size = 24
+        activeBloom.Threshold = 0.7
         activeBloom.Parent = Lighting
     end)
 end
 
-local function disableGodGraphics()
+local function disableAnimeShaders()
     pcall(function()
         if activeAtmosphere then activeAtmosphere:Destroy() end
         if activeCorrection then activeCorrection:Destroy() end
@@ -194,11 +220,11 @@ local function executeKamui()
     activeState = true
 
     TweenService:Create(KamuiButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-        Size = UDim2.new(0, 95, 0, 95)
+        Size = UDim2.new(0, 100, 0, 100)
     }):Play()
     task.wait(0.1)
     TweenService:Create(KamuiButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-        Size = UDim2.new(0, 110, 0, 110)
+        Size = UDim2.new(0, 115, 0, 115)
     }):Play()
 
     local char = lp.Character
@@ -211,12 +237,10 @@ local function executeKamui()
         originalCFrame = root.CFrame
     end
 
-    -- 1. Sonido, atmósfera carmesí y Mangekyo perfectamente centrado
     pcall(function()
         KamuiSound.TimePosition = 0
         KamuiSound:Play()
     end)
-    enableGodGraphics()
 
     KamuiRing.Visible = true
     KamuiRing.Size = UDim2.new(0, 0, 0, 0)
@@ -235,11 +259,11 @@ local function executeKamui()
 
     task.wait(1.5)
 
-    disableGodGraphics()
     KamuiRing.Visible = false
     if spinGuiConn then spinGuiConn:Disconnect() end
 
-    -- 2. Teletransporte al gran santuario
+    enableAnimeShaders()
+
     local targetPos = not insideRealm and (basePos + Vector3.new(0, 150, 0)) or (originalCFrame and originalCFrame.Position or (basePos + Vector3.new(0, 60, 0)))
 
     pcall(function()
@@ -252,7 +276,7 @@ local function executeKamui()
 
     insideRealm = not insideRealm
 
-    -- 3. Esfera negra con partículas y giro salvaje tipo Fling
+    -- BOLA PÚRPURA MEJORADA
     local vortex = Instance.new("Part")
     vortex.Size = Vector3.new(2, 2, 2)
     vortex.Transparency = 1
@@ -262,38 +286,38 @@ local function executeKamui()
     vortex.Parent = Workspace
     activeVortex = vortex
 
-    local neonSphere = Instance.new("Part")
-    neonSphere.Shape = Enum.PartType.Ball
-    neonSphere.Size = Vector3.new(1, 1, 1)
-    neonSphere.Color = Color3.fromRGB(0, 0, 0)
-    neonSphere.Material = Enum.Material.Neon
-    neonSphere.Anchored = true
-    neonSphere.CanCollide = false
-    neonSphere.CFrame = vortex.CFrame
-    neonSphere.Parent = vortex
+    local purpleCore = Instance.new("Part")
+    purpleCore.Shape = Enum.PartType.Ball
+    purpleCore.Size = Vector3.new(1, 1, 1)
+    purpleCore.Color = Color3.fromRGB(140, 0, 255)
+    purpleCore.Material = Enum.Material.Neon
+    purpleCore.Anchored = true
+    purpleCore.CanCollide = false
+    purpleCore.CFrame = vortex.CFrame
+    purpleCore.Parent = vortex
 
-    local p1 = Instance.new("ParticleEmitter")
-    p1.Color = ColorSequence.new(Color3.fromRGB(150, 0, 255), Color3.fromRGB(0, 0, 0))
-    p1.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(1, 4)})
-    p1.Texture = "rbxassetid://258124463"
-    p1.Rate = 1000
-    p1.Speed = NumberRange.new(15, 30)
-    p1.Lifetime = NumberRange.new(0.2, 0.4)
-    p1.SpreadAngle = Vector2.new(360, 360)
-    p1.Parent = vortex
+    local appParticle1 = Instance.new("ParticleEmitter")
+    appParticle1.Color = ColorSequence.new(Color3.fromRGB(180, 50, 255), Color3.fromRGB(60, 0, 120))
+    appParticle1.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 1.2), NumberSequenceKeypoint.new(1, 4.5)})
+    appParticle1.Texture = "rbxassetid://258124463"
+    appParticle1.Rate = 1200
+    appParticle1.Speed = NumberRange.new(18, 35)
+    appParticle1.Lifetime = NumberRange.new(0.2, 0.4)
+    appParticle1.SpreadAngle = Vector2.new(360, 360)
+    appParticle1.Parent = vortex
 
-    local p2 = Instance.new("ParticleEmitter")
-    p2.Color = ColorSequence.new(Color3.fromRGB(255, 20, 80), Color3.fromRGB(10, 10, 10))
-    p2.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 1.5), NumberSequenceKeypoint.new(1, 0.1)})
-    p2.Texture = "rbxassetid://1084991215"
-    p2.Rate = 800
-    p2.Speed = NumberRange.new(20, 35)
-    p2.Lifetime = NumberRange.new(0.2, 0.4)
-    p2.SpreadAngle = Vector2.new(180, 180)
-    p2.Parent = vortex
+    local appParticle2 = Instance.new("ParticleEmitter")
+    appParticle2.Color = ColorSequence.new(Color3.fromRGB(255, 100, 255), Color3.fromRGB(100, 0, 200))
+    appParticle2.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 1.8), NumberSequenceKeypoint.new(1, 0.1)})
+    appParticle2.Texture = "rbxassetid://1084991215"
+    appParticle2.Rate = 900
+    appParticle2.Speed = NumberRange.new(22, 40)
+    appParticle2.Lifetime = NumberRange.new(0.2, 0.4)
+    appParticle2.SpreadAngle = Vector2.new(180, 180)
+    appParticle2.Parent = vortex
 
-    TweenService:Create(neonSphere, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-        Size = Vector3.new(8, 8, 8)
+    TweenService:Create(purpleCore, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Size = Vector3.new(8.5, 8.5, 8.5)
     }):Play()
 
     root.Anchored = true
@@ -319,7 +343,7 @@ local function executeKamui()
             root.Anchored = false
             hum.PlatformStand = false
             if activeVortex then activeVortex:Destroy() end
-            disableGodGraphics()
+            disableAnimeShaders()
         end)
         activeState = false
     end)
@@ -332,7 +356,7 @@ local function executeKamui()
                 root.Anchored = false
                 hum.PlatformStand = false
                 if activeVortex then activeVortex:Destroy() end
-                disableGodGraphics()
+                disableAnimeShaders()
             end)
             activeState = false
         end
@@ -342,4 +366,4 @@ end
 KamuiButton.MouseButton1Click:Connect(executeKamui)
 KamuiButton.TouchTap:Connect(executeKamui)
 
-print("¡Mangekyo Centrado al 100%!")
+print("¡UI Estilo Cyber / Futurista Cargada con Éxito!")

@@ -10,17 +10,17 @@ local Workspace = game:GetService("Workspace")
 local lp = Players.LocalPlayer
 local PlayerGui = lp:WaitForChild("PlayerGui")
 
--- SELLO DE VERSIÓN: 🦅🗡️🩸 (Dimensión Interactiva + Cuervos + Rojo en Pantalla)
-print("Cargando versión oficial con sello: 🦅🗡️🩸")
+-- SELLO DE VERSIÓN: 🔇🦅⚡ (Audio Original Kamui + Silenciador Global de Juego + Cuervos)
+print("Cargando versión oficial con sello: 🔇🦅⚡")
 
 pcall(function()
-    if PlayerGui:FindFirstChild("InteractiveKamuiGui") then PlayerGui.InteractiveKamuiGui:Destroy() end
-    if Workspace:FindFirstChild("InteractiveKamuiRealm") then Workspace.InteractiveKamuiRealm:Destroy() end
+    if PlayerGui:FindFirstChild("MuteKamuiGui") then PlayerGui.MuteKamuiGui:Destroy() end
+    if Workspace:FindFirstChild("MuteKamuiRealm") then Workspace.MuteKamuiRealm:Destroy() end
 end)
 
--- 1. Interfaz de UI con el sello 🦅🗡️🩸
+-- 1. Interfaz de UI con el sello 🔇🦅⚡
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "InteractiveKamuiGui"
+ScreenGui.Name = "MuteKamuiGui"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = PlayerGui
 
@@ -40,7 +40,7 @@ buttonCorner.CornerRadius = UDim.new(0.3, 0)
 
 local buttonStroke = Instance.new("UIStroke", KamuiButton)
 buttonStroke.Thickness = 3
-buttonStroke.Color = Color3.fromRGB(180, 0, 255)
+buttonStroke.Color = Color3.fromRGB(255, 0, 100)
 
 local OuterRing = Instance.new("ImageLabel", KamuiButton)
 OuterRing.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -48,13 +48,13 @@ OuterRing.Position = UDim2.new(0.5, 0, 0.5, 0)
 OuterRing.Size = UDim2.new(0, 100, 0, 100)
 OuterRing.BackgroundTransparency = 1
 OuterRing.Image = "rbxassetid://80182942447236"
-OuterRing.ImageColor3 = Color3.fromRGB(180, 0, 255)
+OuterRing.ImageColor3 = Color3.fromRGB(255, 0, 100)
 OuterRing.ZIndex = 11
 
 local InnerIcon = Instance.new("TextLabel", KamuiButton)
 InnerIcon.Size = UDim2.new(1, 0, 1, 0)
 InnerIcon.BackgroundTransparency = 1
-InnerIcon.Text = "🦅" -- Sello de cuervo exclusivo
+InnerIcon.Text = "🔇" -- Sello de silencio global
 InnerIcon.TextSize = 42
 InnerIcon.ZIndex = 12
 
@@ -76,20 +76,37 @@ KamuiRing.ImageColor3 = Color3.fromRGB(255, 20, 20)
 KamuiRing.Visible = false
 KamuiRing.ZIndex = 999999
 
--- Audio de Cuervos Realista para la Activación
+-- AUDIO ORIGINAL MAESTRO DE KAMUI (¡Se mantiene intacto!)
+local KamuiSound = Instance.new("Sound", SoundService)
+KamuiSound.SoundId = "rbxassetid://70698855144717"
+KamuiSound.Volume = 10
+KamuiSound.RollOffMaxDistance = 100000
+
+-- AUDIO DE CUERVOS AMBIENTAL
 local CrowSound = Instance.new("Sound", SoundService)
-CrowSound.SoundId = "rbxassetid://9114175376" -- Sonido ambiental de cuervos
-CrowSound.Volume = 8
+CrowSound.SoundId = "rbxassetid://9114175376"
+CrowSound.Volume = 6
 CrowSound.RollOffMaxDistance = 100000
 
--- 2. CONSTRUCCIÓN DE LA DIMENSIÓN INTERACTIVA (CON ARMAS Y OBJETOS NUEVOS)
+-- Función para silenciar/eliminar todos los sonidos del juego y dejar solo los nuestros
+local function muteGameSounds(state)
+    pcall(function()
+        SoundService.AmbientReverb = Enum.ReverbType.NoReverb
+        for _, sound in ipairs(Workspace:GetDescendants()) do
+            if sound:IsA("Sound") and sound ~= KamuiSound and sound ~= CrowSound then
+                sound.Volume = state and 0 or 0.5
+            end
+        end
+    end)
+end
+
+-- 2. CONSTRUCCIÓN DE LA DIMENSIÓN INTERACTIVA CON OBJETOS Y ARMAS
 local dimensionFolder = Instance.new("Folder")
-dimensionFolder.Name = "InteractiveKamuiRealm"
+dimensionFolder.Name = "MuteKamuiRealm"
 dimensionFolder.Parent = Workspace
 
 local basePos = Vector3.new(-9500.6, 6500.4, -8155.7)
 
--- Plataforma Orgánica Principal Flotante (Sin Bloques Aburridos)
 local mainIsland = Instance.new("Part")
 mainIsland.Shape = Enum.PartType.Ball
 mainIsland.Size = Vector3.new(2000, 400, 2000)
@@ -99,7 +116,6 @@ mainIsland.Color = Color3.fromRGB(20, 20, 25)
 mainIsland.Material = Enum.Material.Slate
 mainIsland.Parent = dimensionFolder
 
--- Estructuras Orbitales Flotantes
 local function createFloatingRing(size, color)
     local ring = Instance.new("Part")
     ring.Shape = Enum.PartType.Cylinder
@@ -116,7 +132,6 @@ end
 
 createFloatingRing(Vector3.new(15, 3500, 3500), Color3.fromRGB(140, 0, 255))
 
--- NUEVO: Armas y Objetos Interactivos Flotantes en la Dimensión
 local function createInteractiveWeapon(offset, name, color)
     local weaponPedestal = Instance.new("Part")
     weaponPedestal.Shape = Enum.PartType.Cylinder
@@ -137,7 +152,6 @@ local function createInteractiveWeapon(offset, name, color)
     weaponOrb.Material = Enum.Material.Neon
     weaponOrb.Parent = dimensionFolder
 
-    -- Animación flotante para el arma/objeto interactivo
     task.spawn(function()
         local t = math.random(1, 100)
         while weaponOrb and weaponOrb.Parent do
@@ -152,7 +166,7 @@ createInteractiveWeapon(Vector3.new(200, 0, -200), "Espada Mística", Color3.fro
 createInteractiveWeapon(Vector3.new(-200, 0, -200), "Orbe Dimensional", Color3.fromRGB(100, 0, 255))
 createInteractiveWeapon(Vector3.new(0, 0, -350), "Kunai Susanoo", Color3.fromRGB(255, 215, 0))
 
--- 3. Shaders Dinámicos (Rojo solo durante la pantalla de carga del Asset)
+-- 3. Shaders Dinámicos (Rojo exclusivo en la pantalla durante el asset)
 local activeAtmosphere, activeCorrection, activeBloom = nil, nil, nil
 
 local function enableFlashShaders()
@@ -222,8 +236,11 @@ local function executeKamui()
         originalCFrame = root.CFrame
     end
 
-    -- Reproducir sonido de cuervos y activar el destello rojo en pantalla
+    -- Silenciar sonidos del juego, activar audio maestro Kamui, cuervos y destello rojo en pantalla
+    muteGameSounds(true)
     pcall(function()
+        KamuiSound.TimePosition = 0
+        KamuiSound:Play()
         CrowSound.TimePosition = 0
         CrowSound:Play()
     end)
@@ -244,12 +261,11 @@ local function executeKamui()
         end
     end)
 
-    -- Esperar la animación en pantalla con el rojo activo
     task.wait(1.5)
 
     KamuiRing.Visible = false
     if spinGuiConn then spinGuiConn:Disconnect() end
-    disableFlashShaders() -- El rojo se quita al entrar a la dimensión
+    disableFlashShaders()
 
     -- Teletransporte a la isla interactiva
     local targetPos = not insideRealm and (basePos + Vector3.new(0, 250, 0)) or (originalCFrame and originalCFrame.Position or (basePos + Vector3.new(0, 100, 0)))
@@ -264,7 +280,6 @@ local function executeKamui()
 
     insideRealm = not insideRealm
 
-    -- Vórtice y partículas de energía
     local vortex = Instance.new("Part")
     vortex.Size = Vector3.new(2, 2, 2)
     vortex.Transparency = 1
@@ -322,6 +337,7 @@ local function executeKamui()
             hum.PlatformStand = false
             if activeVortex then activeVortex:Destroy() end
             disableFlashShaders()
+            muteGameSounds(false) -- Restaura el sonido del juego al salir
         end)
         activeState = false
     end)
@@ -335,6 +351,7 @@ local function executeKamui()
                 hum.PlatformStand = false
                 if activeVortex then activeVortex:Destroy() end
                 disableFlashShaders()
+                muteGameSounds(false)
             end)
             activeState = false
         end
@@ -344,4 +361,4 @@ end
 KamuiButton.MouseButton1Click:Connect(executeKamui)
 KamuiButton.TouchTap:Connect(executeKamui)
 
-print("¡Versión 🦅🗡️🩸 cargada con éxito en tu tablet!")
+print("¡Versión 🔇🦅⚡ cargada perfectamente en tu tablet!")

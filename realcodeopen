@@ -10,13 +10,15 @@ local Workspace = game:GetService("Workspace")
 local lp = Players.LocalPlayer
 local PlayerGui = lp:WaitForChild("PlayerGui")
 
--- 1. Limpieza absoluta previa para evitar conflictos de memoria
+-- SELLO DE VERSIÓN: 🟠👑🔥 (Dimensión Orgánica / Sin Bloques / Full Carmesí)
+print("Cargando versión oficial con sello: 🟠👑🔥")
+
 pcall(function()
     if PlayerGui:FindFirstChild("CyberKamuiGui") then PlayerGui.CyberKamuiGui:Destroy() end
-    if Workspace:FindFirstChild("EpicBloxFruitsHalloweenRealm") then Workspace.EpicBloxFruitsHalloweenRealm:Destroy() end
+    if Workspace:FindFirstChild("Revol KamuiRealm") then Workspace.RevolKamuiRealm:Destroy() end
 end)
 
--- 2. Interfaz de UI Cyber / Futurista (INALTERABLE Y PERFECTA)
+-- 2. Interfaz de UI Cyber / Futurista con el sello 🟠👑🔥
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "CyberKamuiGui"
 ScreenGui.ResetOnSpawn = false
@@ -38,7 +40,7 @@ buttonCorner.CornerRadius = UDim.new(0.3, 0)
 
 local buttonStroke = Instance.new("UIStroke", KamuiButton)
 buttonStroke.Thickness = 3
-buttonStroke.Color = Color3.fromRGB(180, 50, 255)
+buttonStroke.Color = Color3.fromRGB(255, 60, 0)
 
 local OuterRing = Instance.new("ImageLabel", KamuiButton)
 OuterRing.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -46,13 +48,13 @@ OuterRing.Position = UDim2.new(0.5, 0, 0.5, 0)
 OuterRing.Size = UDim2.new(0, 100, 0, 100)
 OuterRing.BackgroundTransparency = 1
 OuterRing.Image = "rbxassetid://80182942447236"
-OuterRing.ImageColor3 = Color3.fromRGB(255, 60, 120)
+OuterRing.ImageColor3 = Color3.fromRGB(255, 60, 0)
 OuterRing.ZIndex = 11
 
 local InnerIcon = Instance.new("TextLabel", KamuiButton)
 InnerIcon.Size = UDim2.new(1, 0, 1, 0)
 InnerIcon.BackgroundTransparency = 1
-InnerIcon.Text = "⚡"
+InnerIcon.Text = "👑" -- Sello exclusivo de esta versión
 InnerIcon.TextSize = 42
 InnerIcon.ZIndex = 12
 
@@ -63,7 +65,7 @@ task.spawn(function()
     end
 end)
 
--- Rueda Mangekyo Sharingan (INTACTA Y PERFECTAMENTE CENTRADA)
+-- Rueda Mangekyo Sharingan (INALTERABLE Y PERFECTAMENTE CENTRADA)
 local KamuiRing = Instance.new("ImageLabel", ScreenGui)
 KamuiRing.AnchorPoint = Vector2.new(0.5, 0.5)
 KamuiRing.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -80,158 +82,89 @@ KamuiSound.SoundId = "rbxassetid://70698855144717"
 KamuiSound.Volume = 10
 KamuiSound.RollOffMaxDistance = 100000
 
--- 3. CONSTRUCCIÓN MASIVA DE LA ISLA ESTILO BLOX FRUITS Y HALLOWEEN
+-- 3. CONSTRUCCIÓN DE LA DIMENSIÓN REVOLUCIONARIA (SIN BLOQUES: VACÍO ORGÁNICO Y ANILLOS DE ENERGÍA)
 local dimensionFolder = Instance.new("Folder")
-dimensionFolder.Name = "EpicBloxFruitsHalloweenRealm"
+dimensionFolder.Name = "RevolKamuiRealm"
 dimensionFolder.Parent = Workspace
 
 local basePos = Vector3.new(-9500.6, 6500.4, -8155.7)
 
--- Suelo Principal Masivo de Piedra Oscura
-local ground = Instance.new("Part")
-ground.Size = Vector3.new(7000, 45, 7000)
-ground.Position = basePos
-ground.Anchored = true
-ground.Color = Color3.fromRGB(25, 25, 30)
-ground.Material = Enum.Material.Slate
-ground.Parent = dimensionFolder
+-- Plataforma Central Flotante Esférica (Diseño Orgánico, Cero Bloques Cuadrados)
+local corePlatform = Instance.new("Part")
+corePlatform.Shape = Enum.PartType.Ball
+corePlatform.Size = Vector3.new(1500, 1500, 1500)
+corePlatform.Position = basePos
+corePlatform.Anchored = true
+corePlatform.Transparency = 0.85
+corePlatform.Color = Color3.fromRGB(255, 0, 0)
+corePlatform.Material = Enum.Material.Glass
+corePlatform.Parent = dimensionFolder
 
--- Base Inferior de Roca Sólida (Efecto de Isla Flotante Gigante)
-local islandBase = Instance.new("Part")
-islandBase.Size = Vector3.new(6200, 300, 6200)
-islandBase.Position = basePos - Vector3.new(0, 170, 0)
-islandBase.Anchored = true
-islandBase.Color = Color3.fromRGB(35, 35, 40)
-islandBase.Material = Enum.Material.Rock
-islandBase.Parent = dimensionFolder
-
--- Camino Central de Adoquines Estilo Blox Fruits
-local path = Instance.new("Part")
-path.Size = Vector3.new(300, 47, 5500)
-path.Position = basePos + Vector3.new(0, 0, -1000)
-path.Anchored = true
-path.Color = Color3.fromRGB(45, 40, 45)
-path.Material = Enum.Material.Cobblestone
-path.Parent = dimensionFolder
-
--- Gran Arco Tétrico de Entrada (Inspirado en la Referencia)
-local archLeft = Instance.new("Part")
-archLeft.Size = Vector3.new(80, 500, 80)
-archLeft.Position = basePos + Vector3.new(-180, 250, -2000)
-archLeft.Anchored = true
-archLeft.Color = Color3.fromRGB(60, 40, 30)
-archLeft.Material = Enum.Material.WoodPlanks
-archLeft.Parent = dimensionFolder
-
-local archRight = Instance.new("Part")
-archRight.Size = Vector3.new(80, 500, 80)
-archRight.Position = basePos + Vector3.new(180, 250, -2000)
-archRight.Anchored = true
-archRight.Color = Color3.fromRGB(60, 40, 30)
-archRight.Material = Enum.Material.WoodPlanks
-archRight.Parent = dimensionFolder
-
-local archTop = Instance.new("Part")
-archTop.Size = Vector3.new(440, 80, 80)
-archTop.Position = basePos + Vector3.new(0, 470, -2000)
-archTop.Anchored = true
-archTop.Color = Color3.fromRGB(60, 40, 30)
-archTop.Material = Enum.Material.WoodPlanks
-archTop.Parent = dimensionFolder
-
--- El Ángel / Guardián Celestial en el Altar Central
-local angelBase = Instance.new("Part")
-angelBase.Shape = Enum.PartType.Ball
-angelBase.Size = Vector3.new(120, 120, 120)
-angelBase.Position = basePos + Vector3.new(0, 120, -3200)
-angelBase.Anchored = true
-angelBase.Color = Color3.fromRGB(240, 245, 255)
-angelBase.Material = Enum.Material.Neon
-angelBase.Parent = dimensionFolder
-
-local wingLeft = Instance.new("Part")
-wingLeft.Size = Vector3.new(200, 150, 20)
-wingLeft.Position = basePos + Vector3.new(-110, 150, -3200)
-wingLeft.Orientation = Vector3.new(0, 25, 15)
-wingLeft.Anchored = true
-wingLeft.Color = Color3.fromRGB(255, 255, 255)
-wingLeft.Material = Enum.Material.Glass
-wingLeft.Parent = dimensionFolder
-
-local wingRight = Instance.new("Part")
-wingRight.Size = Vector3.new(200, 150, 20)
-wingRight.Position = basePos + Vector3.new(110, 150, -3200)
-wingRight.Orientation = Vector3.new(0, -25, -15)
-wingRight.Anchored = true
-wingRight.Color = Color3.fromRGB(255, 255, 255)
-wingRight.Material = Enum.Material.Glass
-wingRight.Parent = dimensionFolder
-
--- Pilares Masivos de Ruinas alrededor de la Isla
-local function makeRuinedPillar(pos)
-    local p = Instance.new("Part")
-    p.Size = Vector3.new(90, 1200, 90)
-    p.Position = pos
-    p.Anchored = true
-    p.Color = Color3.fromRGB(50, 50, 60)
-    p.Material = Enum.Material.Basalt
-    p.Parent = dimensionFolder
+-- Anillos Flotantes Orbitales Alrededor del Jugador (Estilo Sci-Fi / Anime)
+local function createOrbitalRing(size, color)
+    local ring = Instance.new("Part")
+    ring.Shape = Enum.PartType.Cylinder
+    ring.Size = size
+    ring.Position = basePos + Vector3.new(0, 100, 0)
+    ring.Orientation = Vector3.new(90, 0, 0)
+    ring.Anchored = true
+    ring.CanCollide = false
+    ring.Transparency = 0.3
+    ring.Color = color
+    ring.Material = Enum.Material.Neon
+    ring.Parent = dimensionFolder
+    return ring
 end
 
-for i = -2800, 2800, 500 do
-    makeRuinedPillar(basePos + Vector3.new(-800, 600, i))
-    makeRuinedPillar(basePos + Vector3.new(800, 600, i))
-end
+createOrbitalRing(Vector3.new(20, 3000, 3000), Color3.fromRGB(200, 0, 50))
+createOrbitalRing(Vector3.new(15, 4500, 4500), Color3.fromRGB(120, 0, 255))
 
--- Generación de Llápidas y Calabazas Ambientales (Estilo Halloween)[span_1](start_span)[span_1](end_span)
-local function makeGravestone(pos)
-    local stone = Instance.new("Part")
-    stone.Size = Vector3.new(40, 60, 15)
-    stone.Position = pos
-    stone.Anchored = true
-    stone.Color = Color3.fromRGB(60, 60, 65)
-    stone.Material = Enum.Material.Slate
-    stone.Parent = dimensionFolder
-end
+-- Trono Estelar Flotante en el Centro de la Dimensión
+local starThrone = Instance.new("Part")
+starThrone.Shape = Enum.PartType.Ball
+starThrone.Size = Vector3.new(180, 180, 180)
+starThrone.Position = basePos + Vector3.new(0, 250, -1200)
+starThrone.Anchored = true
+starThrone.Color = Color3.fromRGB(255, 215, 0)
+starThrone.Material = Enum.Material.Neon
+starThrone.Parent = dimensionFolder
 
-for i = -2000, 2000, 300 do
-    makeGravestone(basePos + Vector3.new(-350, 30, i))
-    makeGravestone(basePos + Vector3.new(350, 30, i))
-end
-
--- 4. Shaders Nocturnos de Halloween y Cinematografía
+-- 4. SHADERS Y ATMÓSFERA ROJO CARMESÍ ABSOLUTO EN TODO EL MUNDO
 local activeAtmosphere, activeCorrection, activeBloom = nil, nil, nil
 
-local function enableHalloweenShaders()
+local function enableAbsoluteCrimsonWorld()
     pcall(function()
         if activeAtmosphere then activeAtmosphere:Destroy() end
         if activeCorrection then activeCorrection:Destroy() end
         if activeBloom then activeBloom:Destroy() end
 
+        -- Atmósfera roja densa que cubre todo el horizonte
         activeAtmosphere = Instance.new("Atmosphere")
-        activeAtmosphere.Name = "HalloweenAtmos"
-        activeAtmosphere.Density = 0.55
-        activeAtmosphere.Color = Color3.fromRGB(25, 15, 35)
-        activeAtmosphere.Decay = Color3.fromRGB(10, 5, 20)
+        activeAtmosphere.Name = "AbsoluteCrimsonAtmos"
+        activeAtmosphere.Density = 0.75
+        activeAtmosphere.Color = Color3.fromRGB(255, 10, 10)
+        activeAtmosphere.Decay = Color3.fromRGB(50, 0, 0)
         activeAtmosphere.Parent = Lighting
 
+        -- Corrección de color tiñendo todo el mundo de rojo carmesí puro
         activeCorrection = Instance.new("ColorCorrectionEffect")
-        activeCorrection.Name = "HalloweenCorr"
-        activeCorrection.TintColor = Color3.fromRGB(210, 190, 255)
-        activeCorrection.Brightness = -0.08
-        activeCorrection.Contrast = 0.45
+        activeCorrection.Name = "AbsoluteCrimsonCorr"
+        activeCorrection.TintColor = Color3.fromRGB(255, 40, 40)
+        activeCorrection.Brightness = -0.05
+        activeCorrection.Contrast = 0.6
         activeCorrection.Parent = Lighting
 
+        -- Bloom extremo para hacer brillar los anillos y el Sharingan
         activeBloom = Instance.new("BloomEffect")
-        activeBloom.Name = "HalloweenBloom"
-        activeBloom.Intensity = 1.5
-        activeBloom.Size = 35
-        activeBloom.Threshold = 0.4
+        activeBloom.Name = "AbsoluteCrimsonBloom"
+        activeBloom.Intensity = 2.0
+        activeBloom.Size = 56
+        activeBloom.Threshold = 0.3
         activeBloom.Parent = Lighting
     end)
 end
 
-local function disableHalloweenShaders()
+local function disableAbsoluteCrimsonWorld()
     pcall(function()
         if activeAtmosphere then activeAtmosphere:Destroy() end
         if activeCorrection then activeCorrection:Destroy() end
@@ -275,6 +208,9 @@ local function executeKamui()
         KamuiSound:Play()
     end)
 
+    -- EL ROJO CARMESÍ TOMA TODO EL MUNDO DESDE EL INSTANTE DE ACTIVACIÓN
+    enableAbsoluteCrimsonWorld()
+
     KamuiRing.Visible = true
     KamuiRing.Size = UDim2.new(0, 0, 0, 0)
     KamuiRing.Rotation = 0
@@ -295,10 +231,8 @@ local function executeKamui()
     KamuiRing.Visible = false
     if spinGuiConn then spinGuiConn:Disconnect() end
 
-    -- 2. Activar shaders y teletransporte a la isla masiva de Halloween
-    enableHalloweenShaders()
-
-    local targetPos = not insideRealm and (basePos + Vector3.new(0, 150, 0)) or (originalCFrame and originalCFrame.Position or (basePos + Vector3.new(0, 60, 0)))
+    -- 2. Teletransporte al centro de la dimensión revolucionaria
+    local targetPos = not insideRealm and (basePos + Vector3.new(0, 300, 0)) or (originalCFrame and originalCFrame.Position or (basePos + Vector3.new(0, 100, 0)))
 
     pcall(function()
         hum.PlatformStand = true
@@ -310,7 +244,7 @@ local function executeKamui()
 
     insideRealm = not insideRealm
 
-    -- 3. Núcleo Púrpura de Alta Densidad y Giro Fling Estilo Anime
+    -- 3. Núcleo Púrpura de Alta Densidad y Giro Fling Revolucionario
     local vortex = Instance.new("Part")
     vortex.Size = Vector3.new(2, 2, 2)
     vortex.Transparency = 1
@@ -331,27 +265,27 @@ local function executeKamui()
     purpleCore.Parent = vortex
 
     local appParticle1 = Instance.new("ParticleEmitter")
-    appParticle1.Color = ColorSequence.new(Color3.fromRGB(180, 50, 255), Color3.fromRGB(60, 0, 120))
-    appParticle1.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 1.2), NumberSequenceKeypoint.new(1, 4.5)})
+    appParticle1.Color = ColorSequence.new(Color3.fromRGB(255, 40, 0), Color3.fromRGB(80, 0, 150))
+    appParticle1.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 1.5), NumberSequenceKeypoint.new(1, 5.0)})
     appParticle1.Texture = "rbxassetid://258124463"
-    appParticle1.Rate = 1200
-    appParticle1.Speed = NumberRange.new(18, 35)
+    appParticle1.Rate = 1400
+    appParticle1.Speed = NumberRange.new(20, 40)
     appParticle1.Lifetime = NumberRange.new(0.2, 0.4)
     appParticle1.SpreadAngle = Vector2.new(360, 360)
     appParticle1.Parent = vortex
 
     local appParticle2 = Instance.new("ParticleEmitter")
-    appParticle2.Color = ColorSequence.new(Color3.fromRGB(255, 100, 255), Color3.fromRGB(100, 0, 200))
-    appParticle2.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 1.8), NumberSequenceKeypoint.new(1, 0.1)})
+    appParticle2.Color = ColorSequence.new(Color3.fromRGB(255, 255, 255), Color3.fromRGB(180, 0, 255))
+    appParticle2.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 2.0), NumberSequenceKeypoint.new(1, 0.1)})
     appParticle2.Texture = "rbxassetid://1084991215"
-    appParticle2.Rate = 900
-    appParticle2.Speed = NumberRange.new(22, 40)
+    appParticle2.Rate = 1000
+    appParticle2.Speed = NumberRange.new(25, 45)
     appParticle2.Lifetime = NumberRange.new(0.2, 0.4)
     appParticle2.SpreadAngle = Vector2.new(180, 180)
     appParticle2.Parent = vortex
 
     TweenService:Create(purpleCore, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-        Size = Vector3.new(9, 9, 9)
+        Size = Vector3.new(10, 10, 10)
     }):Play()
 
     root.Anchored = true
@@ -360,9 +294,9 @@ local function executeKamui()
     if vortexFlingConn then vortexFlingConn:Disconnect() end
     vortexFlingConn = RunService.RenderStepped:Connect(function()
         if vortex and vortex.Parent and root and root.Parent then
-            ax = ax + 50
-            ay = ay + 85
-            az = az + 60
+            ax = ax + 55
+            ay = ay + 90
+            az = az + 65
             local wildCF = vortex.CFrame * CFrame.Angles(math.rad(ax), math.rad(ay), math.rad(az))
             vortex.CFrame = wildCF
             root.CFrame = wildCF
@@ -377,7 +311,7 @@ local function executeKamui()
             root.Anchored = false
             hum.PlatformStand = false
             if activeVortex then activeVortex:Destroy() end
-            disableHalloweenShaders()
+            disableAbsoluteCrimsonWorld()
         end)
         activeState = false
     end)
@@ -390,7 +324,7 @@ local function executeKamui()
                 root.Anchored = false
                 hum.PlatformStand = false
                 if activeVortex then activeVortex:Destroy() end
-                disableHalloweenShaders()
+                disableAbsoluteCrimsonWorld()
             end)
             activeState = false
         end
@@ -400,4 +334,4 @@ end
 KamuiButton.MouseButton1Click:Connect(executeKamui)
 KamuiButton.TouchTap:Connect(executeKamui)
 
-print("¡Isla Masiva Estilo Blox Fruits Halloween Cargada con Éxito!")
+print("¡Versión 🟠👑🔥 (Full Carmesí + Sin Bloques) cargada con éxito en tu tablet!")

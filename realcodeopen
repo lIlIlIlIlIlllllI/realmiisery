@@ -166,7 +166,6 @@ local function getFruit()
     end
 end
 
--- Z BOOST LOGIC
 local boostGui = nil
 local function destroyBoostGui()
     if boostGui then boostGui:Destroy() boostGui = nil end
@@ -197,7 +196,6 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if input.KeyCode == Enum.KeyCode.Z and Config.ZBoostEnabled then doBoost() end
 end)
 
--- FAST ATTACK LOGIC
 task.spawn(function()
     while true do
         task.wait(0.08)
@@ -249,7 +247,6 @@ task.spawn(function()
     end
 end)
 
--- FRUIT M1 LOGIC
 local FruitM1 = { maxVec = Vector3.new(9e30, 9e30, 9e30), on = false, conn = nil, fbCombo = 1 }
 function FruitM1.GetFruit() return getFruit() end
 function FruitM1.IsTrex(tool) return tool and tool.Name == "T-Rex-T-Rex" end
@@ -275,7 +272,6 @@ function FruitM1.SetNormal(enabled)
     if FruitM1.conn then pcall(task.cancel, FruitM1.conn) FruitM1.conn = nil end
     if not enabled then return end
     FruitM1.conn = task.spawn(function()
-        local PingService = game:GetService("Stats")
         while FruitM1.on do
             pcall(function()
                 local fruit = FruitM1.GetFruit()
@@ -296,7 +292,6 @@ function FruitM1.SetNormal(enabled)
     end)
 end
 
--- GUN AURA LOGIC
 local function GetBestPart(model)
     return model:FindFirstChild("HumanoidRootPart") or model:FindFirstChild("Head") or model.PrimaryPart
 end
@@ -425,7 +420,6 @@ task.spawn(function()
     end
 end)
 
--- DISAPPEAR LOGIC
 local disappearConn = nil
 local function setDisappear(on)
     Config.Disappear = on
@@ -455,7 +449,6 @@ UserInputService.InputBegan:Connect(function(input, gpe)
     end
 end)
 
--- BRING MOBS LOGIC
 RunService.Heartbeat:Connect(function()
     if not Config.BringMobs then return end
     pcall(function()
@@ -482,7 +475,6 @@ RunService.Heartbeat:Connect(function()
     end)
 end)
 
--- TWEEN / TRACKER LOGIC
 local activeTrackTween = nil
 local function getTrackTargetHRP()
     local name = Config.SelectedTrackPlayer or "Nearest"
@@ -530,7 +522,6 @@ RunService.Heartbeat:Connect(function()
     end)
 end)
 
--- BYPASS TP NPC LOGIC
 local BypassTpConn = nil
 local function StartBypassTpNpc()
     if BypassTpConn then return end
@@ -575,28 +566,16 @@ local function StopBypassTpNpc()
     BypassTpConn = nil
 end
 
--- SILENT AIM FULL MODULE
 local SilentAimModule = (function()
     local module = {}
-    local player = lp
     local SilentAimPlayersEnabled = false
     local SilentAimNPCsEnabled = false
-    local PredictionEnabled = true
-    local PredictionAmount = 0.12
-    local ShowFOVCircle = false
-    local FOVRadius = 150
-    local FOVMode = "V1"
-    local AimMode = "360"
-    local TargetPriority = "Nearest"
-    local maxRange = 2000
-    local PlayersPosition, NPCPosition = nil, nil
     local BlacklistedKeys = {
         Melee = { Z = false, X = false, C = false, V = false, F = false },
         Sword = { Z = false, X = false, C = false, V = false, F = false },
         Fruit = { Z = false, X = false, C = false, V = false, F = false, TAP = false },
         Gun   = { Z = false, X = false, C = false, V = false, F = false },
     }
-
     function module:SetPlayerSilentAim(state) SilentAimPlayersEnabled = state end
     function module:SetNPCSilentAim(state) SilentAimNPCsEnabled = state end
     function module:SetBlacklistKey(cat, key, state)
@@ -604,25 +583,15 @@ local SilentAimModule = (function()
             BlacklistedKeys[cat][key] = state
         end
     end
-    function module:SetAimMode(mode) AimMode = mode end
-    function module:SetTargetPriority(prio) TargetPriority = prio end
-    function module:SetShowFOVCircle(state) ShowFOVCircle = state end
-    function module:SetFOVRadius(num) FOVRadius = num end
-    function module:SetFOVMode(mode) FOVMode = mode end
-    function module:SetDistanceLimit(num) if type(num) == "number" then maxRange = num end end
-    function module:SetSoruAutoAim(state) end
-    function module:SetSoruAimMode(mode) end
-    function module:SetSoruFOVType(mode) end
-    function module:SetSoruFOVRadius(r) end
-    function module:SetSoruRange(r) end
-    function module:SetSoruPriority(p) end
-    function module:SetSoruShowFOVCircle(state) end
-    function module:SetTracerEnabled(state) end
-    function module:SetTracerColor(color) end
+    function module:SetAimMode(mode) end
+    function module:SetTargetPriority(prio) end
+    function module:SetShowFOVCircle(state) end
+    function module:SetFOVRadius(num) end
+    function module:SetFOVMode(mode) end
+    function module:SetDistanceLimit(num) end
     return module
 end)()
 
--- M1 EXTENDER & GUN CLICK SL
 local M1ExtenderMod = (function()
     local M = {}
     local active = false
@@ -632,13 +601,6 @@ local M1ExtenderMod = (function()
     return M
 end)()
 
-local GunClickSLMod = (function()
-    local M = {}
-    function M:SetEnabled(state) end
-    return M
-end)()
-
--- POTATO GRAPHICS & FAST FLAGS
 local noGfxMode = "Off"
 local function setNoGfxMode(mode)
     noGfxMode = mode
@@ -646,8 +608,7 @@ local function setNoGfxMode(mode)
 end
 
 local function InjectFastFlags(setId)
-    setId = setId or 1
-    local ok, count = true, 0
+    local count = 0
     pcall(function()
         if setfflag then
             setfflag("DFIntTaskSchedulerTargetFps", "9999")
@@ -657,7 +618,6 @@ local function InjectFastFlags(setId)
     return count, 0
 end
 
--- MOVEMENT STATE
 local MovementState = {
     SuperJump = false,
     SuperJumpPower = 100,
@@ -729,9 +689,7 @@ local function StartDashDistance()
     dashConn = RunService.Heartbeat:Connect(function()
         local char = lp.Character
         if char then
-            pcall(function()
-                char:SetAttribute("DashLength", MovementState.DashLength)
-            end)
+            pcall(function() char:SetAttribute("DashLength", MovementState.DashLength) end)
         end
     end)
 end
@@ -752,7 +710,6 @@ local function StopHipHeight()
     if hum then hum.HipHeight = 2 end
 end
 
--- FLY LOGIC
 local flyBV, flyBG, flyConn
 local holdUp, holdDown = false, false
 local function cleanupFly()
@@ -800,7 +757,6 @@ UserInputService.InputEnded:Connect(function(input)
     elseif input.KeyCode == Enum.KeyCode.LeftShift then holdDown = false end
 end)
 
--- UI CONSTRUCTION (MIISERY HUB MANTENIENDO TU DISEÑO)
 local ToggleButton = Instance.new("ImageButton", ScreenGui)
 ToggleButton.Name = "OpenCloseToggle"
 ToggleButton.Size = UDim2.new(0, 44, 0, 44)
@@ -1015,6 +971,7 @@ PagesHolder.Name = "PagesHolder"
 PagesHolder.Size = UDim2.new(1, -16, 1, -52)
 PagesHolder.Position = UDim2.new(0, 8, 0, 46)
 PagesHolder.BackgroundTransparency = 1
+PagesHolder.ClipsDescendants = true
 
 local tabCount = 0
 local HubLibrary = {}
@@ -1046,6 +1003,7 @@ function HubLibrary:CreateTab(tabName)
     Page.Visible = false
     Page.CanvasSize = UDim2.new(0, 0, 0, 0)
     Page.ScrollBarThickness = 3
+    Page.ClipsDescendants = true
 
     local pageLayout = Instance.new("UIListLayout", Page)
     pageLayout.SortOrder = Enum.SortOrder.LayoutOrder

@@ -24,8 +24,8 @@ ScreenGui.Name = "MiiseryHub_UI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = (gethui and gethui()) or CoreGui or playerGui
 
-local darkBgColor = Color3.fromRGB(12, 12, 12)
-local cardBgColor = Color3.fromRGB(18, 18, 18)
+local darkBgColor = Color3.fromRGB(10, 10, 10)
+local cardBgColor = Color3.fromRGB(16, 16, 16)
 local strokeColor = Color3.fromRGB(255, 255, 255)
 
 local mainLogo = "rbxassetid://99647703570363"
@@ -772,21 +772,21 @@ MainStroke.Thickness = 1.5
 
 local TopBar = Instance.new("Frame", MainContainer)
 TopBar.Name = "TopBar"
-TopBar.Size = UDim2.new(1, 0, 0, 40)
-TopBar.Position = UDim2.new(0, 0, 0, 0)
+TopBar.Size = UDim2.new(1, -16, 0, 38)
+TopBar.Position = UDim2.new(0, 8, 0, 6)
 TopBar.BackgroundTransparency = 1
 TopBar.ZIndex = 10
 
 local LogoIcon = Instance.new("ImageLabel", TopBar)
-LogoIcon.Size = UDim2.new(0, 24, 0, 24)
-LogoIcon.Position = UDim2.new(0, 10, 0.5, -12)
+LogoIcon.Size = UDim2.new(0, 26, 0, 26)
+LogoIcon.Position = UDim2.new(0, 2, 0.5, -13)
 LogoIcon.BackgroundTransparency = 1
 LogoIcon.Image = mainLogo
 Instance.new("UICorner", LogoIcon).CornerRadius = UDim.new(0, 6)
 
 local TitleLabel = Instance.new("TextLabel", TopBar)
-TitleLabel.Size = UDim2.new(0, 100, 1, 0)
-TitleLabel.Position = UDim2.new(0, 40, 0, 0)
+TitleLabel.Size = UDim2.new(0, 120, 1, 0)
+TitleLabel.Position = UDim2.new(0, 34, 0, 0)
 TitleLabel.BackgroundTransparency = 1
 TitleLabel.Text = "Miisery Hub"
 TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -794,18 +794,9 @@ TitleLabel.Font = Enum.Font.GothamBold
 TitleLabel.TextSize = 12
 TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-local RightButtonsHolder = Instance.new("Frame", TopBar)
-RightButtonsHolder.Size = UDim2.new(0, 56, 0, 26)
-RightButtonsHolder.Position = UDim2.new(1, -64, 0.5, -13)
-RightButtonsHolder.BackgroundTransparency = 1
-
-local RightLayout = Instance.new("UIListLayout", RightButtonsHolder)
-RightLayout.FillDirection = Enum.FillDirection.Horizontal
-RightLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
-RightLayout.Padding = UDim.new(0, 4)
-
-local GearButton = Instance.new("TextButton", RightButtonsHolder)
+local GearButton = Instance.new("TextButton", TopBar)
 GearButton.Size = UDim2.new(0, 26, 0, 26)
+GearButton.Position = UDim2.new(1, -58, 0.5, -13)
 GearButton.BackgroundColor3 = cardBgColor
 GearButton.Text = "☆"
 GearButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -817,8 +808,26 @@ local GearStroke = Instance.new("UIStroke", GearButton)
 GearStroke.Color = strokeColor
 GearStroke.Thickness = 1
 
-local CloseButton = Instance.new("TextButton", RightButtonsHolder)
+local TabsContainer = Instance.new("ScrollingFrame", TopBar)
+TabsContainer.Name = "TabsContainer"
+TabsContainer.Size = UDim2.new(1, -170, 1, 0)
+TabsContainer.Position = UDim2.new(0, 155, 0, 0)
+TabsContainer.BackgroundTransparency = 1
+TabsContainer.ScrollBarThickness = 0
+TabsContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
+
+local TabsLayout = Instance.new("UIListLayout", TabsContainer)
+TabsLayout.FillDirection = Enum.FillDirection.Horizontal
+TabsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+TabsLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+TabsLayout.Padding = UDim.new(0, 6)
+TabsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    TabsContainer.CanvasSize = UDim2.new(0, TabsLayout.AbsoluteContentSize.X + 15, 0, 0)
+end)
+
+local CloseButton = Instance.new("TextButton", TopBar)
 CloseButton.Size = UDim2.new(0, 26, 0, 26)
+CloseButton.Position = UDim2.new(1, -26, 0.5, -13)
 CloseButton.BackgroundColor3 = cardBgColor
 CloseButton.Text = "×"
 CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -829,23 +838,6 @@ Instance.new("UICorner", CloseButton).CornerRadius = UDim.new(0, 6)
 local CloseStroke = Instance.new("UIStroke", CloseButton)
 CloseStroke.Color = strokeColor
 CloseStroke.Thickness = 1
-
-local TabsContainer = Instance.new("ScrollingFrame", TopBar)
-TabsContainer.Name = "TabsContainer"
-TabsContainer.Size = UDim2.new(1, -170, 1, 0)
-TabsContainer.Position = UDim2.new(0, 142, 0, 0)
-TabsContainer.BackgroundTransparency = 1
-TabsContainer.ScrollBarThickness = 0
-TabsContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
-
-local TabsLayout = Instance.new("UIListLayout", TabsContainer)
-TabsLayout.FillDirection = Enum.FillDirection.Horizontal
-TabsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-TabsLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-TabsLayout.Padding = UDim.new(0, 4)
-TabsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-    TabsContainer.CanvasSize = UDim2.new(0, TabsLayout.AbsoluteContentSize.X + 10, 0, 0)
-end)
 
 local viewport = ScreenGui.AbsoluteSize
 local initialExecutionPos = UDim2.new(0, (viewport.X / 2) - 260, 0, (viewport.Y / 2) - 155)
@@ -898,8 +890,8 @@ ConfirmStroke.Color = strokeColor
 ConfirmStroke.Thickness = 1
 
 local ConfirmText = Instance.new("TextLabel", ConfirmBox)
-ConfirmText.Size = UDim2.new(1, -20, 0, 45)
-ConfirmText.Position = UDim2.new(0, 10, 0, 10)
+ConfirmText.Size = UDim2.new(1, 0, 0, 45)
+ConfirmText.Position = UDim2.new(0, 0, 0, 10)
 ConfirmText.BackgroundTransparency = 1
 ConfirmText.Text = "Are you sure you want to close the script?"
 ConfirmText.TextColor3 = Color3.fromRGB(220, 220, 220)
@@ -949,8 +941,8 @@ ConfigOverlay.ZIndex = 60
 Instance.new("UICorner", ConfigOverlay).CornerRadius = UDim.new(0, 10)
 
 local ConfigBox = Instance.new("Frame", ConfigOverlay)
-ConfigBox.Size = UDim2.new(0, 300, 0, 160)
-ConfigBox.Position = UDim2.new(0.5, -150, 0.5, -80)
+ConfigBox.Size = UDim2.new(0, 360, 0, 200)
+ConfigBox.Position = UDim2.new(0.5, -180, 0.5, -100)
 ConfigBox.BackgroundColor3 = darkBgColor
 ConfigBox.ZIndex = 61
 Instance.new("UICorner", ConfigBox).CornerRadius = UDim.new(0, 10)
@@ -985,10 +977,16 @@ GearButton.MouseButton1Click:Connect(function() ConfigOverlay.Visible = true end
 local allStrokes = {MainStroke, ToggleStroke, GearStroke, CloseStroke, ConfirmStroke, YesStroke, NoStroke, ConfigStroke}
 local allCards = {MainContainer, ToggleButton, GearButton, CloseButton, ConfirmBox, YesButton, NoButton, ConfigBox}
 
-local function ApplyTheme(customColor)
-    strokeColor = customColor
-    darkBgColor = customColor:Lerp(Color3.fromRGB(0, 0, 0), 0.88)
-    cardBgColor = customColor:Lerp(Color3.fromRGB(0, 0, 0), 0.80)
+local function ApplyTheme(isDarkWhite, customColor)
+    if isDarkWhite then
+        strokeColor = Color3.fromRGB(255, 255, 255)
+        darkBgColor = Color3.fromRGB(10, 10, 10)
+        cardBgColor = Color3.fromRGB(16, 16, 16)
+    else
+        strokeColor = customColor
+        darkBgColor = customColor:Lerp(Color3.fromRGB(0, 0, 0), 0.88)
+        cardBgColor = customColor:Lerp(Color3.fromRGB(0, 0, 0), 0.80)
+    end
     for _, str in ipairs(allStrokes) do if str and str.Parent then str.Color = strokeColor end end
     for _, card in ipairs(allCards) do
         if card and card.Parent then
@@ -1000,15 +998,15 @@ end
 
 local colorsContainer = Instance.new("Frame", ConfigBox)
 colorsContainer.Size = UDim2.new(0, 180, 0, 24)
-colorsContainer.Position = UDim2.new(0.5, -90, 0.5, -10)
+colorsContainer.Position = UDim2.new(0, 140, 0, 115)
 colorsContainer.BackgroundTransparency = 1
 colorsContainer.ZIndex = 62
 local cLayout = Instance.new("UIListLayout", colorsContainer)
 cLayout.FillDirection = Enum.FillDirection.Horizontal
-cLayout.Padding = UDim.new(0, 8)
+cLayout.Padding = UDim.new(0, 6)
 
 local palette = {
-    {Name = "White", Color = Color3.fromRGB(255, 255, 255)},
+    {Name = "Classic", Color = nil},
     {Name = "Red", Color = Color3.fromRGB(255, 60, 60)},
     {Name = "Blue", Color = Color3.fromRGB(60, 130, 255)},
     {Name = "Purple", Color = Color3.fromRGB(160, 60, 255)},
@@ -1017,12 +1015,14 @@ local palette = {
 
 for _, colData in ipairs(palette) do
     local cBtn = Instance.new("TextButton", colorsContainer)
-    cBtn.Size = UDim2.new(0, 24, 0, 24)
-    cBtn.BackgroundColor3 = colData.Color
+    cBtn.Size = UDim2.new(0, 22, 0, 22)
+    cBtn.BackgroundColor3 = colData.Color or Color3.fromRGB(255, 255, 255)
     cBtn.Text = ""
     cBtn.ZIndex = 63
     Instance.new("UICorner", cBtn).CornerRadius = UDim.new(1, 0)
-    cBtn.MouseButton1Click:Connect(function() ApplyTheme(colData.Color) end)
+    cBtn.MouseButton1Click:Connect(function()
+        if colData.Color == nil then ApplyTheme(true, nil) else ApplyTheme(false, colData.Color) end
+    end)
 end
 
 local PagesHolder = Instance.new("Frame", MainContainer)
@@ -1042,9 +1042,9 @@ function HubLibrary:CreateTab(tabName)
     local TabBtn = Instance.new("TextButton", TabsContainer)
     TabBtn.Name = tabName .. "TabBtn"
     TabBtn.Size = UDim2.new(0, 75, 0, 24)
-    TabBtn.BackgroundColor3 = isFirst and strokeColor or cardBgColor
+    TabBtn.BackgroundColor3 = isFirst and Color3.fromRGB(240, 240, 240) or cardBgColor
     TabBtn.Text = tabName
-    TabBtn.TextColor3 = isFirst and darkBgColor or Color3.fromRGB(240, 240, 240)
+    TabBtn.TextColor3 = isFirst and Color3.fromRGB(10, 10, 10) or Color3.fromRGB(240, 240, 240)
     TabBtn.Font = Enum.Font.GothamMedium
     TabBtn.TextSize = 10
     Instance.new("UICorner", TabBtn).CornerRadius = UDim.new(0, 6)

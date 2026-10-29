@@ -10,18 +10,18 @@ local Workspace = game:GetService("Workspace")
 local lp = Players.LocalPlayer
 local PlayerGui = lp:WaitForChild("PlayerGui")
 
--- SELLO DE VERSIÓN: 📂🌐🗡️ (Estructura Pocket Dimension nativa de Roblox)
-print("Cargando versión oficial con sello: 📂🌐🗡️")
+-- SELLO DE VERSIÓN: 🕳️🌀👑 (Pocket Dimension Engine Replicado al 100%)
+print("Cargando versión oficial con sello: 🕳️🌀👑")
 
 -- 1. Limpieza absoluta previa
 pcall(function()
-    if PlayerGui:FindFirstChild("PocketKamuiGui") then PlayerGui.PocketKamuiGui:Destroy() end
+    if PlayerGui:FindFirstChild("TruePocketGui") then PlayerGui.TruePocketGui:Destroy() end
     if Workspace:FindFirstChild("_WorldOrigin") then Workspace._WorldOrigin:Destroy() end
 end)
 
--- 2. Interfaz de UI con el sello 📂🌐🗡️
+-- 2. Interfaz de UI con el sello 🕳️🌀👑
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "PocketKamuiGui"
+ScreenGui.Name = "TruePocketGui"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = PlayerGui
 
@@ -41,7 +41,7 @@ buttonCorner.CornerRadius = UDim.new(0.3, 0)
 
 local buttonStroke = Instance.new("UIStroke", KamuiButton)
 buttonStroke.Thickness = 3
-buttonStroke.Color = Color3.fromRGB(120, 0, 255)
+buttonStroke.Color = Color3.fromRGB(255, 0, 150)
 
 local OuterRing = Instance.new("ImageLabel", KamuiButton)
 OuterRing.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -49,13 +49,13 @@ OuterRing.Position = UDim2.new(0.5, 0, 0.5, 0)
 OuterRing.Size = UDim2.new(0, 100, 0, 100)
 OuterRing.BackgroundTransparency = 1
 OuterRing.Image = "rbxassetid://80182942447236"
-OuterRing.ImageColor3 = Color3.fromRGB(120, 0, 255)
+OuterRing.ImageColor3 = Color3.fromRGB(255, 0, 150)
 OuterRing.ZIndex = 11
 
 local InnerIcon = Instance.new("TextLabel", KamuiButton)
 InnerIcon.Size = UDim2.new(1, 0, 1, 0)
 InnerIcon.BackgroundTransparency = 1
-InnerIcon.Text = "📂" -- Sello de carpeta oficial
+InnerIcon.Text = "🕳️" -- Sello de Pocket Dimension
 InnerIcon.TextSize = 42
 InnerIcon.ZIndex = 12
 
@@ -66,7 +66,7 @@ task.spawn(function()
     end
 end)
 
--- Rueda Mangekyo Sharingan (INALTERABLE Y CENTRADA)
+-- Rueda Mangekyo Sharingan (INALTERABLE Y CENTRADA PERFECTAMENTE)
 local KamuiRing = Instance.new("ImageLabel", ScreenGui)
 KamuiRing.AnchorPoint = Vector2.new(0.5, 0.5)
 KamuiRing.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -89,7 +89,7 @@ CrowSound.SoundId = "rbxassetid://9114175376"
 CrowSound.Volume = 6
 CrowSound.RollOffMaxDistance = 100000
 
--- Función para silenciar los sonidos del juego base
+-- Silenciador de ruidos del servidor base
 local function muteGameSounds(state)
     pcall(function()
         SoundService.AmbientReverb = Enum.ReverbType.NoReverb
@@ -101,7 +101,7 @@ local function muteGameSounds(state)
     end)
 end
 
--- 3. REPLICANDO LA ESTRUCTURA OFICIAL: Workspace._WorldOrigin.Locations["Pocket Dimension"]
+-- 3. JERARQUÍA NATIVA: Workspace._WorldOrigin.Locations["Pocket Dimension"]
 local worldOrigin = Instance.new("Folder")
 worldOrigin.Name = "_WorldOrigin"
 worldOrigin.Parent = Workspace
@@ -116,67 +116,70 @@ pocketDimensionFolder.Parent = locationsFolder
 
 local basePos = Vector3.new(-9500.6, 6500.4, -8155.7)
 
--- Construcción de la isla dentro de la Pocket Dimension
-local mainIsland = Instance.new("Part")
-mainIsland.Shape = Enum.PartType.Ball
-mainIsland.Size = Vector3.new(2000, 400, 2000)
-mainIsland.Position = basePos
-mainIsland.Anchored = true
-mainIsland.Color = Color3.fromRGB(20, 20, 25)
-mainIsland.Material = Enum.Material.Slate
-mainIsland.Parent = pocketDimensionFolder
+-- Estructura central orgánica de la Pocket Dimension
+local coreVoid = Instance.new("Part")
+coreVoid.Shape = Enum.PartType.Ball
+coreVoid.Size = Vector3.new(2500, 500, 2500)
+coreVoid.Position = basePos
+coreVoid.Anchored = true
+coreVoid.Color = Color3.fromRGB(15, 15, 20)
+coreVoid.Material = Enum.Material.Slate
+coreVoid.Parent = pocketDimensionFolder
 
-local function createFloatingRing(size, color)
+-- Anillos orbitales de energía pura
+local function createPocketRing(size, color)
     local ring = Instance.new("Part")
     ring.Shape = Enum.PartType.Cylinder
     ring.Size = size
-    ring.Position = basePos + Vector3.new(0, 150, 0)
+    ring.Position = basePos + Vector3.new(0, 180, 0)
     ring.Orientation = Vector3.new(90, 0, 0)
     ring.Anchored = true
     ring.CanCollide = false
-    ring.Transparency = 0.2
+    ring.Transparency = 0.25
     ring.Color = color
     ring.Material = Enum.Material.Neon
     ring.Parent = pocketDimensionFolder
 end
 
-createFloatingRing(Vector3.new(15, 3500, 3500), Color3.fromRGB(140, 0, 255))
+createPocketRing(Vector3.new(18, 4000, 4000), Color3.fromRGB(160, 0, 255))
+createPocketRing(Vector3.new(12, 5500, 5500), Color3.fromRGB(255, 0, 80))
 
-local function createInteractiveWeapon(offset, color)
-    local weaponPedestal = Instance.new("Part")
-    weaponPedestal.Shape = Enum.PartType.Cylinder
-    weaponPedestal.Size = Vector3.new(10, 40, 10)
-    weaponPedestal.Position = basePos + offset + Vector3.new(0, 210, 0)
-    weaponPedestal.Anchored = true
-    weaponPedestal.Color = Color3.fromRGB(50, 50, 60)
-    weaponPedestal.Material = Enum.Material.Metal
-    weaponPedestal.Parent = pocketDimensionFolder
+-- Plataformas interactivas y objetos de poder dentro de la dimensión
+local function createPocketArtifact(offset, color)
+    local pedestal = Instance.new("Part")
+    pedestal.Shape = Enum.PartType.Cylinder
+    pedestal.Size = Vector3.new(12, 50, 12)
+    pedestal.Position = basePos + offset + Vector3.new(0, 230, 0)
+    pedestal.Anchored = true
+    pedestal.Color = Color3.fromRGB(40, 40, 45)
+    pedestal.Material = Enum.Material.Metal
+    pedestal.Parent = pocketDimensionFolder
 
-    local weaponOrb = Instance.new("Part")
-    weaponOrb.Shape = Enum.PartType.Ball
-    weaponOrb.Size = Vector3.new(35, 35, 35)
-    weaponOrb.Position = basePos + offset + Vector3.new(0, 245, 0)
-    weaponOrb.Anchored = true
-    weaponOrb.CanCollide = false
-    weaponOrb.Color = color
-    weaponOrb.Material = Enum.Material.Neon
-    weaponOrb.Parent = pocketDimensionFolder
+    local artifact = Instance.new("Part")
+    artifact.Shape = Enum.PartType.Ball
+    artifact.Size = Vector3.new(40, 40, 40)
+    artifact.Position = basePos + offset + Vector3.new(0, 275, 0)
+    artifact.Anchored = true
+    artifact.CanCollide = false
+    artifact.Color = color
+    artifact.Material = Enum.Material.Neon
+    artifact.Parent = pocketDimensionFolder
 
     task.spawn(function()
         local t = math.random(1, 100)
-        while weaponOrb and weaponOrb.Parent do
+        while artifact and artifact.Parent do
             t = t + 0.05
-            weaponOrb.Position = (basePos + offset + Vector3.new(0, 245, 0)) + Vector3.new(0, math.sin(t) * 10, 0)
+            artifact.Position = (basePos + offset + Vector3.new(0, 275, 0)) + Vector3.new(0, math.sin(t) * 12, 0)
             task.wait(0.03)
         end
     end)
 end
 
-createInteractiveWeapon(Vector3.new(200, 0, -200), Color3.fromRGB(255, 50, 50))
-createInteractiveWeapon(Vector3.new(-200, 0, -200), Color3.fromRGB(100, 0, 255))
-createInteractiveWeapon(Vector3.new(0, 0, -350), Color3.fromRGB(255, 215, 0))
+createPocketArtifact(Vector3.new(250, 0, -250), Color3.fromRGB(255, 50, 50))
+createPocketArtifact(Vector3.new(-250, 0, -250), Color3.fromRGB(120, 0, 255))
+createPocketArtifact(Vector3.new(0, 0, -400), Color3.fromRGB(255, 215, 0))
 
--- 4. Shaders Dinámicos (Rojo exclusivo en pantalla durante el asset)
+-- 4. Shaders Dinámicos (Rojo exclusivo en pantalla durante la cinemática)
 local activeAtmosphere, activeCorrection, activeBloom = nil, nil, nil
 
 local function enableFlashShaders()
@@ -186,23 +189,23 @@ local function enableFlashShaders()
         if activeBloom then activeBloom:Destroy() end
 
         activeAtmosphere = Instance.new("Atmosphere")
-        activeAtmosphere.Name = "FlashAtmos"
-        activeAtmosphere.Density = 0.8
+        activeAtmosphere.Name = "PocketAtmos"
+        activeAtmosphere.Density = 0.85
         activeAtmosphere.Color = Color3.fromRGB(255, 0, 0)
         activeAtmosphere.Decay = Color3.fromRGB(50, 0, 0)
         activeAtmosphere.Parent = Lighting
 
         activeCorrection = Instance.new("ColorCorrectionEffect")
-        activeCorrection.Name = "FlashCorr"
+        activeCorrection.Name = "PocketCorr"
         activeCorrection.TintColor = Color3.fromRGB(255, 30, 30)
         activeCorrection.Brightness = -0.1
-        activeCorrection.Contrast = 0.7
+        activeCorrection.Contrast = 0.75
         activeCorrection.Parent = Lighting
 
         activeBloom = Instance.new("BloomEffect")
-        activeBloom.Name = "FlashBloom"
-        activeBloom.Intensity = 2.5
-        activeBloom.Size = 56
+        activeBloom.Name = "PocketBloom"
+        activeBloom.Intensity = 3.0
+        activeBloom.Size = 60
         activeBloom.Threshold = 0.2
         activeBloom.Parent = Lighting
     end)
@@ -276,7 +279,7 @@ local function executeKamui()
     if spinGuiConn then spinGuiConn:Disconnect() end
     disableFlashShaders()
 
-    local targetPos = not insideRealm and (basePos + Vector3.new(0, 250, 0)) or (originalCFrame and originalCFrame.Position or (basePos + Vector3.new(0, 100, 0)))
+    local targetPos = not insideRealm and (basePos + Vector3.new(0, 300, 0)) or (originalCFrame and originalCFrame.Position or (basePos + Vector3.new(0, 100, 0)))
 
     pcall(function()
         hum.PlatformStand = true
@@ -318,7 +321,7 @@ local function executeKamui()
     appParticle1.Parent = vortex
 
     TweenService:Create(purpleCore, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-        Size = Vector3.new(9, 9, 9)
+        Size = Vector3.new(10, 10, 10)
     }):Play()
 
     root.Anchored = true
@@ -369,4 +372,4 @@ end
 KamuiButton.MouseButton1Click:Connect(executeKamui)
 KamuiButton.TouchTap:Connect(executeKamui)
 
-print("¡Versión 📂🌐🗡️ cargada con la estructura Pocket Dimension exacta!")
+print("¡Versión 🕳️🌀👑 cargada con éxito en tu tablet!")

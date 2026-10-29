@@ -16,28 +16,57 @@ pcall(function()
     if Workspace:FindFirstChild("AbsoluteKamuiRealm") then Workspace.AbsoluteKamuiRealm:Destroy() end
 end)
 
--- 2. Interfaz gráfica (Botón flotante y Logo Mangekyo un poco más arriba)
+-- 2. Interfaz gráfica con el Botón Kamui Hiper Mejorado (Sharingan Dinámico)
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "UltimateKamuiGui"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = PlayerGui
 
+-- Contenedor principal del botón (Arrastrable)
 local KamuiButton = Instance.new("TextButton", ScreenGui)
-KamuiButton.Size = UDim2.new(0, 80, 0, 80)
+KamuiButton.Size = UDim2.new(0, 85, 0, 85)
 KamuiButton.Position = UDim2.new(0.80, 0, 0.35, 0)
 KamuiButton.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-KamuiButton.TextColor3 = Color3.fromRGB(255, 40, 40)
-KamuiButton.Text = "🌀"
-KamuiButton.TextSize = 40
-KamuiButton.BorderSizePixel = 3
-KamuiButton.BorderColor3 = Color3.fromRGB(255, 0, 0)
+KamuiButton.Text = ""
+KamuiButton.AutoButtonColor = false
 KamuiButton.Active = true
 KamuiButton.Draggable = true
+KamuiButton.ZIndex = 10
 
-local corner = Instance.new("UICorner", KamuiButton)
-corner.CornerRadius = UDim.new(0.5, 0)
+local buttonCorner = Instance.new("UICorner", KamuiButton)
+buttonCorner.CornerRadius = UDim.new(0.5, 0)
 
--- Rueda Mangekyo Sharingan (Desplazada ligeramente hacia arriba con AnchorPoint y Position)
+local buttonStroke = Instance.new("UIStroke", KamuiButton)
+buttonStroke.Thickness = 3
+buttonStroke.Color = Color3.fromRGB(220, 0, 0)
+
+-- Anillo exterior giratorio decorativo estilo Sharingan
+local OuterRing = Instance.new("ImageLabel", KamuiButton)
+OuterRing.AnchorPoint = Vector2.new(0.5, 0.5)
+OuterRing.Position = UDim2.new(0.5, 0, 0.5, 0)
+OuterRing.Size = UDim2.new(0, 95, 0, 95)
+OuterRing.BackgroundTransparency = 1
+OuterRing.Image = "rbxassetid://80182942447236"
+OuterRing.ImageColor3 = Color3.fromRGB(255, 30, 30)
+OuterRing.ZIndex = 11
+
+-- Icono central del botón (Ojo / Vórtice)
+local InnerIcon = Instance.new("TextLabel", KamuiButton)
+InnerIcon.Size = UDim2.new(1, 0, 1, 0)
+InnerIcon.BackgroundTransparency = 1
+InnerIcon.Text = "🌀"
+InnerIcon.TextSize = 38
+InnerIcon.ZIndex = 12
+
+-- Animación pasiva de giro constante para el borde del botón
+TaskSpawn = task.spawn(function()
+    while KamuiButton and KamuiButton.Parent do
+        OuterRing.Rotation = OuterRing.Rotation + 2
+        task.wait(0.03)
+    end
+end)
+
+-- Rueda Mangekyo Sharingan principal de la cinemática (Un poco más arriba)
 local KamuiRing = Instance.new("ImageLabel", ScreenGui)
 KamuiRing.AnchorPoint = Vector2.new(0.5, 0.5)
 KamuiRing.Position = UDim2.new(0.5, 0, 0.42, 0)
@@ -48,13 +77,13 @@ KamuiRing.ImageColor3 = Color3.fromRGB(255, 20, 20)
 KamuiRing.Visible = false
 KamuiRing.ZIndex = 999999
 
--- Audio
+-- Audio maestro de Kamui
 local KamuiSound = Instance.new("Sound", SoundService)
 KamuiSound.SoundId = "rbxassetid://70698855144717"
 KamuiSound.Volume = 10
 KamuiSound.RollOffMaxDistance = 100000
 
--- 3. Construcción ultra optimizada de la dimensión celestial con castillo y trono
+-- 3. Construcción de la Dimensión Celestial (Castillo y Trono)
 local dimensionFolder = Instance.new("Folder")
 dimensionFolder.Name = "AbsoluteKamuiRealm"
 dimensionFolder.Parent = Workspace
@@ -85,7 +114,7 @@ throne.Color = Color3.fromRGB(255, 215, 0)
 throne.Material = Enum.Material.Metal
 throne.Parent = dimensionFolder
 
--- Funciones para manejar la atmósfera carmesí exactamente durante el Mangekyo
+-- Sincronización de la atmósfera carmesí
 local activeAtmosphere, activeCorrection = nil, nil
 
 local function enableCrimsonAtmosphere()
@@ -129,6 +158,15 @@ local function executeKamui()
     if activeState then return end
     activeState = true
 
+    -- Efecto visual de clic en el botón hiper mejorado
+    TweenService:Create(KamuiButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Size = UDim2.new(0, 72, 0, 72)
+    }):Play()
+    task.wait(0.1)
+    TweenService:Create(KamuiButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Size = UDim2.new(0, 85, 0, 85)
+    }):Play()
+
     local char = lp.Character
     if not char then activeState = false return end
     local root = char:FindFirstChild("HumanoidRootPart")
@@ -139,7 +177,7 @@ local function executeKamui()
         originalCFrame = root.CFrame
     end
 
-    -- 1. Activar sonido, efecto carmesí y mostrar Mangekyo girando
+    -- 1. Activar sonido, efecto carmesí y Mangekyo principal
     pcall(function()
         KamuiSound.TimePosition = 0
         KamuiSound:Play()
@@ -161,10 +199,9 @@ local function executeKamui()
         end
     end)
 
-    -- Mantener el logo y el efecto carmesí en pantalla durante la secuencia
     task.wait(1.5)
 
-    -- 2. Desactivar el efecto carmesí y ocultar el Mangekyo justo al desaparecer el logo
+    -- 2. Desactivar efecto carmesí y ocultar Mangekyo
     disableCrimsonAtmosphere()
     KamuiRing.Visible = false
     if spinGuiConn then spinGuiConn:Disconnect() end
@@ -249,6 +286,8 @@ local function executeKamui()
     end)
 end
 
--- 5. Conexión de eventos táctiles garantizados
+-- 5. Conexiones táctiles garantizadas para el nuevo botón hiper mejorado
 KamuiButton.MouseButton1Click:Connect(executeKamui)
 KamuiButton.TouchTap:Connect(executeKamui)
+
+print("¡Botón Kamui Hiper Mejorado y Cargado!")

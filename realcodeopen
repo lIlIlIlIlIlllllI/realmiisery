@@ -4,15 +4,15 @@ local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
+local SoundService = game:GetService("SoundService")
 local RunService = game:GetService("RunService")
-local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local HttpService = game:GetService("HttpService")
-local Lighting = game:GetService("Lighting")
 
 local lp = Players.LocalPlayer
 local playerGui = lp:WaitForChild("PlayerGui")
-local Camera = Workspace.CurrentCamera
+
+local EffectContainer = ReplicatedStorage:FindFirstChild("EffectContainer")
+local KamuiCam = EffectContainer and EffectContainer:FindFirstChild("KamuiCam")
 
 pcall(function()
     if CoreGui:FindFirstChild("MiiseryHub_UI") then CoreGui.MiiseryHub_UI:Destroy() end
@@ -24,731 +24,10 @@ ScreenGui.Name = "MiiseryHub_UI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = (gethui and gethui()) or CoreGui or playerGui
 
-local darkBgColor = Color3.fromRGB(10, 10, 10)
-local cardBgColor = Color3.fromRGB(16, 16, 16)
-local strokeColor = Color3.fromRGB(255, 255, 255)
-
+local darkBgColor = Color3.fromRGB(15, 8, 25)
+local cardBgColor = Color3.fromRGB(25, 12, 40)
+local strokeColor = Color3.fromRGB(160, 60, 255)
 local mainLogo = "rbxassetid://99647703570363"
-
-local CommF = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
-local CommE = ReplicatedStorage:WaitForChild("Remotes"):FindFirstChild("CommE")
-local Net = ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Net")
-
-local registerAttack = Net:FindFirstChild("RE/RegisterAttack")
-local registerHit
-pcall(function()
-    registerHit = require(ReplicatedStorage.Modules.Net):RemoteEvent("RegisterHit", true)
-end)
-if not registerHit then
-    registerHit = Net:FindFirstChild("RE/RegisterHit")
-end
-local ShootGunEvent = Net:FindFirstChild("RE/ShootGunEvent")
-local Validator2 = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Validator2")
-
-local Config = {
-    FastAttack = false, FAPlayers = true, FAMobs = true, FARange = 1000,
-    BringMobs = false, BringRange = 3000,
-    FruitM1 = false, VoidFruitM1 = false,
-    FruitM1Players = true, FruitM1Mobs = true, VoidAllM1 = false,
-
-    SafeGun = false, SafeMobs = true, SafePlayers = true, SafeSea = true, SafeRange = 500,
-    SuperGun = false, SuperMobs = true, SuperPlayers = true, SuperSea = true, SuperRange = 500,
-    Disappear = false,
-
-    AutoV3 = false, AutoV4 = false, AutoPvP = false,
-    InfiniteZoom = false, AntiAFK = true,
-    Notifications = true,
-    Fly = false, FlySpeed = 250, FlyVertical = 180, FlySmooth = true,
-    WalkOnWater = false, AntiLava = false,
-    SpeedEnabled = false, SpeedMode = "CFrame", SpeedValue = 50,
-
-    Tracker = false,
-    TrackerFly = false, TrackerFlySpeed = 275, TrackerOrbitRadius = 50,
-    TrackerNoTpRange = 300, TrackerPositionMode = "orbit",
-    AutoFlee = false, AutoFleeHP = 30,
-    TweenNearest = false, TweenToPlayer = false, TweenSpeed = 350,
-    TweenOX = 0, TweenOY = 1.5, TweenOZ = 3.5,
-    InstaTP = false, Spectate = false, SelectedTrackPlayer = "Nearest",
-    PredictionStrength = 0.1,
-
-    M1Extender = false, M1Range = 50,
-    GunClickSL = false,
-    SilentPlayer = false, SilentNPC = false,
-    AimMode = "360", AimPriority = "Nearest",
-    ShowFOV = false, FOVMode = "V1", FOVRadius = 150, AimMaxRange = 2000,
-    Tracer = false, TracerColor = "Red",
-    SoruAutoAim = false, SoruAimMode = "360", SoruFOVType = "V1",
-    SoruPriority = "Nearest", SoruFOVRadius = 150, SoruRange = 300, SoruShowFOV = false,
-    ZBoostEnabled = false, ZBoostPower = 450, ZBoostDuration = 0.55,
-    NoGfxMode = "Off",
-    FlagJobId = "",
-    FlagRegion = "Singapore",
-    BypassTpNpc = false, BypassTpRange = 500, BypassTpMode = "Nearest", BypassTpAbove = true, BypassTpHeight = 12,
-    LowGraphics = false, DisableShadows = false, NoFog = false,
-
-    SkyEnabled = false, SkyType = "black storm",
-    AmbientEnabled = false, AmbientType = "Rain",
-    MinecraftTex = false,
-    BL_Melee_Z = false, BL_Melee_X = false, BL_Melee_C = false, BL_Melee_V = false, BL_Melee_F = false,
-    BL_Sword_Z = false, BL_Sword_X = false, BL_Sword_C = false, BL_Sword_V = false, BL_Sword_F = false,
-    BL_Fruit_Z = false, BL_Fruit_X = false, BL_Fruit_C = false, BL_Fruit_V = false, BL_Fruit_F = false, BL_Fruit_TAP = false,
-    BL_Gun_Z = false, BL_Gun_X = false, BL_Gun_C = false, BL_Gun_V = false, BL_Gun_F = false,
-}
-
-local CONFIG_FILE = "MiiseryHub_Config.json"
-
-local function SaveConfig()
-    if not writefile then return false end
-    local ok = pcall(function()
-        local data = {}
-        for k, v in pairs(Config) do
-            local t = type(v)
-            if t == "boolean" or t == "number" or t == "string" then
-                data[k] = v
-            end
-        end
-        writefile(CONFIG_FILE, HttpService:JSONEncode(data))
-    end)
-    return ok == true
-end
-
-local function LoadConfig()
-    pcall(function()
-        if not (isfile and readfile) then return end
-        if not isfile(CONFIG_FILE) then return end
-        local raw = readfile(CONFIG_FILE)
-        if not raw or raw == "" then return end
-        local data = HttpService:JSONDecode(raw)
-        if type(data) ~= "table" then return end
-        for k, v in pairs(data) do
-            if Config[k] ~= nil and type(Config[k]) == type(v) then
-                Config[k] = v
-            end
-        end
-    end)
-end
-
-LoadConfig()
-
-local character = lp.Character or lp.CharacterAdded:Wait()
-local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-lp.CharacterAdded:Connect(function(c)
-    character = c
-    humanoidRootPart = c:WaitForChild("HumanoidRootPart")
-end)
-local savedZoom = lp.CameraMaxZoomDistance
-
-local function getFruit()
-    local char, bp = lp.Character, lp:FindFirstChild("Backpack")
-    for _, container in ipairs({ char, bp }) do
-        if container then
-            for _, t in ipairs(container:GetChildren()) do
-                if t:IsA("Tool") and (t.ToolTip == "Blox Fruit" or t:GetAttribute("WeaponType") == "Demon Fruit" or t.Name:find("-")) then
-                    return t
-                end
-            end
-        end
-    end
-end
-
-local boostGui = nil
-local function destroyBoostGui()
-    if boostGui then boostGui:Destroy() boostGui = nil end
-end
-local function doBoost()
-    if not Config.ZBoostEnabled then return end
-    local char = lp.Character
-    if not char then return end
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
-    local dir = Camera.CFrame.LookVector
-    local att = Instance.new("Attachment")
-    att.Parent = hrp
-    local lv = Instance.new("LinearVelocity")
-    lv.MaxForce = 99999999
-    lv.VelocityConstraintMode = Enum.VelocityConstraintMode.Vector
-    lv.VectorVelocity = dir * Config.ZBoostPower
-    lv.Attachment0 = att
-    lv.Parent = hrp
-    task.delay(Config.ZBoostDuration, function()
-        if lv and lv.Parent then lv:Destroy() end
-        if att and att.Parent then att:Destroy() end
-    end)
-end
-
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end
-    if input.KeyCode == Enum.KeyCode.Z and Config.ZBoostEnabled then doBoost() end
-end)
-
-task.spawn(function()
-    while true do
-        task.wait(0.08)
-        if not Config.FastAttack then continue end
-        pcall(function()
-            local char = lp.Character
-            if not char then return end
-            local myHRP = char:FindFirstChild("HumanoidRootPart")
-            if not myHRP then return end
-            local Mod = ReplicatedStorage:FindFirstChild("Modules")
-            local Net2 = Mod and Mod:FindFirstChild("Net")
-            local RA2 = Net2 and Net2:FindFirstChild("RE/RegisterAttack")
-            local RH2 = Net2 and Net2:FindFirstChild("RE/RegisterHit")
-            if not RA2 or not RH2 then return end
-            local myPos = myHRP.Position
-            local all = {}
-            if Config.FAPlayers then
-                for _, p in pairs(Players:GetPlayers()) do
-                    if p ~= lp and p.Character then
-                        local pH = p.Character:FindFirstChildOfClass("Humanoid")
-                        local pR = p.Character:FindFirstChild("HumanoidRootPart")
-                        local pHd = p.Character:FindFirstChild("Head")
-                        if pH and pR and pHd and pH.Health > 0 and (pR.Position - myPos).Magnitude <= Config.FARange then
-                            all[#all + 1] = { p.Character, pHd }
-                        end
-                    end
-                end
-            end
-            if Config.FAMobs then
-                local en = Workspace:FindFirstChild("Enemies")
-                if en then
-                    for _, n in pairs(en:GetChildren()) do
-                        local nH = n:FindFirstChildOfClass("Humanoid")
-                        local nR = n:FindFirstChild("HumanoidRootPart")
-                        local nHd = n:FindFirstChild("Head")
-                        if nH and nR and nHd and nH.Health > 0 and (nR.Position - myPos).Magnitude <= Config.FARange then
-                            all[#all + 1] = { n, nHd }
-                        end
-                    end
-                end
-            end
-            if #all > 0 then
-                RA2:FireServer(0)
-                for _, t in pairs(all) do
-                    pcall(function() RH2:FireServer(t[2], all) end)
-                end
-            end
-        end)
-    end
-end)
-
-local FruitM1 = { maxVec = Vector3.new(9e30, 9e30, 9e30), on = false, conn = nil, fbCombo = 1 }
-function FruitM1.GetFruit() return getFruit() end
-function FruitM1.IsTrex(tool) return tool and tool.Name == "T-Rex-T-Rex" end
-function FruitM1.IsDragon(tool) return tool and tool.Name == "Dragon-Dragon" end
-function FruitM1.IsBlade(tool) return tool and tool.Name == "Blade-Blade" end
-function FruitM1.IsPain(tool) return tool and tool.Name == "Pain-Pain" end
-function FruitM1.IsControl(tool) return tool and tool.Name == "Control-Control" end
-function FruitM1.IsGas(tool) return tool and tool.Name == "Gas-Gas" end
-function FruitM1.MaxCombo(tool)
-    if FruitM1.IsTrex(tool) then return 4 end
-    if FruitM1.IsBlade(tool) then return 2 end
-    if FruitM1.IsPain(tool) then return 4 end
-    if FruitM1.IsControl(tool) then return 4 end
-    if FruitM1.IsGas(tool) then return 5 end
-    if FruitM1.IsDragon(tool) then
-        local char = lp.Character
-        return (char and char:FindFirstChild("DragonHybrid")) and 5 or 3
-    end
-    return 5
-end
-function FruitM1.SetNormal(enabled)
-    FruitM1.on = enabled
-    if FruitM1.conn then pcall(task.cancel, FruitM1.conn) FruitM1.conn = nil end
-    if not enabled then return end
-    FruitM1.conn = task.spawn(function()
-        while FruitM1.on do
-            pcall(function()
-                local fruit = FruitM1.GetFruit()
-                local char = lp.Character
-                local myHRP = char and char:FindFirstChild("HumanoidRootPart")
-                if not fruit or not myHRP then return end
-                local remote = fruit:FindFirstChild("LeftClickRemote")
-                if not remote then return end
-                local maxCombo = FruitM1.MaxCombo(fruit)
-                if maxCombo < 1 then maxCombo = 1 end
-                local combo = FruitM1.fbCombo or 1
-                local dir = myHRP.CFrame.LookVector
-                remote:FireServer(dir, combo, true)
-                FruitM1.fbCombo = (combo < maxCombo) and (combo + 1) or 1
-            end)
-            task.wait(0.05)
-        end
-    end)
-end
-
-local function GetBestPart(model)
-    return model:FindFirstChild("HumanoidRootPart") or model:FindFirstChild("Head") or model.PrimaryPart
-end
-
-local ShootFunction, getupval, setupval, getupvals
-pcall(function()
-    getupval = debug.getupvalue or getupvalue
-    setupval = debug.setupvalue or setupvalue
-    getupvals = debug.getupvalues or getupvalues
-end)
-local V_Idx = { v26 = 12, v22 = 13, v25 = 14, v21 = 15, v23 = 16, v24 = 17, v27 = 18 }
-local function InitDragonGun()
-    local ok2, result = pcall(require, ReplicatedStorage:WaitForChild("Controllers"):WaitForChild("CombatController"))
-    if ok2 and type(result) == "table" and result.Attack and getupval then
-        ShootFunction = getupval(result.Attack, 9)
-    end
-end
-local function GetNextValidator()
-    if not getupval then return 0, 0 end
-    if not ShootFunction then InitDragonGun() end
-    if not ShootFunction then return 0, 0 end
-    local upvals = getupvals and getupvals(ShootFunction)
-    if not upvals then return 0, 0 end
-    local v1 = getupval(ShootFunction, V_Idx.v21)
-    local v2 = getupval(ShootFunction, V_Idx.v22)
-    local v3 = getupval(ShootFunction, V_Idx.v23)
-    local v4 = getupval(ShootFunction, V_Idx.v24)
-    local v5 = getupval(ShootFunction, V_Idx.v25)
-    local v6 = getupval(ShootFunction, V_Idx.v26)
-    local v7 = getupval(ShootFunction, V_Idx.v27)
-    if not (v1 and v2 and v3 and v4 and v5 and v6 and v7) then return 0, 0 end
-    local v9 = ((v5 * v2 + v6 * v1) % v3 * v3 + v6 * v2) % v4
-    v5 = math.floor(v9 / v3); v6 = v9 - v5 * v3; v7 = v7 + 1
-    setupval(ShootFunction, V_Idx.v25, v5)
-    setupval(ShootFunction, V_Idx.v26, v6)
-    setupval(ShootFunction, V_Idx.v27, v7)
-    return math.floor(v9 / v4 * 16777215), v7
-end
-
-local function GetClosestGunTarget(range, doPlayers, doMobs, doSea)
-    local root = humanoidRootPart
-    if not root then return nil end
-    local closest, dist, myPos = nil, math.huge, root.Position
-    if doMobs then
-        local ef = Workspace:FindFirstChild("Enemies")
-        if ef then
-            for _, enemy in pairs(ef:GetChildren()) do
-                local h = enemy:FindFirstChildOfClass("Humanoid")
-                local r = GetBestPart(enemy)
-                if h and h.Health > 0 and r then
-                    local d = (r.Position - myPos).Magnitude
-                    if d < dist and d <= range then dist = d; closest = r end
-                end
-            end
-        end
-    end
-    if doPlayers then
-        for _, player in pairs(Players:GetPlayers()) do
-            if player ~= lp and player.Character then
-                local h = player.Character:FindFirstChildOfClass("Humanoid")
-                local r = GetBestPart(player.Character)
-                if h and h.Health > 0 and r then
-                    local d = (r.Position - myPos).Magnitude
-                    if d < dist and d <= range then dist = d; closest = r end
-                end
-            end
-        end
-    end
-    return closest
-end
-
-local _cachedToolSafe, _cachedTargetSafe, _timerSafe = nil, nil, 0
-local _cachedToolSuper, _cachedTargetSuper, _timerSuper = nil, nil, 0
-
-task.spawn(function()
-    while true do
-        if not Config.SafeGun then task.wait(0.05) continue end
-        pcall(function()
-            local char = lp.Character
-            if not char then return end
-            if not _cachedToolSafe or not _cachedToolSafe.Parent or _cachedToolSafe.ToolTip ~= "Gun" then
-                _cachedToolSafe = char:FindFirstChildOfClass("Tool")
-                if not _cachedToolSafe or _cachedToolSafe.ToolTip ~= "Gun" then _cachedToolSafe = nil return end
-            end
-            _timerSafe = _timerSafe + 1
-            if _timerSafe >= 3 or not _cachedTargetSafe or not _cachedTargetSafe.Parent then
-                _cachedTargetSafe = GetClosestGunTarget(Config.SafeRange, Config.SafePlayers, Config.SafeMobs, Config.SafeSea)
-                _timerSafe = 0
-            end
-            if not _cachedTargetSafe then return end
-            local valCode, valCount = GetNextValidator()
-            if valCode ~= 0 and Validator2 then pcall(function() Validator2:FireServer(valCode, valCount) end) end
-            _cachedToolSafe:SetAttribute("LocalOverheat", 0)
-            _cachedToolSafe:SetAttribute("IsReloading_Client", false)
-            _cachedToolSafe:SetAttribute("LocalShotsLeft", 100)
-            if ShootGunEvent then ShootGunEvent:FireServer(_cachedTargetSafe.Position, { _cachedTargetSafe }) end
-        end)
-        task.wait(0.03)
-    end
-end)
-
-task.spawn(function()
-    while true do
-        if not Config.SuperGun then task.wait(0.05) continue end
-        pcall(function()
-            local char = lp.Character
-            if not char then return end
-            if not _cachedToolSuper or not _cachedToolSuper.Parent or _cachedToolSuper.ToolTip ~= "Gun" then
-                _cachedToolSuper = char:FindFirstChildOfClass("Tool")
-                if not _cachedToolSuper or _cachedToolSuper.ToolTip ~= "Gun" then _cachedToolSuper = nil return end
-            end
-            _timerSuper = _timerSuper + 1
-            if _timerSuper >= 3 or not _cachedTargetSuper or not _cachedTargetSuper.Parent then
-                _cachedTargetSuper = GetClosestGunTarget(Config.SuperRange, Config.SuperPlayers, Config.SuperMobs, Config.SuperSea)
-                _timerSuper = 0
-            end
-            if not _cachedTargetSuper then return end
-            local valCode, valCount = GetNextValidator()
-            if valCode ~= 0 and Validator2 then pcall(function() Validator2:FireServer(valCode, valCount) end) end
-            _cachedToolSuper:SetAttribute("LocalOverheat", 0)
-            _cachedToolSuper:SetAttribute("IsReloading_Client", false)
-            _cachedToolSuper:SetAttribute("LocalShotsLeft", 100)
-            if ShootGunEvent then ShootGunEvent:FireServer(_cachedTargetSuper.Position, { _cachedTargetSuper }) end
-        end)
-        task.wait(0.03)
-    end
-end)
-
-local disappearConn = nil
-local function setDisappear(on)
-    Config.Disappear = on
-    if disappearConn then task.cancel(disappearConn) disappearConn = nil end
-    if not on then return end
-    disappearConn = task.spawn(function()
-        while Config.Disappear do
-            task.wait(0.1)
-            pcall(function()
-                if sethiddenproperty then sethiddenproperty(lp, "SimulationRadius", math.huge) end
-                local enemies = Workspace:FindFirstChild("Enemies")
-                if not enemies then return end
-                for _, mob in ipairs(enemies:GetChildren()) do
-                    local root = mob:FindFirstChild("HumanoidRootPart")
-                    if root then
-                        pcall(function() root.CFrame = CFrame.new(0, -500, 0) end)
-                    end
-                end
-            end)
-        end
-    end)
-end
-UserInputService.InputBegan:Connect(function(input, gpe)
-    if gpe then return end
-    if input.KeyCode == Enum.KeyCode.P then
-        setDisappear(not Config.Disappear)
-    end
-end)
-
-RunService.Heartbeat:Connect(function()
-    if not Config.BringMobs then return end
-    pcall(function()
-        local hrp = humanoidRootPart
-        if not hrp then return end
-        if sethiddenproperty then pcall(function() sethiddenproperty(lp, "SimulationRadius", math.huge) end) end
-        local targetPos = hrp.Position
-        local enemies = Workspace:FindFirstChild("Enemies")
-        if not enemies then return end
-        for _, enemy in ipairs(enemies:GetChildren()) do
-            if enemy:IsA("Model") then
-                local eHum = enemy:FindFirstChildOfClass("Humanoid")
-                local eRoot = enemy:FindFirstChild("HumanoidRootPart")
-                if eHum and eRoot and eHum.Health > 0 then
-                    if (eRoot.Position - targetPos).Magnitude <= Config.BringRange then
-                        eRoot.CFrame = CFrame.new(targetPos.X, targetPos.Y - 18, targetPos.Z)
-                        eRoot.CanCollide = false
-                        eHum.WalkSpeed = 0
-                        eHum.JumpPower = 0
-                    end
-                end
-            end
-        end
-    end)
-end)
-
-local activeTrackTween = nil
-local function getTrackTargetHRP()
-    local name = Config.SelectedTrackPlayer or "Nearest"
-    if name ~= "Nearest" then
-        local p = Players:FindFirstChild(name)
-        if p and p.Character then
-            return p.Character:FindFirstChild("HumanoidRootPart"), p
-        end
-        return nil, nil
-    end
-    local my = humanoidRootPart
-    if not my then return nil, nil end
-    local best, bd, bp = nil, math.huge, nil
-    for _, p in ipairs(Players:GetPlayers()) do
-        if p ~= lp and p.Character then
-            local r = p.Character:FindFirstChild("HumanoidRootPart")
-            local h = p.Character:FindFirstChildOfClass("Humanoid")
-            if r and h and h.Health > 0 then
-                local d = (r.Position - my.Position).Magnitude
-                if d < bd then bd = d; best = r; bp = p end
-            end
-        end
-    end
-    return best, bp
-end
-
-RunService.Heartbeat:Connect(function()
-    if not (Config.TweenNearest or Config.TweenToPlayer or Config.InstaTP) then return end
-    pcall(function()
-        local hrp = humanoidRootPart
-        if not hrp then return end
-        local targetHRP = getTrackTargetHRP()
-        if not targetHRP then return end
-        local ox, oy, oz = Config.TweenOX or 0, Config.TweenOY or 1.5, Config.TweenOZ or 3.5
-        local dest = CFrame.new(targetHRP.Position) * CFrame.new(ox, oy, oz)
-        if Config.InstaTP then
-            hrp.CFrame = dest
-        elseif Config.TweenNearest or Config.TweenToPlayer then
-            local dist = (dest.Position - hrp.Position).Magnitude
-            local speed = Config.TweenSpeed or 350
-            if activeTrackTween then activeTrackTween:Cancel() end
-            activeTrackTween = TweenService:Create(hrp, TweenInfo.new(math.max(dist / speed, 0.05), Enum.EasingStyle.Linear), { CFrame = dest })
-            activeTrackTween:Play()
-        end
-    end)
-end)
-
-local BypassTpConn = nil
-local function StartBypassTpNpc()
-    if BypassTpConn then return end
-    BypassTpConn = task.spawn(function()
-        while Config.BypassTpNpc do
-            task.wait(0.15)
-            pcall(function()
-                local char = lp.Character
-                local hrp = char and char:FindFirstChild("HumanoidRootPart")
-                if not hrp then return end
-                local enemies = Workspace:FindFirstChild("Enemies")
-                if not enemies then return end
-                local range = Config.BypassTpRange or 500
-                local mode = Config.BypassTpMode or "Nearest"
-                local list = {}
-                for _, npc in ipairs(enemies:GetChildren()) do
-                    if npc:IsA("Model") then
-                        local eRoot = npc:FindFirstChild("HumanoidRootPart")
-                        local eHum = npc:FindFirstChildOfClass("Humanoid")
-                        if eRoot and eHum and eHum.Health > 0 then
-                            local d = (eRoot.Position - hrp.Position).Magnitude
-                            if d <= range then
-                                table.insert(list, { root = eRoot, dist = d })
-                            end
-                        end
-                    end
-                end
-                if #list == 0 then return end
-                table.sort(list, function(a, b) return a.dist < b.dist end)
-                if mode == "Nearest" then
-                    local t = list[1].root
-                    local yOff = Config.BypassTpAbove and (Config.BypassTpHeight or 12) or 3
-                    hrp.CFrame = CFrame.new(t.Position + Vector3.new(0, yOff, 0))
-                end
-            end)
-        end
-        BypassTpConn = nil
-    end)
-end
-local function StopBypassTpNpc()
-    Config.BypassTpNpc = false
-    BypassTpConn = nil
-end
-
-local SilentAimModule = (function()
-    local module = {}
-    local SilentAimPlayersEnabled = false
-    local SilentAimNPCsEnabled = false
-    local BlacklistedKeys = {
-        Melee = { Z = false, X = false, C = false, V = false, F = false },
-        Sword = { Z = false, X = false, C = false, V = false, F = false },
-        Fruit = { Z = false, X = false, C = false, V = false, F = false, TAP = false },
-        Gun   = { Z = false, X = false, C = false, V = false, F = false },
-    }
-    function module:SetPlayerSilentAim(state) SilentAimPlayersEnabled = state end
-    function module:SetNPCSilentAim(state) SilentAimNPCsEnabled = state end
-    function module:SetBlacklistKey(cat, key, state)
-        if BlacklistedKeys[cat] and BlacklistedKeys[cat][key] ~= nil then
-            BlacklistedKeys[cat][key] = state
-        end
-    end
-    function module:SetAimMode(mode) end
-    function module:SetTargetPriority(prio) end
-    function module:SetShowFOVCircle(state) end
-    function module:SetFOVRadius(num) end
-    function module:SetFOVMode(mode) end
-    function module:SetDistanceLimit(num) end
-    function module:SetSoruAutoAim(state) end
-    function module:SetSoruAimMode(mode) end
-    function module:SetSoruFOVType(mode) end
-    function module:SetSoruFOVRadius(r) end
-    function module:SetSoruRange(r) end
-    function module:SetSoruPriority(p) end
-    function module:SetSoruShowFOVCircle(state) end
-    function module:SetTracerEnabled(state) end
-    return module
-end)()
-
-local M1ExtenderMod = (function()
-    local M = {}
-    local active = false
-    local maxRange = 50
-    function M:Toggle(v) active = v end
-    function M:SetRange(v) maxRange = v end
-    return M
-end)()
-
-local noGfxMode = "Off"
-local function setNoGfxMode(mode)
-    noGfxMode = mode
-    Config.NoGfxMode = mode
-end
-
-local function InjectFastFlags(setId)
-    local count = 0
-    pcall(function()
-        if setfflag then
-            setfflag("DFIntTaskSchedulerTargetFps", "9999")
-            count = count + 1
-        end
-    end)
-    return count, 0
-end
-
-local MovementState = {
-    SuperJump = false,
-    SuperJumpPower = 100,
-    DashLength = 50,
-    HipHeightValue = 2,
-}
-
-local noclipConn, jumpConn, bhopConn, fallConn, dashConn, hipConn
-
-local function StartNoclip()
-    if noclipConn then return end
-    noclipConn = RunService.Stepped:Connect(function()
-        local char = lp.Character
-        if char then
-            for _, p in ipairs(char:GetDescendants()) do
-                if p:IsA("BasePart") then p.CanCollide = false end
-            end
-        end
-    end)
-end
-local function StopNoclip()
-    if noclipConn then noclipConn:Disconnect() noclipConn = nil end
-    local char = lp.Character
-    if char then
-        for _, p in ipairs(char:GetDescendants()) do
-            if p:IsA("BasePart") then p.CanCollide = true end
-        end
-    end
-end
-
-local function StartInfiniteJump()
-    if jumpConn then return end
-    jumpConn = UserInputService.JumpRequest:Connect(function()
-        local hum = lp.Character and lp.Character:FindFirstChildOfClass("Humanoid")
-        if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end
-    end)
-end
-local function StopInfiniteJump()
-    if jumpConn then jumpConn:Disconnect() jumpConn = nil end
-end
-
-local function StartBunnyHop()
-    if bhopConn then return end
-    bhopConn = RunService.Heartbeat:Connect(function()
-        local hum = lp.Character and lp.Character:FindFirstChildOfClass("Humanoid")
-        if hum and hum.FloorMaterial ~= Enum.Material.Air then hum.Jump = true end
-    end)
-end
-local function StopBunnyHop()
-    if bhopConn then bhopConn:Disconnect() bhopConn = nil end
-end
-
-local function StartNoFall()
-    if fallConn then return end
-    fallConn = RunService.Heartbeat:Connect(function()
-        local hum = lp.Character and lp.Character:FindFirstChildOfClass("Humanoid")
-        if hum then
-            hum:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
-            hum:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
-        end
-    end)
-end
-local function StopNoFall()
-    if fallConn then fallConn:Disconnect() fallConn = nil end
-end
-
-local function StartDashDistance()
-    if dashConn then return end
-    dashConn = RunService.Heartbeat:Connect(function()
-        local char = lp.Character
-        if char then
-            pcall(function() char:SetAttribute("DashLength", MovementState.DashLength) end)
-        end
-    end)
-end
-local function StopDashDistance()
-    if dashConn then dashConn:Disconnect() dashConn = nil end
-end
-
-local function StartHipHeight()
-    if hipConn then return end
-    hipConn = RunService.Heartbeat:Connect(function()
-        local hum = lp.Character and lp.Character:FindFirstChildOfClass("Humanoid")
-        if hum then hum.HipHeight = MovementState.HipHeightValue end
-    end)
-end
-local function StopHipHeight()
-    if hipConn then hipConn:Disconnect() hipConn = nil end
-    local hum = lp.Character and lp.Character:FindFirstChildOfClass("Humanoid")
-    if hum then hum.HipHeight = 2 end
-end
-
-local flyBV, flyBG, flyConn
-local holdUp, holdDown = false, false
-local function cleanupFly()
-    if flyConn then flyConn:Disconnect() flyConn = nil end
-    if flyBV then flyBV:Destroy() flyBV = nil end
-    if flyBG then flyBG:Destroy() flyBG = nil end
-    local hum = lp.Character and lp.Character:FindFirstChildOfClass("Humanoid")
-    if hum then pcall(function() hum.PlatformStand = false end) end
-end
-local function startFly()
-    cleanupFly()
-    local hrp = humanoidRootPart
-    local hum = lp.Character and lp.Character:FindFirstChildOfClass("Humanoid")
-    if not hrp or not hum then return end
-    hum.PlatformStand = true
-    flyBV = Instance.new("BodyVelocity", hrp)
-    flyBV.MaxForce = Vector3.new(9e9, 9e9, 9e9)
-    flyBG = Instance.new("BodyGyro", hrp)
-    flyBG.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
-    flyConn = RunService.Heartbeat:Connect(function()
-        if not Config.Fly then return end
-        local camCF = Camera.CFrame
-        local move = Vector3.zero
-        if UserInputService:IsKeyDown(Enum.KeyCode.W) then move = move + camCF.LookVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.S) then move = move - camCF.LookVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.A) then move = move - camCF.RightVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.D) then move = move + camCF.RightVector end
-        if holdUp then move = move + Vector3.new(0, 1, 0) end
-        if holdDown then move = move - Vector3.new(0, 1, 0) end
-        flyBV.Velocity = move * Config.FlySpeed
-        flyBG.CFrame = camCF
-    end)
-end
-local function stopFly()
-    cleanupFly()
-end
-
-UserInputService.InputBegan:Connect(function(input, gpe)
-    if gpe then return end
-    if input.KeyCode == Enum.KeyCode.Space then holdUp = true
-    elseif input.KeyCode == Enum.KeyCode.LeftShift then holdDown = true end
-end)
-UserInputService.InputEnded:Connect(function(input)
-    if input.KeyCode == Enum.KeyCode.Space then holdUp = false
-    elseif input.KeyCode == Enum.KeyCode.LeftShift then holdDown = false end
-end)
 
 local ToggleButton = Instance.new("ImageButton", ScreenGui)
 ToggleButton.Name = "OpenCloseToggle"
@@ -764,6 +43,42 @@ local ToggleStroke = Instance.new("UIStroke", ToggleButton)
 ToggleStroke.Color = strokeColor
 ToggleStroke.Thickness = 1.5
 
+-- Anillo Mangekyo Sharingan oficial con el ID que pediste
+local KamuiRing = Instance.new("ImageLabel", ScreenGui)
+KamuiRing.Name = "KamuiRing"
+KamuiRing.AnchorPoint = Vector2.new(0.5, 0.5)
+KamuiRing.Position = UDim2.new(0.5, 0, 0.5, 0)
+KamuiRing.Size = UDim2.new(0, 0, 0, 0)
+KamuiRing.BackgroundTransparency = 1
+KamuiRing.Image = "rbxassetid://91250318294401"
+KamuiRing.ImageColor3 = Color3.fromRGB(255, 40, 40)
+KamuiRing.Visible = false
+KamuiRing.ZIndex = 300
+
+-- Grupo de sonido para volumen máximo absoluto (Súper Fuerte)
+local maxVolumeGroup = Instance.new("SoundGroup", SoundService)
+maxVolumeGroup.Name = "MiiseryMaxVolume"
+maxVolumeGroup.Volume = 10
+
+local KamuiSound = Instance.new("Sound", SoundService)
+KamuiSound.Name = "KamuiSupremeAudio"
+KamuiSound.SoundId = "rbxassetid://70698855144717"
+KamuiSound.Volume = 10
+KamuiSound.SoundGroup = maxVolumeGroup
+KamuiSound.RollOffMaxDistance = 100000
+
+local function playKamuiAudio()
+    pcall(function()
+        for _, s in ipairs(SoundService:GetDescendants()) do
+            if s:IsA("Sound") and s ~= KamuiSound then
+                pcall(function() s:Stop() end)
+            end
+        end
+        KamuiSound.TimePosition = 0
+        KamuiSound:Play()
+    end)
+end
+
 local MainContainer = Instance.new("Frame", ScreenGui)
 MainContainer.Name = "MainContainer"
 MainContainer.Size = UDim2.new(0, 520, 0, 310)
@@ -771,7 +86,6 @@ MainContainer.BackgroundColor3 = darkBgColor
 MainContainer.ClipsDescendants = true
 MainContainer.Active = true
 MainContainer.Visible = false
-MainContainer.Size = UDim2.new(0, 0, 0, 0)
 
 Instance.new("UICorner", MainContainer).CornerRadius = UDim.new(0, 10)
 local MainStroke = Instance.new("UIStroke", MainContainer)
@@ -785,6 +99,34 @@ TopBar.Position = UDim2.new(0, 8, 0, 6)
 TopBar.BackgroundTransparency = 1
 TopBar.ZIndex = 10
 
+-- Movible en Celular y PC (Draggable)
+local dragging, dragInput, dragStart, startPos
+TopBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainContainer.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+TopBar.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        local delta = input.Position - dragStart
+        MainContainer.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
 local LogoIcon = Instance.new("ImageLabel", TopBar)
 LogoIcon.Size = UDim2.new(0, 26, 0, 26)
 LogoIcon.Position = UDim2.new(0, 2, 0.5, -13)
@@ -797,7 +139,7 @@ TitleLabel.Size = UDim2.new(0, 120, 1, 0)
 TitleLabel.Position = UDim2.new(0, 34, 0, 0)
 TitleLabel.BackgroundTransparency = 1
 TitleLabel.Text = "Miisery Hub"
-TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleLabel.TextColor3 = Color3.fromRGB(240, 200, 255)
 TitleLabel.Font = Enum.Font.GothamBold
 TitleLabel.TextSize = 12
 TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -807,7 +149,7 @@ GearButton.Size = UDim2.new(0, 26, 0, 26)
 GearButton.Position = UDim2.new(1, -58, 0.5, -13)
 GearButton.BackgroundColor3 = cardBgColor
 GearButton.Text = "☆"
-GearButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+GearButton.TextColor3 = Color3.fromRGB(240, 200, 255)
 GearButton.Font = Enum.Font.GothamBold
 GearButton.TextSize = 14
 GearButton.ZIndex = 15
@@ -838,7 +180,7 @@ CloseButton.Size = UDim2.new(0, 26, 0, 26)
 CloseButton.Position = UDim2.new(1, -26, 0.5, -13)
 CloseButton.BackgroundColor3 = cardBgColor
 CloseButton.Text = "×"
-CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.TextColor3 = Color3.fromRGB(240, 200, 255)
 CloseButton.Font = Enum.Font.GothamBold
 CloseButton.TextSize = 16
 CloseButton.ZIndex = 15
@@ -854,25 +196,56 @@ MainContainer.Position = initialExecutionPos
 local isOpen = false
 local animating = false
 local normalSize = UDim2.new(0, 520, 0, 310)
-local closedSize = UDim2.new(0, 0, 0, 0)
 
+-- Secuencia Mangekyo / Kamui (Gira lento 1 segundo, luego acelera rápido)
 local function AnimateUI(open)
     if animating then return end
     animating = true
+    playKamuiAudio()
+
+    KamuiRing.Visible = true
+    KamuiRing.Size = UDim2.new(0, 0, 0, 0)
+    KamuiRing.Rotation = 0
+    KamuiRing.ImageTransparency = 0
+
+    local spinConnection
+    local startTime = tick()
+    spinConnection = RunService.RenderStepped:Connect(function()
+        local elapsed = tick() - startTime
+        local currentSpeed = (elapsed <= 1) and 4 or 35 -- Lento al inicio (1s), luego rápido
+        KamuiRing.Rotation = KamuiRing.Rotation + currentSpeed
+        if elapsed >= 3 then
+            if spinConnection then spinConnection:Disconnect() end
+        end
+    end)
+
+    local ringTween1 = TweenService:Create(KamuiRing, TweenInfo.new(1.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+        Size = UDim2.new(0, 850, 0, 850)
+    })
+    ringTween1:Play()
+    ringTween1.Completed:Wait()
+
     if open then
         MainContainer.Visible = true
+        MainContainer.Size = normalSize
         MainContainer.Position = initialExecutionPos
-        local tween = TweenService:Create(MainContainer, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = normalSize})
-        tween:Play()
-        tween.Completed:Wait()
-        isOpen = true
     else
-        local tween = TweenService:Create(MainContainer, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Size = closedSize})
-        tween:Play()
-        tween.Completed:Wait()
         MainContainer.Visible = false
-        isOpen = false
     end
+
+    task.wait(1.5)
+
+    local ringTween2 = TweenService:Create(KamuiRing, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+        Size = UDim2.new(0, 0, 0, 0),
+        ImageTransparency = 1
+    })
+    ringTween2:Play()
+    ringTween2.Completed:Wait()
+
+    KamuiRing.Visible = false
+    if spinConnection then spinConnection:Disconnect() end
+
+    isOpen = open
     animating = false
 end
 
@@ -901,8 +274,8 @@ local ConfirmText = Instance.new("TextLabel", ConfirmBox)
 ConfirmText.Size = UDim2.new(1, 0, 0, 45)
 ConfirmText.Position = UDim2.new(0, 0, 0, 10)
 ConfirmText.BackgroundTransparency = 1
-ConfirmText.Text = "Are you sure you want to close the script?"
-ConfirmText.TextColor3 = Color3.fromRGB(220, 220, 220)
+ConfirmText.Text = "Are you sure you want to close the UI?"
+ConfirmText.TextColor3 = Color3.fromRGB(240, 200, 255)
 ConfirmText.Font = Enum.Font.GothamMedium
 ConfirmText.TextSize = 11
 ConfirmText.TextWrapped = true
@@ -913,7 +286,7 @@ YesButton.Size = UDim2.new(0, 90, 0, 28)
 YesButton.Position = UDim2.new(0, 20, 0, 65)
 YesButton.BackgroundColor3 = cardBgColor
 YesButton.Text = "Close"
-YesButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+YesButton.TextColor3 = Color3.fromRGB(240, 200, 255)
 YesButton.Font = Enum.Font.GothamBold
 YesButton.TextSize = 10
 YesButton.ZIndex = 52
@@ -927,7 +300,7 @@ NoButton.Size = UDim2.new(0, 90, 0, 28)
 NoButton.Position = UDim2.new(1, -110, 0, 65)
 NoButton.BackgroundColor3 = cardBgColor
 NoButton.Text = "No"
-NoButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+NoButton.TextColor3 = Color3.fromRGB(240, 200, 255)
 NoButton.Font = Enum.Font.GothamBold
 NoButton.TextSize = 10
 NoButton.ZIndex = 52
@@ -963,7 +336,7 @@ ConfigTitle.Size = UDim2.new(1, 0, 0, 30)
 ConfigTitle.Position = UDim2.new(0, 0, 0, 8)
 ConfigTitle.BackgroundTransparency = 1
 ConfigTitle.Text = "UI Configuration"
-ConfigTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+ConfigTitle.TextColor3 = Color3.fromRGB(240, 200, 255)
 ConfigTitle.Font = Enum.Font.GothamBold
 ConfigTitle.TextSize = 12
 ConfigTitle.ZIndex = 62
@@ -973,7 +346,7 @@ ConfigClose.Size = UDim2.new(0, 22, 0, 22)
 ConfigClose.Position = UDim2.new(1, -30, 0, 8)
 ConfigClose.BackgroundColor3 = cardBgColor
 ConfigClose.Text = "×"
-ConfigClose.TextColor3 = Color3.fromRGB(255, 255, 255)
+ConfigClose.TextColor3 = Color3.fromRGB(240, 200, 255)
 ConfigClose.Font = Enum.Font.GothamBold
 ConfigClose.TextSize = 14
 ConfigClose.ZIndex = 62
@@ -985,28 +358,32 @@ GearButton.MouseButton1Click:Connect(function() ConfigOverlay.Visible = true end
 local allStrokes = {MainStroke, ToggleStroke, GearStroke, CloseStroke, ConfirmStroke, YesStroke, NoStroke, ConfigStroke}
 local allCards = {MainContainer, ToggleButton, GearButton, CloseButton, ConfirmBox, YesButton, NoButton, ConfigBox}
 
-local function ApplyTheme(isDarkWhite, customColor)
-    if isDarkWhite then
-        strokeColor = Color3.fromRGB(255, 255, 255)
-        darkBgColor = Color3.fromRGB(10, 10, 10)
-        cardBgColor = Color3.fromRGB(16, 16, 16)
+local function ApplyTheme(customColor, isTransparent)
+    strokeColor = customColor
+    if isTransparent then
+        darkBgColor = Color3.new(0, 0, 0)
+        cardBgColor = Color3.new(0, 0, 0)
     else
-        strokeColor = customColor
-        darkBgColor = customColor:Lerp(Color3.fromRGB(0, 0, 0), 0.88)
-        cardBgColor = customColor:Lerp(Color3.fromRGB(0, 0, 0), 0.80)
+        darkBgColor = customColor:Lerp(Color3.fromRGB(10, 0, 20), 0.85)
+        cardBgColor = customColor:Lerp(Color3.fromRGB(20, 5, 35), 0.75)
     end
     for _, str in ipairs(allStrokes) do if str and str.Parent then str.Color = strokeColor end end
     for _, card in ipairs(allCards) do
         if card and card.Parent then
-            if card == MainContainer or card == ConfirmBox or card == ConfigBox then card.BackgroundColor3 = darkBgColor
-            else card.BackgroundColor3 = cardBgColor end
+            if isTransparent then
+                card.BackgroundTransparency = 1
+            else
+                card.BackgroundTransparency = 0
+                if card == MainContainer or card == ConfirmBox or card == ConfigBox then card.BackgroundColor3 = darkBgColor
+                else card.BackgroundColor3 = cardBgColor end
+            end
         end
     end
 end
 
 local colorsContainer = Instance.new("Frame", ConfigBox)
-colorsContainer.Size = UDim2.new(0, 180, 0, 24)
-colorsContainer.Position = UDim2.new(0, 140, 0, 115)
+colorsContainer.Size = UDim2.new(0, 220, 0, 24)
+colorsContainer.Position = UDim2.new(0.5, -110, 0, 115)
 colorsContainer.BackgroundTransparency = 1
 colorsContainer.ZIndex = 62
 local cLayout = Instance.new("UIListLayout", colorsContainer)
@@ -1014,22 +391,21 @@ cLayout.FillDirection = Enum.FillDirection.Horizontal
 cLayout.Padding = UDim.new(0, 6)
 
 local palette = {
-    {Name = "Classic", Color = nil},
-    {Name = "Red", Color = Color3.fromRGB(255, 60, 60)},
-    {Name = "Blue", Color = Color3.fromRGB(60, 130, 255)},
-    {Name = "Purple", Color = Color3.fromRGB(160, 60, 255)},
-    {Name = "Orange", Color = Color3.fromRGB(255, 130, 40)}
+    {Name = "Purple", Color = Color3.fromRGB(160, 60, 255), Trans = false},
+    {Name = "Neon Pink", Color = Color3.fromRGB(255, 50, 180), Trans = false},
+    {Name = "Electric Blue", Color = Color3.fromRGB(50, 150, 255), Trans = false},
+    {Name = "Transparent", Color = Color3.fromRGB(200, 100, 255), Trans = true}
 }
 
 for _, colData in ipairs(palette) do
     local cBtn = Instance.new("TextButton", colorsContainer)
     cBtn.Size = UDim2.new(0, 22, 0, 22)
-    cBtn.BackgroundColor3 = colData.Color or Color3.fromRGB(255, 255, 255)
+    cBtn.BackgroundColor3 = colData.Color
     cBtn.Text = ""
     cBtn.ZIndex = 63
     Instance.new("UICorner", cBtn).CornerRadius = UDim.new(1, 0)
     cBtn.MouseButton1Click:Connect(function()
-        if colData.Color == nil then ApplyTheme(true, nil) else ApplyTheme(false, colData.Color) end
+        ApplyTheme(colData.Color, colData.Trans)
     end)
 end
 
@@ -1050,9 +426,9 @@ function HubLibrary:CreateTab(tabName)
     local TabBtn = Instance.new("TextButton", TabsContainer)
     TabBtn.Name = tabName .. "TabBtn"
     TabBtn.Size = UDim2.new(0, 75, 0, 24)
-    TabBtn.BackgroundColor3 = isFirst and Color3.fromRGB(240, 240, 240) or cardBgColor
+    TabBtn.BackgroundColor3 = isFirst and Color3.fromRGB(220, 180, 255) or cardBgColor
     TabBtn.Text = tabName
-    TabBtn.TextColor3 = isFirst and Color3.fromRGB(10, 10, 10) or Color3.fromRGB(240, 240, 240)
+    TabBtn.TextColor3 = isFirst and Color3.fromRGB(25, 12, 40) or Color3.fromRGB(240, 200, 255)
     TabBtn.Font = Enum.Font.GothamMedium
     TabBtn.TextSize = 10
     Instance.new("UICorner", TabBtn).CornerRadius = UDim.new(0, 6)
@@ -1084,7 +460,7 @@ function HubLibrary:CreateTab(tabName)
         for _, b in ipairs(TabsContainer:GetChildren()) do
             if b:IsA("TextButton") then
                 b.BackgroundColor3 = cardBgColor
-                b.TextColor3 = Color3.fromRGB(240, 240, 240)
+                b.TextColor3 = Color3.fromRGB(240, 200, 255)
             end
         end
         Page.Visible = true
@@ -1096,263 +472,6 @@ function HubLibrary:CreateTab(tabName)
     return Page
 end
 
-local function CreateToggle(parent, text, default, callback)
-    local btn = Instance.new("TextButton", parent)
-    btn.Size = UDim2.new(1, 0, 0, 28)
-    btn.BackgroundColor3 = cardBgColor
-    btn.Text = ""
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
-    local st = Instance.new("UIStroke", btn)
-    st.Color = strokeColor
-    st.Thickness = 1
-    table.insert(allStrokes, st)
-    table.insert(allCards, btn)
-
-    local lbl = Instance.new("TextLabel", btn)
-    lbl.Size = UDim2.new(1, -40, 1, 0)
-    lbl.Position = UDim2.new(0, 10, 0, 0)
-    lbl.BackgroundTransparency = 1
-    lbl.Text = text
-    lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
-    lbl.Font = Enum.Font.GothamMedium
-    lbl.TextSize = 10
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
-
-    local indicator = Instance.new("Frame", btn)
-    indicator.Size = UDim2.new(0, 16, 0, 16)
-    indicator.Position = UDim2.new(1, -24, 0.5, -8)
-    indicator.BackgroundColor3 = default and Color3.fromRGB(80, 220, 100) or Color3.fromRGB(40, 40, 40)
-    Instance.new("UICorner", indicator).CornerRadius = UDim.new(0, 4)
-    local ist = Instance.new("UIStroke", indicator)
-    ist.Color = strokeColor
-    ist.Thickness = 1
-    table.insert(allStrokes, ist)
-
-    local state = default
-    btn.MouseButton1Click:Connect(function()
-        state = not state
-        indicator.BackgroundColor3 = state and Color3.fromRGB(80, 220, 100) or Color3.fromRGB(40, 40, 40)
-        pcall(function() callback(state) end)
-    end)
-end
-
-local function CreateSlider(parent, text, min, max, default, callback)
-    local frame = Instance.new("Frame", parent)
-    frame.Size = UDim2.new(1, 0, 0, 42)
-    frame.BackgroundColor3 = cardBgColor
-    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
-    local st = Instance.new("UIStroke", frame)
-    st.Color = strokeColor
-    st.Thickness = 1
-    table.insert(allStrokes, st)
-    table.insert(allCards, frame)
-
-    local lbl = Instance.new("TextLabel", frame)
-    lbl.Size = UDim2.new(1, -20, 0, 18)
-    lbl.Position = UDim2.new(0, 10, 0, 4)
-    lbl.BackgroundTransparency = 1
-    lbl.Text = text .. ": " .. tostring(default)
-    lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
-    lbl.Font = Enum.Font.GothamMedium
-    lbl.TextSize = 10
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
-
-    local sliderBg = Instance.new("TextButton", frame)
-    sliderBg.Size = UDim2.new(1, -20, 0, 8)
-    sliderBg.Position = UDim2.new(0, 10, 0, 26)
-    sliderBg.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    sliderBg.Text = ""
-    Instance.new("UICorner", sliderBg).CornerRadius = UDim.new(0, 4)
-
-    local fill = Instance.new("Frame", sliderBg)
-    fill.Size = UDim2.new((default - min)/(max - min), 0, 1, 0)
-    fill.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
-    Instance.new("UICorner", fill).CornerRadius = UDim.new(0, 4)
-
-    local dragging = false
-    sliderBg.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragging = true end
-    end)
-    UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragging = false end
-    end)
-    UserInputService.InputChanged:Connect(function(input)
-        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-            local pos = math.clamp((input.Position.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X, 0, 1)
-            local val = math.floor(min + (max - min) * pos)
-            fill.Size = UDim2.new(pos, 0, 1, 0)
-            lbl.Text = text .. ": " .. tostring(val)
-            pcall(function() callback(val) end)
-        end
-    end)
-end
-
-local function CreateDropdown(parent, text, list, default, callback)
-    local frame = Instance.new("Frame", parent)
-    frame.Size = UDim2.new(1, 0, 0, 32)
-    frame.BackgroundColor3 = cardBgColor
-    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
-    local st = Instance.new("UIStroke", frame)
-    st.Color = strokeColor
-    st.Thickness = 1
-    table.insert(allStrokes, st)
-    table.insert(allCards, frame)
-
-    local lbl = Instance.new("TextLabel", frame)
-    lbl.Size = UDim2.new(0.6, 0, 1, 0)
-    lbl.Position = UDim2.new(0, 10, 0, 0)
-    lbl.BackgroundTransparency = 1
-    lbl.Text = text
-    lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
-    lbl.Font = Enum.Font.GothamMedium
-    lbl.TextSize = 10
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
-
-    local btn = Instance.new("TextButton", frame)
-    btn.Size = UDim2.new(0.4, -10, 0, 24)
-    btn.Position = UDim2.new(0.6, 0, 0.5, -12)
-    btn.BackgroundColor3 = darkBgColor
-    btn.Text = tostring(default)
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 9.5
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
-    local bst = Instance.new("UIStroke", btn)
-    bst.Color = strokeColor
-    bst.Thickness = 1
-    table.insert(allStrokes, bst)
-
-    local idx = 1
-    for i, v in ipairs(list) do if v == default then idx = i break end end
-
-    btn.MouseButton1Click:Connect(function()
-        idx = idx + 1
-        if idx > #list then idx = 1 end
-        local val = list[idx]
-        btn.Text = tostring(val)
-        pcall(function() callback(val) end)
-    end)
-end
-
-local function CreateButton(parent, text, callback)
-    local btn = Instance.new("TextButton", parent)
-    btn.Size = UDim2.new(1, 0, 0, 28)
-    btn.BackgroundColor3 = cardBgColor
-    btn.Text = text
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 10
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
-    local st = Instance.new("UIStroke", btn)
-    st.Color = strokeColor
-    st.Thickness = 1
-    table.insert(allStrokes, st)
-    table.insert(allCards, btn)
-    btn.MouseButton1Click:Connect(function() pcall(callback) end)
-end
-
-local MainTab = HubLibrary:CreateTab("Main")
-CreateToggle(MainTab, "Fast Attack", Config.FastAttack, function(v) Config.FastAttack = v end)
-CreateToggle(MainTab, "Attack Players", Config.FAPlayers, function(v) Config.FAPlayers = v end)
-CreateToggle(MainTab, "Attack NPCs", Config.FAMobs, function(v) Config.FAMobs = v end)
-CreateSlider(MainTab, "FA Range", 50, 5000, Config.FARange, function(v) Config.FARange = v end)
-CreateToggle(MainTab, "Bring Mobs", Config.BringMobs, function(v) Config.BringMobs = v end)
-CreateSlider(MainTab, "Bring Range", 50, 5000, Config.BringRange, function(v) Config.BringRange = v end)
-
-local GunTab = HubLibrary:CreateTab("Gun Aura")
-CreateToggle(GunTab, "Gun Aura Safe", Config.SafeGun, function(v) Config.SafeGun = v; _cachedToolSafe = nil; _cachedTargetSafe = nil end)
-CreateToggle(GunTab, "Safe Mobs", Config.SafeMobs, function(v) Config.SafeMobs = v end)
-CreateToggle(GunTab, "Safe Players", Config.SafePlayers, function(v) Config.SafePlayers = v end)
-CreateToggle(GunTab, "Safe Sea Events", Config.SafeSea, function(v) Config.SafeSea = v end)
-CreateSlider(GunTab, "Safe Gun Range", 50, 30000, Config.SafeRange, function(v) Config.SafeRange = v end)
-CreateToggle(GunTab, "Super Gun Aura", Config.SuperGun, function(v) Config.SuperGun = v; _cachedToolSuper = nil; _cachedTargetSuper = nil end)
-CreateToggle(GunTab, "Super Mobs", Config.SuperMobs, function(v) Config.SuperMobs = v end)
-CreateToggle(GunTab, "Super Players", Config.SuperPlayers, function(v) Config.SuperPlayers = v end)
-CreateToggle(GunTab, "Super Sea Events", Config.SuperSea, function(v) Config.SuperSea = v end)
-CreateSlider(GunTab, "Super Gun Range", 50, 30000, Config.SuperRange, function(v) Config.SuperRange = v end)
-CreateToggle(GunTab, "Disappear Everything", Config.Disappear, function(v) setDisappear(v) end)
-
-local DungeonsTab = HubLibrary:CreateTab("Dungeons")
-CreateToggle(DungeonsTab, "Fruit Fast Attack", Config.FruitM1, function(v) Config.FruitM1 = v; FruitM1.SetNormal(v) end)
-CreateToggle(DungeonsTab, "Bypass TP NPC", Config.BypassTpNpc or false, function(v) Config.BypassTpNpc = v; if v then StartBypassTpNpc() else StopBypassTpNpc() end end)
-CreateSlider(DungeonsTab, "NPC TP Range", 50, 5000, Config.BypassTpRange or 500, function(v) Config.BypassTpRange = v end)
-CreateDropdown(DungeonsTab, "TP Mode", {"Nearest", "All in Range", "Bring to Me"}, Config.BypassTpMode or "Nearest", function(v) Config.BypassTpMode = v end)
-CreateToggle(DungeonsTab, "TP Above NPC", Config.BypassTpAbove ~= false, function(v) Config.BypassTpAbove = v end)
-CreateSlider(DungeonsTab, "Height Above NPC", 3, 50, Config.BypassTpHeight or 12, function(v) Config.BypassTpHeight = v end)
-
-local TrackersTab = HubLibrary:CreateTab("Trackers")
-local trackPlayerNames = {"Nearest"}
-for _, p in ipairs(Players:GetPlayers()) do if p ~= lp then table.insert(trackPlayerNames, p.Name) end end
-CreateDropdown(TrackersTab, "Target Player", trackPlayerNames, Config.SelectedTrackPlayer or "Nearest", function(v) Config.SelectedTrackPlayer = v end)
-CreateToggle(TrackersTab, "Tween Nearest", Config.TweenNearest, function(v) Config.TweenNearest = v end)
-CreateToggle(TrackersTab, "Tween To Player", Config.TweenToPlayer, function(v) Config.TweenToPlayer = v end)
-CreateToggle(TrackersTab, "Insta TP", Config.InstaTP, function(v) Config.InstaTP = v end)
-CreateSlider(TrackersTab, "Tween Speed", 50, 800, Config.TweenSpeed or 350, function(v) Config.TweenSpeed = v end)
-CreateSlider(TrackersTab, "Offset X", -20, 20, Config.TweenOX or 0, function(v) Config.TweenOX = v end)
-CreateSlider(TrackersTab, "Offset Y", -20, 50, Config.TweenOY or 1.5, function(v) Config.TweenOY = v end)
-CreateSlider(TrackersTab, "Offset Z", -20, 20, Config.TweenOZ or 3.5, function(v) Config.TweenOZ = v end)
-
-local AimTab = HubLibrary:CreateTab("Aim")
-CreateToggle(AimTab, "Silent Aim Players", Config.SilentPlayer, function(v) Config.SilentPlayer = v; SilentAimModule:SetPlayerSilentAim(v) end)
-CreateToggle(AimTab, "Silent Aim NPCs", Config.SilentNPC, function(v) Config.SilentNPC = v; SilentAimModule:SetNPCSilentAim(v) end)
-CreateDropdown(AimTab, "Aim Mode", {"360", "180", "FOV"}, Config.AimMode or "360", function(v) Config.AimMode = v; SilentAimModule:SetAimMode(v) end)
-CreateDropdown(AimTab, "Priority", {"Nearest", "Low HP", "HighestHP", "Looking At Me", "Lock Player"}, Config.AimPriority or "Nearest", function(v) Config.AimPriority = v; SilentAimModule:SetTargetPriority(v) end)
-CreateSlider(AimTab, "FOV Radius", 10, 2000, Config.FOVRadius or 150, function(v) Config.FOVRadius = v; SilentAimModule:SetFOVRadius(v) end)
-CreateSlider(AimTab, "Max Range", 50, 10000, Config.AimMaxRange or 2000, function(v) Config.AimMaxRange = v; SilentAimModule:SetDistanceLimit(v) end)
-CreateToggle(AimTab, "M1 Extender", Config.M1Extender, function(v) Config.M1Extender = v; M1ExtenderMod:Toggle(v) end)
-CreateSlider(AimTab, "M1 Range", 10, 300, Config.M1Range or 50, function(v) Config.M1Range = v; M1ExtenderMod:SetRange(v) end)
-
-local BlacklistTab = HubLibrary:CreateTab("Blacklist")
-local function addBlToggle(cat, key)
-    local ck = "BL_" .. cat .. "_" .. key
-    CreateToggle(BlacklistTab, cat .. ": Blacklist " .. key, Config[ck] == true, function(v)
-        Config[ck] = v
-        SilentAimModule:SetBlacklistKey(cat, key, v)
-    end)
-end
-for _, key in ipairs({"Z", "X", "C"}) do addBlToggle("Melee", key) end
-for _, key in ipairs({"Z", "X", "C", "V", "F", "TAP"}) do addBlToggle("Fruit", key) end
-for _, key in ipairs({"Z", "X"}) do addBlToggle("Sword", key) end
-for _, key in ipairs({"Z", "X"}) do addBlToggle("Gun", key) end
-
-local MiscTab = HubLibrary:CreateTab("Misc")
-CreateToggle(MiscTab, "Notifications", Config.Notifications, function(v) Config.Notifications = v end)
-CreateToggle(MiscTab, "Anti AFK", Config.AntiAFK, function(v) Config.AntiAFK = v end)
-CreateToggle(MiscTab, "Auto V3", Config.AutoV3, function(v) Config.AutoV3 = v end)
-CreateToggle(MiscTab, "Auto V4", Config.AutoV4, function(v) Config.AutoV4 = v end)
-CreateToggle(MiscTab, "Auto PvP", Config.AutoPvP, function(v) Config.AutoPvP = v end)
-CreateToggle(MiscTab, "Infinite Zoom", Config.InfiniteZoom, function(v) Config.InfiniteZoom = v; lp.CameraMaxZoomDistance = v and math.huge or savedZoom end)
-CreateButton(MiscTab, "Buy Cyborg Race", function() pcall(function() CommF:InvokeServer("CyborgTrainer", "Buy") end) end)
-CreateButton(MiscTab, "Buy Ghoul Race", function() pcall(function() CommF:InvokeServer("Ectoplasm", "BuyCheck", 4); CommF:InvokeServer("Ectoplasm", "Buy", 4) end) end)
-CreateButton(MiscTab, "Reset Stats", function() pcall(function() CommF:InvokeServer("BlackbeardReward", "Refund", "2"); CommF:InvokeServer("ResetStats") end) end)
-CreateButton(MiscTab, "Reroll Race", function() pcall(function() CommF:InvokeServer("BlackbeardReward", "Reroll", "2") end) end)
-CreateButton(MiscTab, "Save Config Now", function() SaveConfig() end)
-
-local MovementTab = HubLibrary:CreateTab("Movement")
-CreateToggle(MovementTab, "Fly", Config.Fly, function(v) Config.Fly = v; if v then startFly() else stopFly() end end)
-CreateSlider(MovementTab, "Fly Speed", 50, 500, Config.FlySpeed or 250, function(v) Config.FlySpeed = v end)
-CreateToggle(MovementTab, "Noclip", false, function(v) if v then StartNoclip() else StopNoclip() end end)
-CreateToggle(MovementTab, "Infinite Jump", false, function(v) if v then StartInfiniteJump() else StopInfiniteJump() end end)
-CreateToggle(MovementTab, "Super Jump", false, function(v) MovementState.SuperJump = v end)
-CreateSlider(MovementTab, "Super Jump Power", 50, 300, 100, function(v) MovementState.SuperJumpPower = v end)
-CreateToggle(MovementTab, "Bunny Hop", false, function(v) if v then StartBunnyHop() else StopBunnyHop() end end)
-CreateToggle(MovementTab, "No Fall Damage", false, function(v) if v then StartNoFall() else StopNoFall() end end)
-CreateToggle(MovementTab, "Dash Distance", false, function(v) if v then StartDashDistance() else StopDashDistance() end end)
-CreateSlider(MovementTab, "Dash Length", 10, 200, 50, function(v) MovementState.DashLength = v end)
-CreateToggle(MovementTab, "Custom Hip Height", false, function(v) if v then StartHipHeight() else StopHipHeight() end end)
-CreateSlider(MovementTab, "Hip Height Value", 0, 20, 2, function(v) MovementState.HipHeightValue = v end)
-
-local PotatoTab = HubLibrary:CreateTab("Potato Graphics")
-CreateDropdown(PotatoTab, "No GFX Mode", {"Off", "V1", "V2"}, Config.NoGfxMode or "Off", function(v) setNoGfxMode(v) end)
-CreateButton(PotatoTab, "Inject Fast Flags 1", function() InjectFastFlags(1) end)
-CreateButton(PotatoTab, "Inject Fast Flags 2", function() InjectFastFlags(2) end)
-CreateButton(PotatoTab, "Inject Fast Flags 3", function() InjectFastFlags(3) end)
-CreateButton(PotatoTab, "Inject All Fast Flags", function() InjectFastFlags(1); InjectFastFlags(2); InjectFastFlags(3) end)
-
-task.defer(function()
-    if Config.Fly then startFly() end
-    if Config.InfiniteZoom then lp.CameraMaxZoomDistance = math.huge end
-    if Config.FruitM1 then FruitM1.SetNormal(true) end
-    if Config.BypassTpNpc then StartBypassTpNpc() end
-    AnimateUI(true)
-end)
+local Tab1 = HubLibrary:CreateTab("Main")
+local Tab2 = HubLibrary:CreateTab("Farm")
+local Tab3 = HubLibrary:CreateTab("Misc")

@@ -10,17 +10,17 @@ local Workspace = game:GetService("Workspace")
 local lp = Players.LocalPlayer
 local PlayerGui = lp:WaitForChild("PlayerGui")
 
--- SELLO DE VERSIÓN: 🟠👑🔥 (Dimensión Orgánica / Sin Bloques / Full Carmesí)
-print("Cargando versión oficial con sello: 🟠👑🔥")
+-- SELLO DE VERSIÓN: 🦅🗡️🩸 (Dimensión Interactiva + Cuervos + Rojo en Pantalla)
+print("Cargando versión oficial con sello: 🦅🗡️🩸")
 
 pcall(function()
-    if PlayerGui:FindFirstChild("CyberKamuiGui") then PlayerGui.CyberKamuiGui:Destroy() end
-    if Workspace:FindFirstChild("Revol KamuiRealm") then Workspace.RevolKamuiRealm:Destroy() end
+    if PlayerGui:FindFirstChild("InteractiveKamuiGui") then PlayerGui.InteractiveKamuiGui:Destroy() end
+    if Workspace:FindFirstChild("InteractiveKamuiRealm") then Workspace.InteractiveKamuiRealm:Destroy() end
 end)
 
--- 2. Interfaz de UI Cyber / Futurista con el sello 🟠👑🔥
+-- 1. Interfaz de UI con el sello 🦅🗡️🩸
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "CyberKamuiGui"
+ScreenGui.Name = "InteractiveKamuiGui"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = PlayerGui
 
@@ -40,7 +40,7 @@ buttonCorner.CornerRadius = UDim.new(0.3, 0)
 
 local buttonStroke = Instance.new("UIStroke", KamuiButton)
 buttonStroke.Thickness = 3
-buttonStroke.Color = Color3.fromRGB(255, 60, 0)
+buttonStroke.Color = Color3.fromRGB(180, 0, 255)
 
 local OuterRing = Instance.new("ImageLabel", KamuiButton)
 OuterRing.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -48,13 +48,13 @@ OuterRing.Position = UDim2.new(0.5, 0, 0.5, 0)
 OuterRing.Size = UDim2.new(0, 100, 0, 100)
 OuterRing.BackgroundTransparency = 1
 OuterRing.Image = "rbxassetid://80182942447236"
-OuterRing.ImageColor3 = Color3.fromRGB(255, 60, 0)
+OuterRing.ImageColor3 = Color3.fromRGB(180, 0, 255)
 OuterRing.ZIndex = 11
 
 local InnerIcon = Instance.new("TextLabel", KamuiButton)
 InnerIcon.Size = UDim2.new(1, 0, 1, 0)
 InnerIcon.BackgroundTransparency = 1
-InnerIcon.Text = "👑" -- Sello exclusivo de esta versión
+InnerIcon.Text = "🦅" -- Sello de cuervo exclusivo
 InnerIcon.TextSize = 42
 InnerIcon.ZIndex = 12
 
@@ -65,7 +65,7 @@ task.spawn(function()
     end
 end)
 
--- Rueda Mangekyo Sharingan (INALTERABLE Y PERFECTAMENTE CENTRADA)
+-- Rueda Mangekyo Sharingan (INALTERABLE Y CENTRADA)
 local KamuiRing = Instance.new("ImageLabel", ScreenGui)
 KamuiRing.AnchorPoint = Vector2.new(0.5, 0.5)
 KamuiRing.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -76,95 +76,115 @@ KamuiRing.ImageColor3 = Color3.fromRGB(255, 20, 20)
 KamuiRing.Visible = false
 KamuiRing.ZIndex = 999999
 
--- Audio maestro de Kamui
-local KamuiSound = Instance.new("Sound", SoundService)
-KamuiSound.SoundId = "rbxassetid://70698855144717"
-KamuiSound.Volume = 10
-KamuiSound.RollOffMaxDistance = 100000
+-- Audio de Cuervos Realista para la Activación
+local CrowSound = Instance.new("Sound", SoundService)
+CrowSound.SoundId = "rbxassetid://9114175376" -- Sonido ambiental de cuervos
+CrowSound.Volume = 8
+CrowSound.RollOffMaxDistance = 100000
 
--- 3. CONSTRUCCIÓN DE LA DIMENSIÓN REVOLUCIONARIA (SIN BLOQUES: VACÍO ORGÁNICO Y ANILLOS DE ENERGÍA)
+-- 2. CONSTRUCCIÓN DE LA DIMENSIÓN INTERACTIVA (CON ARMAS Y OBJETOS NUEVOS)
 local dimensionFolder = Instance.new("Folder")
-dimensionFolder.Name = "RevolKamuiRealm"
+dimensionFolder.Name = "InteractiveKamuiRealm"
 dimensionFolder.Parent = Workspace
 
 local basePos = Vector3.new(-9500.6, 6500.4, -8155.7)
 
--- Plataforma Central Flotante Esférica (Diseño Orgánico, Cero Bloques Cuadrados)
-local corePlatform = Instance.new("Part")
-corePlatform.Shape = Enum.PartType.Ball
-corePlatform.Size = Vector3.new(1500, 1500, 1500)
-corePlatform.Position = basePos
-corePlatform.Anchored = true
-corePlatform.Transparency = 0.85
-corePlatform.Color = Color3.fromRGB(255, 0, 0)
-corePlatform.Material = Enum.Material.Glass
-corePlatform.Parent = dimensionFolder
+-- Plataforma Orgánica Principal Flotante (Sin Bloques Aburridos)
+local mainIsland = Instance.new("Part")
+mainIsland.Shape = Enum.PartType.Ball
+mainIsland.Size = Vector3.new(2000, 400, 2000)
+mainIsland.Position = basePos
+mainIsland.Anchored = true
+mainIsland.Color = Color3.fromRGB(20, 20, 25)
+mainIsland.Material = Enum.Material.Slate
+mainIsland.Parent = dimensionFolder
 
--- Anillos Flotantes Orbitales Alrededor del Jugador (Estilo Sci-Fi / Anime)
-local function createOrbitalRing(size, color)
+-- Estructuras Orbitales Flotantes
+local function createFloatingRing(size, color)
     local ring = Instance.new("Part")
     ring.Shape = Enum.PartType.Cylinder
     ring.Size = size
-    ring.Position = basePos + Vector3.new(0, 100, 0)
+    ring.Position = basePos + Vector3.new(0, 150, 0)
     ring.Orientation = Vector3.new(90, 0, 0)
     ring.Anchored = true
     ring.CanCollide = false
-    ring.Transparency = 0.3
+    ring.Transparency = 0.2
     ring.Color = color
     ring.Material = Enum.Material.Neon
     ring.Parent = dimensionFolder
-    return ring
 end
 
-createOrbitalRing(Vector3.new(20, 3000, 3000), Color3.fromRGB(200, 0, 50))
-createOrbitalRing(Vector3.new(15, 4500, 4500), Color3.fromRGB(120, 0, 255))
+createFloatingRing(Vector3.new(15, 3500, 3500), Color3.fromRGB(140, 0, 255))
 
--- Trono Estelar Flotante en el Centro de la Dimensión
-local starThrone = Instance.new("Part")
-starThrone.Shape = Enum.PartType.Ball
-starThrone.Size = Vector3.new(180, 180, 180)
-starThrone.Position = basePos + Vector3.new(0, 250, -1200)
-starThrone.Anchored = true
-starThrone.Color = Color3.fromRGB(255, 215, 0)
-starThrone.Material = Enum.Material.Neon
-starThrone.Parent = dimensionFolder
+-- NUEVO: Armas y Objetos Interactivos Flotantes en la Dimensión
+local function createInteractiveWeapon(offset, name, color)
+    local weaponPedestal = Instance.new("Part")
+    weaponPedestal.Shape = Enum.PartType.Cylinder
+    weaponPedestal.Size = Vector3.new(10, 40, 10)
+    weaponPedestal.Position = basePos + offset + Vector3.new(0, 210, 0)
+    weaponPedestal.Anchored = true
+    weaponPedestal.Color = Color3.fromRGB(50, 50, 60)
+    weaponPedestal.Material = Enum.Material.Metal
+    weaponPedestal.Parent = dimensionFolder
 
--- 4. SHADERS Y ATMÓSFERA ROJO CARMESÍ ABSOLUTO EN TODO EL MUNDO
+    local weaponOrb = Instance.new("Part")
+    weaponOrb.Shape = Enum.PartType.Ball
+    weaponOrb.Size = Vector3.new(35, 35, 35)
+    weaponOrb.Position = basePos + offset + Vector3.new(0, 245, 0)
+    weaponOrb.Anchored = true
+    weaponOrb.CanCollide = false
+    weaponOrb.Color = color
+    weaponOrb.Material = Enum.Material.Neon
+    weaponOrb.Parent = dimensionFolder
+
+    -- Animación flotante para el arma/objeto interactivo
+    task.spawn(function()
+        local t = math.random(1, 100)
+        while weaponOrb and weaponOrb.Parent do
+            t = t + 0.05
+            weaponOrb.Position = (basePos + offset + Vector3.new(0, 245, 0)) + Vector3.new(0, math.sin(t) * 10, 0)
+            task.wait(0.03)
+        end
+    end)
+end
+
+createInteractiveWeapon(Vector3.new(200, 0, -200), "Espada Mística", Color3.fromRGB(255, 50, 50))
+createInteractiveWeapon(Vector3.new(-200, 0, -200), "Orbe Dimensional", Color3.fromRGB(100, 0, 255))
+createInteractiveWeapon(Vector3.new(0, 0, -350), "Kunai Susanoo", Color3.fromRGB(255, 215, 0))
+
+-- 3. Shaders Dinámicos (Rojo solo durante la pantalla de carga del Asset)
 local activeAtmosphere, activeCorrection, activeBloom = nil, nil, nil
 
-local function enableAbsoluteCrimsonWorld()
+local function enableFlashShaders()
     pcall(function()
         if activeAtmosphere then activeAtmosphere:Destroy() end
         if activeCorrection then activeCorrection:Destroy() end
         if activeBloom then activeBloom:Destroy() end
 
-        -- Atmósfera roja densa que cubre todo el horizonte
         activeAtmosphere = Instance.new("Atmosphere")
-        activeAtmosphere.Name = "AbsoluteCrimsonAtmos"
-        activeAtmosphere.Density = 0.75
-        activeAtmosphere.Color = Color3.fromRGB(255, 10, 10)
+        activeAtmosphere.Name = "FlashAtmos"
+        activeAtmosphere.Density = 0.8
+        activeAtmosphere.Color = Color3.fromRGB(255, 0, 0)
         activeAtmosphere.Decay = Color3.fromRGB(50, 0, 0)
         activeAtmosphere.Parent = Lighting
 
-        -- Corrección de color tiñendo todo el mundo de rojo carmesí puro
         activeCorrection = Instance.new("ColorCorrectionEffect")
-        activeCorrection.Name = "AbsoluteCrimsonCorr"
-        activeCorrection.TintColor = Color3.fromRGB(255, 40, 40)
-        activeCorrection.Brightness = -0.05
-        activeCorrection.Contrast = 0.6
+        activeCorrection.Name = "FlashCorr"
+        activeCorrection.TintColor = Color3.fromRGB(255, 30, 30)
+        activeCorrection.Brightness = -0.1
+        activeCorrection.Contrast = 0.7
         activeCorrection.Parent = Lighting
 
-        -- Bloom extremo para hacer brillar los anillos y el Sharingan
         activeBloom = Instance.new("BloomEffect")
-        activeBloom.Name = "AbsoluteCrimsonBloom"
-        activeBloom.Intensity = 2.0
+        activeBloom.Name = "FlashBloom"
+        activeBloom.Intensity = 2.5
         activeBloom.Size = 56
-        activeBloom.Threshold = 0.3
+        activeBloom.Threshold = 0.2
         activeBloom.Parent = Lighting
     end)
 end
 
-local function disableAbsoluteCrimsonWorld()
+local function disableFlashShaders()
     pcall(function()
         if activeAtmosphere then activeAtmosphere:Destroy() end
         if activeCorrection then activeCorrection:Destroy() end
@@ -202,14 +222,12 @@ local function executeKamui()
         originalCFrame = root.CFrame
     end
 
-    -- 1. Sonido y Mangekyo girando perfectamente centrado (INALTERABLE)
+    -- Reproducir sonido de cuervos y activar el destello rojo en pantalla
     pcall(function()
-        KamuiSound.TimePosition = 0
-        KamuiSound:Play()
+        CrowSound.TimePosition = 0
+        CrowSound:Play()
     end)
-
-    -- EL ROJO CARMESÍ TOMA TODO EL MUNDO DESDE EL INSTANTE DE ACTIVACIÓN
-    enableAbsoluteCrimsonWorld()
+    enableFlashShaders()
 
     KamuiRing.Visible = true
     KamuiRing.Size = UDim2.new(0, 0, 0, 0)
@@ -226,13 +244,15 @@ local function executeKamui()
         end
     end)
 
+    -- Esperar la animación en pantalla con el rojo activo
     task.wait(1.5)
 
     KamuiRing.Visible = false
     if spinGuiConn then spinGuiConn:Disconnect() end
+    disableFlashShaders() -- El rojo se quita al entrar a la dimensión
 
-    -- 2. Teletransporte al centro de la dimensión revolucionaria
-    local targetPos = not insideRealm and (basePos + Vector3.new(0, 300, 0)) or (originalCFrame and originalCFrame.Position or (basePos + Vector3.new(0, 100, 0)))
+    -- Teletransporte a la isla interactiva
+    local targetPos = not insideRealm and (basePos + Vector3.new(0, 250, 0)) or (originalCFrame and originalCFrame.Position or (basePos + Vector3.new(0, 100, 0)))
 
     pcall(function()
         hum.PlatformStand = true
@@ -244,7 +264,7 @@ local function executeKamui()
 
     insideRealm = not insideRealm
 
-    -- 3. Núcleo Púrpura de Alta Densidad y Giro Fling Revolucionario
+    -- Vórtice y partículas de energía
     local vortex = Instance.new("Part")
     vortex.Size = Vector3.new(2, 2, 2)
     vortex.Transparency = 1
@@ -265,27 +285,17 @@ local function executeKamui()
     purpleCore.Parent = vortex
 
     local appParticle1 = Instance.new("ParticleEmitter")
-    appParticle1.Color = ColorSequence.new(Color3.fromRGB(255, 40, 0), Color3.fromRGB(80, 0, 150))
-    appParticle1.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 1.5), NumberSequenceKeypoint.new(1, 5.0)})
+    appParticle1.Color = ColorSequence.new(Color3.fromRGB(180, 50, 255), Color3.fromRGB(60, 0, 120))
+    appParticle1.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 1.2), NumberSequenceKeypoint.new(1, 4.5)})
     appParticle1.Texture = "rbxassetid://258124463"
-    appParticle1.Rate = 1400
-    appParticle1.Speed = NumberRange.new(20, 40)
+    appParticle1.Rate = 1200
+    appParticle1.Speed = NumberRange.new(18, 35)
     appParticle1.Lifetime = NumberRange.new(0.2, 0.4)
     appParticle1.SpreadAngle = Vector2.new(360, 360)
     appParticle1.Parent = vortex
 
-    local appParticle2 = Instance.new("ParticleEmitter")
-    appParticle2.Color = ColorSequence.new(Color3.fromRGB(255, 255, 255), Color3.fromRGB(180, 0, 255))
-    appParticle2.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 2.0), NumberSequenceKeypoint.new(1, 0.1)})
-    appParticle2.Texture = "rbxassetid://1084991215"
-    appParticle2.Rate = 1000
-    appParticle2.Speed = NumberRange.new(25, 45)
-    appParticle2.Lifetime = NumberRange.new(0.2, 0.4)
-    appParticle2.SpreadAngle = Vector2.new(180, 180)
-    appParticle2.Parent = vortex
-
     TweenService:Create(purpleCore, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-        Size = Vector3.new(10, 10, 10)
+        Size = Vector3.new(9, 9, 9)
     }):Play()
 
     root.Anchored = true
@@ -294,9 +304,9 @@ local function executeKamui()
     if vortexFlingConn then vortexFlingConn:Disconnect() end
     vortexFlingConn = RunService.RenderStepped:Connect(function()
         if vortex and vortex.Parent and root and root.Parent then
-            ax = ax + 55
-            ay = ay + 90
-            az = az + 65
+            ax = ax + 50
+            ay = ay + 85
+            az = az + 60
             local wildCF = vortex.CFrame * CFrame.Angles(math.rad(ax), math.rad(ay), math.rad(az))
             vortex.CFrame = wildCF
             root.CFrame = wildCF
@@ -311,7 +321,7 @@ local function executeKamui()
             root.Anchored = false
             hum.PlatformStand = false
             if activeVortex then activeVortex:Destroy() end
-            disableAbsoluteCrimsonWorld()
+            disableFlashShaders()
         end)
         activeState = false
     end)
@@ -324,7 +334,7 @@ local function executeKamui()
                 root.Anchored = false
                 hum.PlatformStand = false
                 if activeVortex then activeVortex:Destroy() end
-                disableAbsoluteCrimsonWorld()
+                disableFlashShaders()
             end)
             activeState = false
         end
@@ -334,4 +344,4 @@ end
 KamuiButton.MouseButton1Click:Connect(executeKamui)
 KamuiButton.TouchTap:Connect(executeKamui)
 
-print("¡Versión 🟠👑🔥 (Full Carmesí + Sin Bloques) cargada con éxito en tu tablet!")
+print("¡Versión 🦅🗡️🩸 cargada con éxito en tu tablet!")

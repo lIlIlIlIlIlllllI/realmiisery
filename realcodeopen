@@ -1,496 +1,254 @@
 repeat task.wait() until game:IsLoaded()
 
-local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local SoundService = game:GetService("SoundService")
 local RunService = game:GetService("RunService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Lighting = game:GetService("Lighting")
+local Workspace = game:GetService("Workspace")
 
 local lp = Players.LocalPlayer
-local playerGui = lp:WaitForChild("PlayerGui")
+local PlayerGui = lp:WaitForChild("PlayerGui")
 
+-- 1. Limpieza absoluta previa
 pcall(function()
-    if CoreGui:FindFirstChild("MiiseryHub_UI") then CoreGui.MiiseryHub_UI:Destroy() end
-    if playerGui:FindFirstChild("MiiseryHub_UI") then playerGui.MiiseryHub_UI:Destroy() end
+    if PlayerGui:FindFirstChild("UltimateKamuiGui") then PlayerGui.UltimateKamuiGui:Destroy() end
+    if Workspace:FindFirstChild("AbsoluteKamuiRealm") then Workspace.AbsoluteKamuiRealm:Destroy() end
 end)
 
+-- 2. Interfaz gráfica (Botón flotante y Logo Mangekyo un poco más arriba)
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "MiiseryHub_UI"
+ScreenGui.Name = "UltimateKamuiGui"
 ScreenGui.ResetOnSpawn = false
-ScreenGui.Parent = (gethui and gethui()) or CoreGui or playerGui
+ScreenGui.Parent = PlayerGui
 
-local darkBgColor = Color3.fromRGB(15, 8, 25)
-local cardBgColor = Color3.fromRGB(25, 12, 40)
-local strokeColor = Color3.fromRGB(160, 60, 255)
-local mainLogo = "rbxassetid://99647703570363"
+local KamuiButton = Instance.new("TextButton", ScreenGui)
+KamuiButton.Size = UDim2.new(0, 80, 0, 80)
+KamuiButton.Position = UDim2.new(0.80, 0, 0.35, 0)
+KamuiButton.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+KamuiButton.TextColor3 = Color3.fromRGB(255, 40, 40)
+KamuiButton.Text = "🌀"
+KamuiButton.TextSize = 40
+KamuiButton.BorderSizePixel = 3
+KamuiButton.BorderColor3 = Color3.fromRGB(255, 0, 0)
+KamuiButton.Active = true
+KamuiButton.Draggable = true
 
-local ToggleButton = Instance.new("ImageButton", ScreenGui)
-ToggleButton.Name = "OpenCloseToggle"
-ToggleButton.Size = UDim2.new(0, 44, 0, 44)
-ToggleButton.Position = UDim2.new(0, 20, 0.5, -22)
-ToggleButton.BackgroundColor3 = cardBgColor
-ToggleButton.Image = mainLogo
-ToggleButton.Active = true
-ToggleButton.ZIndex = 100
+local corner = Instance.new("UICorner", KamuiButton)
+corner.CornerRadius = UDim.new(0.5, 0)
 
-Instance.new("UICorner", ToggleButton).CornerRadius = UDim.new(0, 10)
-local ToggleStroke = Instance.new("UIStroke", ToggleButton)
-ToggleStroke.Color = strokeColor
-ToggleStroke.Thickness = 1.5
-
-local MainContainer = Instance.new("Frame", ScreenGui)
-MainContainer.Name = "MainContainer"
--- Ancla en el centro exacto (0.5, 0.5) para que gire y colapse sobre su propio centro total
-MainContainer.AnchorPoint = Vector2.new(0.5, 0.5)
-MainContainer.Size = UDim2.new(0, 520, 0, 310)
-MainContainer.BackgroundColor3 = darkBgColor
-MainContainer.ClipsDescendants = false
-MainContainer.Active = true
-MainContainer.Visible = false
-
-Instance.new("UICorner", MainContainer).CornerRadius = UDim.new(0, 10)
-local MainStroke = Instance.new("UIStroke", MainContainer)
-MainStroke.Color = strokeColor
-MainStroke.Thickness = 1.5
-
--- Anillo Mangekyo centrado y sincronizado
-local KamuiRing = Instance.new("ImageLabel", MainContainer)
-KamuiRing.Name = "KamuiRing"
+-- Rueda Mangekyo Sharingan (Desplazada ligeramente hacia arriba con AnchorPoint y Position)
+local KamuiRing = Instance.new("ImageLabel", ScreenGui)
 KamuiRing.AnchorPoint = Vector2.new(0.5, 0.5)
-KamuiRing.Position = UDim2.new(0.5, 0, 0.5, 0)
+KamuiRing.Position = UDim2.new(0.5, 0, 0.42, 0)
 KamuiRing.Size = UDim2.new(0, 0, 0, 0)
 KamuiRing.BackgroundTransparency = 1
-KamuiRing.Image = "rbxassetid://91250318294401"
-KamuiRing.ImageColor3 = Color3.fromRGB(255, 30, 30)
+KamuiRing.Image = "rbxassetid://80182942447236"
+KamuiRing.ImageColor3 = Color3.fromRGB(255, 20, 20)
 KamuiRing.Visible = false
-KamuiRing.ZIndex = 300
+KamuiRing.ZIndex = 999999
 
--- Grupo de sonido para volumen máximo absoluto
-local maxVolumeGroup = Instance.new("SoundGroup", SoundService)
-maxVolumeGroup.Name = "MiiseryMaxVolume"
-maxVolumeGroup.Volume = 10
-
+-- Audio
 local KamuiSound = Instance.new("Sound", SoundService)
-KamuiSound.Name = "KamuiSupremeAudio"
 KamuiSound.SoundId = "rbxassetid://70698855144717"
 KamuiSound.Volume = 10
-KamuiSound.SoundGroup = maxVolumeGroup
 KamuiSound.RollOffMaxDistance = 100000
 
-local function playKamuiAudio()
+-- 3. Construcción ultra optimizada de la dimensión celestial con castillo y trono
+local dimensionFolder = Instance.new("Folder")
+dimensionFolder.Name = "AbsoluteKamuiRealm"
+dimensionFolder.Parent = Workspace
+
+local basePos = Vector3.new(-9500.6, 5500.4, -8155.7)
+
+local floor = Instance.new("Part")
+floor.Size = Vector3.new(2500, 15, 2500)
+floor.Position = basePos
+floor.Anchored = true
+floor.Color = Color3.fromRGB(250, 252, 255)
+floor.Material = Enum.Material.Marble
+floor.Parent = dimensionFolder
+
+local carpet = Instance.new("Part")
+carpet.Size = Vector3.new(100, 15.2, 1800)
+carpet.Position = basePos + Vector3.new(0, 0, -400)
+carpet.Anchored = true
+carpet.Color = Color3.fromRGB(180, 10, 30)
+carpet.Material = Enum.Material.Fabric
+carpet.Parent = dimensionFolder
+
+local throne = Instance.new("Part")
+throne.Size = Vector3.new(60, 100, 30)
+throne.Position = basePos + Vector3.new(0, 50, -1200)
+throne.Anchored = true
+throne.Color = Color3.fromRGB(255, 215, 0)
+throne.Material = Enum.Material.Metal
+throne.Parent = dimensionFolder
+
+-- Funciones para manejar la atmósfera carmesí exactamente durante el Mangekyo
+local activeAtmosphere, activeCorrection = nil, nil
+
+local function enableCrimsonAtmosphere()
     pcall(function()
-        for _, s in ipairs(SoundService:GetDescendants()) do
-            if s:IsA("Sound") and s ~= KamuiSound then
-                pcall(function() s:Stop() end)
-            end
-        end
-        KamuiSound.TimePosition = 0
-        KamuiSound:Play()
+        if activeAtmosphere then activeAtmosphere:Destroy() end
+        if activeCorrection then activeCorrection:Destroy() end
+
+        activeAtmosphere = Instance.new("Atmosphere")
+        activeAtmosphere.Name = "KamuiAtmos"
+        activeAtmosphere.Density = 0.55
+        activeAtmosphere.Color = Color3.fromRGB(220, 10, 10)
+        activeAtmosphere.Decay = Color3.fromRGB(40, 0, 0)
+        activeAtmosphere.Parent = Lighting
+
+        activeCorrection = Instance.new("ColorCorrectionEffect")
+        activeCorrection.Name = "KamuiCorr"
+        activeCorrection.TintColor = Color3.fromRGB(255, 40, 40)
+        activeCorrection.Brightness = -0.05
+        activeCorrection.Contrast = 0.5
+        activeCorrection.Parent = Lighting
     end)
 end
 
-local TopBar = Instance.new("Frame", MainContainer)
-TopBar.Name = "TopBar"
-TopBar.Size = UDim2.new(1, -16, 0, 38)
-TopBar.Position = UDim2.new(0, 8, 0, 6)
-TopBar.BackgroundTransparency = 1
-TopBar.ZIndex = 10
+local function disableCrimsonAtmosphere()
+    pcall(function()
+        if activeAtmosphere then activeAtmosphere:Destroy() end
+        if activeCorrection then activeCorrection:Destroy() end
+        activeAtmosphere = nil
+        activeCorrection = nil
+    end)
+end
 
--- Movible manteniendo la proporción de anclaje central
-local dragging, dragInput, dragStart, startPos
-TopBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStart = input.Position
-        startPos = MainContainer.Position
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
+local insideRealm = false
+local originalCFrame = nil
+local activeState = false
+local activeVortex = nil
+local spinGuiConn = nil
+local vortexFlingConn = nil
+
+local function executeKamui()
+    if activeState then return end
+    activeState = true
+
+    local char = lp.Character
+    if not char then activeState = false return end
+    local root = char:FindFirstChild("HumanoidRootPart")
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    if not root or not hum then activeState = false return end
+
+    if not insideRealm then
+        originalCFrame = root.CFrame
     end
-end)
 
-TopBar.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-        dragInput = input
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if input == dragInput and dragging then
-        local delta = input.Position - dragStart
-        MainContainer.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
-end)
-
-local LogoIcon = Instance.new("ImageLabel", TopBar)
-LogoIcon.Size = UDim2.new(0, 26, 0, 26)
-LogoIcon.Position = UDim2.new(0, 2, 0.5, -13)
-LogoIcon.BackgroundTransparency = 1
-LogoIcon.Image = mainLogo
-Instance.new("UICorner", LogoIcon).CornerRadius = UDim.new(0, 6)
-
-local TitleLabel = Instance.new("TextLabel", TopBar)
-TitleLabel.Size = UDim2.new(0, 120, 1, 0)
-TitleLabel.Position = UDim2.new(0, 34, 0, 0)
-TitleLabel.BackgroundTransparency = 1
-TitleLabel.Text = "Miisery Hub"
-TitleLabel.TextColor3 = Color3.fromRGB(240, 200, 255)
-TitleLabel.Font = Enum.Font.GothamBold
-TitleLabel.TextSize = 12
-TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-
-local GearButton = Instance.new("TextButton", TopBar)
-GearButton.Size = UDim2.new(0, 26, 0, 26)
-GearButton.Position = UDim2.new(1, -58, 0.5, -13)
-GearButton.BackgroundColor3 = cardBgColor
-GearButton.Text = "☆"
-GearButton.TextColor3 = Color3.fromRGB(240, 200, 255)
-GearButton.Font = Enum.Font.GothamBold
-GearButton.TextSize = 14
-GearButton.ZIndex = 15
-Instance.new("UICorner", GearButton).CornerRadius = UDim.new(0, 6)
-local GearStroke = Instance.new("UIStroke", GearButton)
-GearStroke.Color = strokeColor
-GearStroke.Thickness = 1
-
-local TabsContainer = Instance.new("ScrollingFrame", TopBar)
-TabsContainer.Name = "TabsContainer"
-TabsContainer.Size = UDim2.new(1, -170, 1, 0)
-TabsContainer.Position = UDim2.new(0, 155, 0, 0)
-TabsContainer.BackgroundTransparency = 1
-TabsContainer.ScrollBarThickness = 0
-TabsContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
-
-local TabsLayout = Instance.new("UIListLayout", TabsContainer)
-TabsLayout.FillDirection = Enum.FillDirection.Horizontal
-TabsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-TabsLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-TabsLayout.Padding = UDim.new(0, 6)
-TabsLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-    TabsContainer.CanvasSize = UDim2.new(0, TabsLayout.AbsoluteContentSize.X + 15, 0, 0)
-end)
-
-local CloseButton = Instance.new("TextButton", TopBar)
-CloseButton.Size = UDim2.new(0, 26, 0, 26)
-CloseButton.Position = UDim2.new(1, -26, 0.5, -13)
-CloseButton.BackgroundColor3 = cardBgColor
-CloseButton.Text = "×"
-CloseButton.TextColor3 = Color3.fromRGB(240, 200, 255)
-CloseButton.Font = Enum.Font.GothamBold
-CloseButton.TextSize = 16
-CloseButton.ZIndex = 15
-Instance.new("UICorner", CloseButton).CornerRadius = UDim.new(0, 6)
-local CloseStroke = Instance.new("UIStroke", CloseButton)
-CloseStroke.Color = strokeColor
-CloseStroke.Thickness = 1
-
-local viewport = ScreenGui.AbsoluteSize
-local initialExecutionPos = UDim2.new(0, viewport.X / 2, 0, viewport.Y / 2)
-MainContainer.Position = initialExecutionPos
-
-local isOpen = false
-local animating = false
-local normalSize = UDim2.new(0, 520, 0, 310)
-
--- Animación Kamui con giro exacto sobre su centro total
-local function AnimateUI(open)
-    if animating then return end
-    animating = true
-    playKamuiAudio()
+    -- 1. Activar sonido, efecto carmesí y mostrar Mangekyo girando
+    pcall(function()
+        KamuiSound.TimePosition = 0
+        KamuiSound:Play()
+    end)
+    enableCrimsonAtmosphere()
 
     KamuiRing.Visible = true
     KamuiRing.Size = UDim2.new(0, 0, 0, 0)
     KamuiRing.Rotation = 0
-    KamuiRing.ImageTransparency = 0
 
-    local spinConnection
-    local startTime = tick()
-    spinConnection = RunService.RenderStepped:Connect(function()
-        local elapsed = tick() - startTime
-        local currentSpeed = (elapsed <= 0.8) and 6 else 50
-        KamuiRing.Rotation = KamuiRing.Rotation + currentSpeed
-        if open then
-            MainContainer.Rotation = (1 - math.clamp(elapsed/1.5, 0, 1)) * 360
-        else
-            MainContainer.Rotation = math.clamp(elapsed/1.5, 0, 1) * -360
-        end
-        if elapsed >= 3 then
-            if spinConnection then spinConnection:Disconnect() end
+    TweenService:Create(KamuiRing, TweenInfo.new(0.3, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+        Size = UDim2.new(0, 600, 0, 600)
+    }):Play()
+
+    if spinGuiConn then spinGuiConn:Disconnect() end
+    spinGuiConn = RunService.RenderStepped:Connect(function()
+        if KamuiRing.Visible then
+            KamuiRing.Rotation = KamuiRing.Rotation + 35
         end
     end)
 
-    if open then
-        MainContainer.Visible = true
-        MainContainer.Size = UDim2.new(0, 0, 0, 0)
-        MainContainer.Position = initialExecutionPos
-        
-        TweenService:Create(KamuiRing, TweenInfo.new(1.2, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
-            Size = UDim2.new(0, 580, 0, 580)
-        }):Play()
-
-        TweenService:Create(MainContainer, TweenInfo.new(1.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-            Size = normalSize,
-            Rotation = 0
-        }):Play()
-    else
-        TweenService:Create(KamuiRing, TweenInfo.new(1.2, Enum.EasingStyle.Exponential, Enum.EasingDirection.In), {
-            Size = UDim2.new(0, 580, 0, 580)
-        }):Play()
-
-        TweenService:Create(MainContainer, TweenInfo.new(1.2, Enum.EasingStyle.Exponential, Enum.EasingDirection.In), {
-            Size = UDim2.new(0, 0, 0, 0),
-            Rotation = -360
-        }):Play()
-    end
-
+    -- Mantener el logo y el efecto carmesí en pantalla durante la secuencia
     task.wait(1.5)
 
-    local fadeOut = TweenService:Create(KamuiRing, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-        Size = UDim2.new(0, 0, 0, 0),
-        ImageTransparency = 1
-    })
-    fadeOut:Play()
-    fadeOut.Completed:Wait()
-
+    -- 2. Desactivar el efecto carmesí y ocultar el Mangekyo justo al desaparecer el logo
+    disableCrimsonAtmosphere()
     KamuiRing.Visible = false
-    if spinConnection then spinConnection:Disconnect() end
-    MainContainer.Rotation = 0
+    if spinGuiConn then spinGuiConn:Disconnect() end
 
-    if not open then
-        MainContainer.Visible = false
-    end
+    -- 3. Teletransporte a la dimensión
+    local targetPos = not insideRealm and (basePos + Vector3.new(0, 100, 0)) or (originalCFrame and originalCFrame.Position or (basePos + Vector3.new(0, 40, 0)))
 
-    isOpen = open
-    animating = false
-end
+    pcall(function()
+        hum.PlatformStand = true
+        root.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+    end)
 
-ToggleButton.MouseButton1Click:Connect(function() AnimateUI(not isOpen) end)
+    root.CFrame = CFrame.new(targetPos)
+    task.wait(0.05)
 
-local ConfirmOverlay = Instance.new("Frame", MainContainer)
-ConfirmOverlay.Name = "ConfirmOverlay"
-ConfirmOverlay.Size = UDim2.new(1, 0, 1, 0)
-ConfirmOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-ConfirmOverlay.BackgroundTransparency = 0.5
-ConfirmOverlay.Visible = false
-ConfirmOverlay.ZIndex = 50
-Instance.new("UICorner", ConfirmOverlay).CornerRadius = UDim.new(0, 10)
+    insideRealm = not insideRealm
 
-local ConfirmBox = Instance.new("Frame", ConfirmOverlay)
-ConfirmBox.Size = UDim2.new(0, 240, 0, 110)
-ConfirmBox.Position = UDim2.new(0.5, -120, 0.5, -55)
-ConfirmBox.BackgroundColor3 = darkBgColor
-ConfirmBox.ZIndex = 51
-Instance.new("UICorner", ConfirmBox).CornerRadius = UDim.new(0, 10)
-local ConfirmStroke = Instance.new("UIStroke", ConfirmBox)
-ConfirmStroke.Color = strokeColor
-ConfirmStroke.Thickness = 1
+    -- 4. Esfera negra neón y giro salvaje tipo Fling
+    local vortex = Instance.new("Part")
+    vortex.Size = Vector3.new(2, 2, 2)
+    vortex.Transparency = 1
+    vortex.Anchored = true
+    vortex.CanCollide = false
+    vortex.CFrame = root.CFrame
+    vortex.Parent = Workspace
+    activeVortex = vortex
 
-local ConfirmText = Instance.new("TextLabel", ConfirmBox)
-ConfirmText.Size = UDim2.new(1, 0, 0, 45)
-ConfirmText.Position = UDim2.new(0, 0, 0, 10)
-ConfirmText.BackgroundTransparency = 1
-ConfirmText.Text = "Are you sure you want to close the UI?"
-ConfirmText.TextColor3 = Color3.fromRGB(240, 200, 255)
-ConfirmText.Font = Enum.Font.GothamMedium
-ConfirmText.TextSize = 11
-ConfirmText.TextWrapped = true
-ConfirmText.ZIndex = 52
+    local neonSphere = Instance.new("Part")
+    neonSphere.Shape = Enum.PartType.Ball
+    neonSphere.Size = Vector3.new(1, 1, 1)
+    neonSphere.Color = Color3.fromRGB(0, 0, 0)
+    neonSphere.Material = Enum.Material.Neon
+    neonSphere.Anchored = true
+    neonSphere.CanCollide = false
+    neonSphere.CFrame = vortex.CFrame
+    neonSphere.Parent = vortex
 
-local YesButton = Instance.new("TextButton", ConfirmBox)
-YesButton.Size = UDim2.new(0, 90, 0, 28)
-YesButton.Position = UDim2.new(0, 20, 0, 65)
-YesButton.BackgroundColor3 = cardBgColor
-YesButton.Text = "Close"
-YesButton.TextColor3 = Color3.fromRGB(240, 200, 255)
-YesButton.Font = Enum.Font.GothamBold
-YesButton.TextSize = 10
-YesButton.ZIndex = 52
-Instance.new("UICorner", YesButton).CornerRadius = UDim.new(0, 6)
-local YesStroke = Instance.new("UIStroke", YesButton)
-YesStroke.Color = strokeColor
-YesStroke.Thickness = 1
+    TweenService:Create(neonSphere, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Size = Vector3.new(6, 6, 6)
+    }):Play()
 
-local NoButton = Instance.new("TextButton", ConfirmBox)
-NoButton.Size = UDim2.new(0, 90, 0, 28)
-NoButton.Position = UDim2.new(1, -110, 0, 65)
-NoButton.BackgroundColor3 = cardBgColor
-NoButton.Text = "No"
-NoButton.TextColor3 = Color3.fromRGB(240, 200, 255)
-NoButton.Font = Enum.Font.GothamBold
-NoButton.TextSize = 10
-NoButton.ZIndex = 52
-Instance.new("UICorner", NoButton).CornerRadius = UDim.new(0, 6)
-local NoStroke = Instance.new("UIStroke", NoButton)
-NoStroke.Color = strokeColor
-NoStroke.Thickness = 1
+    root.Anchored = true
 
-CloseButton.MouseButton1Click:Connect(function() ConfirmOverlay.Visible = true end)
-YesButton.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
-NoButton.MouseButton1Click:Connect(function() ConfirmOverlay.Visible = false end)
-
-local ConfigOverlay = Instance.new("Frame", MainContainer)
-ConfigOverlay.Size = UDim2.new(1, 0, 1, 0)
-ConfigOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-ConfigOverlay.BackgroundTransparency = 0.4
-ConfigOverlay.Visible = false
-ConfigOverlay.ZIndex = 60
-Instance.new("UICorner", ConfigOverlay).CornerRadius = UDim.new(0, 10)
-
-local ConfigBox = Instance.new("Frame", ConfigOverlay)
-ConfigBox.Size = UDim2.new(0, 360, 0, 200)
-ConfigBox.Position = UDim2.new(0.5, -180, 0.5, -100)
-ConfigBox.BackgroundColor3 = darkBgColor
-ConfigBox.ZIndex = 61
-Instance.new("UICorner", ConfigBox).CornerRadius = UDim.new(0, 10)
-local ConfigStroke = Instance.new("UIStroke", ConfigBox)
-ConfigStroke.Color = strokeColor
-ConfigStroke.Thickness = 1
-
-local ConfigTitle = Instance.new("TextLabel", ConfigBox)
-ConfigTitle.Size = UDim2.new(1, 0, 0, 30)
-ConfigTitle.Position = UDim2.new(0, 0, 0, 8)
-ConfigTitle.BackgroundTransparency = 1
-ConfigTitle.Text = "UI Configuration"
-ConfigTitle.TextColor3 = Color3.fromRGB(240, 200, 255)
-ConfigTitle.Font = Enum.Font.GothamBold
-ConfigTitle.TextSize = 12
-ConfigTitle.ZIndex = 62
-
-local ConfigClose = Instance.new("TextButton", ConfigBox)
-ConfigClose.Size = UDim2.new(0, 22, 0, 22)
-ConfigClose.Position = UDim2.new(1, -30, 0, 8)
-ConfigClose.BackgroundColor3 = cardBgColor
-ConfigClose.Text = "×"
-ConfigClose.TextColor3 = Color3.fromRGB(240, 200, 255)
-ConfigClose.Font = Enum.Font.GothamBold
-ConfigClose.TextSize = 14
-ConfigClose.ZIndex = 62
-Instance.new("UICorner", ConfigClose).CornerRadius = UDim.new(0, 6)
-
-ConfigClose.MouseButton1Click:Connect(function() ConfigOverlay.Visible = false end)
-GearButton.MouseButton1Click:Connect(function() ConfigOverlay.Visible = true end)
-
-local allStrokes = {MainStroke, ToggleStroke, GearStroke, CloseStroke, ConfirmStroke, YesStroke, NoStroke, ConfigStroke}
-local allCards = {MainContainer, ToggleButton, GearButton, CloseButton, ConfirmBox, YesButton, NoButton, ConfigBox}
-
-local function ApplyTheme(customColor, isTransparent)
-    strokeColor = customColor
-    if isTransparent then
-        darkBgColor = Color3.new(0, 0, 0)
-        cardBgColor = Color3.new(0, 0, 0)
-    else
-        darkBgColor = customColor:Lerp(Color3.fromRGB(10, 0, 20), 0.85)
-        cardBgColor = customColor:Lerp(Color3.fromRGB(20, 5, 35), 0.75)
-    end
-    for _, str in ipairs(allStrokes) do if str and str.Parent then str.Color = strokeColor end end
-    for _, card in ipairs(allCards) do
-        if card and card.Parent then
-            if isTransparent then
-                card.BackgroundTransparency = 1
-            else
-                card.BackgroundTransparency = 0
-                if card == MainContainer or card == ConfirmBox or card == ConfigBox then card.BackgroundColor3 = darkBgColor
-                else card.BackgroundColor3 = cardBgColor end
-            end
+    local ax, ay, az = 0, 0, 0
+    if vortexFlingConn then vortexFlingConn:Disconnect() end
+    vortexFlingConn = RunService.RenderStepped:Connect(function()
+        if vortex and vortex.Parent and root and root.Parent then
+            ax = ax + 40
+            ay = ay + 70
+            az = az + 45
+            local wildCF = vortex.CFrame * CFrame.Angles(math.rad(ax), math.rad(ay), math.rad(az))
+            vortex.CFrame = wildCF
+            root.CFrame = wildCF
         end
-    end
-end
-
-local colorsContainer = Instance.new("Frame", ConfigBox)
-colorsContainer.Size = UDim2.new(0, 220, 0, 24)
-colorsContainer.Position = UDim2.new(0.5, -110, 0, 115)
-colorsContainer.BackgroundTransparency = 1
-colorsContainer.ZIndex = 62
-local cLayout = Instance.new("UIListLayout", colorsContainer)
-cLayout.FillDirection = Enum.FillDirection.Horizontal
-cLayout.Padding = UDim.new(0, 6)
-
-local palette = {
-    {Name = "Purple", Color = Color3.fromRGB(160, 60, 255), Trans = false},
-    {Name = "Neon Pink", Color = Color3.fromRGB(255, 50, 180), Trans = false},
-    {Name = "Electric Blue", Color = Color3.fromRGB(50, 150, 255), Trans = false},
-    {Name = "Transparent", Color = Color3.fromRGB(200, 100, 255), Trans = true}
-}
-
-for _, colData in ipairs(palette) do
-    local cBtn = Instance.new("TextButton", colorsContainer)
-    cBtn.Size = UDim2.new(0, 22, 0, 22)
-    cBtn.BackgroundColor3 = colData.Color
-    cBtn.Text = ""
-    cBtn.ZIndex = 63
-    Instance.new("UICorner", cBtn).CornerRadius = UDim.new(1, 0)
-    cBtn.MouseButton1Click:Connect(function()
-        ApplyTheme(colData.Color, colData.Trans)
-    end)
-end
-
-local PagesHolder = Instance.new("Frame", MainContainer)
-PagesHolder.Name = "PagesHolder"
-PagesHolder.Size = UDim2.new(1, -16, 1, -52)
-PagesHolder.Position = UDim2.new(0, 8, 0, 46)
-PagesHolder.BackgroundTransparency = 1
-PagesHolder.ClipsDescendants = true
-
-local tabCount = 0
-local HubLibrary = {}
-
-function HubLibrary:CreateTab(tabName)
-    tabCount = tabCount + 1
-    local isFirst = (tabCount == 1)
-
-    local TabBtn = Instance.new("TextButton", TabsContainer)
-    TabBtn.Name = tabName .. "TabBtn"
-    TabBtn.Size = UDim2.new(0, 75, 0, 24)
-    TabBtn.BackgroundColor3 = isFirst and Color3.fromRGB(220, 180, 255) or cardBgColor
-    TabBtn.Text = tabName
-    TabBtn.TextColor3 = isFirst and Color3.fromRGB(25, 12, 40) or Color3.fromRGB(240, 200, 255)
-    TabBtn.Font = Enum.Font.GothamMedium
-    TabBtn.TextSize = 10
-    Instance.new("UICorner", TabBtn).CornerRadius = UDim.new(0, 6)
-
-    local TabStroke = Instance.new("UIStroke", TabBtn)
-    TabStroke.Color = strokeColor
-    TabStroke.Thickness = 1
-    table.insert(allStrokes, TabStroke)
-    table.insert(allCards, TabBtn)
-
-    local Page = Instance.new("ScrollingFrame", PagesHolder)
-    Page.Name = tabName .. "Page"
-    Page.Size = UDim2.new(1, 0, 1, 0)
-    Page.BackgroundTransparency = 1
-    Page.Visible = false
-    Page.CanvasSize = UDim2.new(0, 0, 0, 0)
-    Page.ScrollBarThickness = 3
-    Page.ClipsDescendants = true
-
-    local pageLayout = Instance.new("UIListLayout", Page)
-    pageLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    pageLayout.Padding = UDim.new(0, 6)
-    pageLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        Page.CanvasSize = UDim2.new(0, 0, 0, pageLayout.AbsoluteContentSize.Y + 10)
     end)
 
-    TabBtn.MouseButton1Click:Connect(function()
-        for _, p in ipairs(PagesHolder:GetChildren()) do if p:IsA("ScrollingFrame") then p.Visible = false end end
-        for _, b in ipairs(TabsContainer:GetChildren()) do
-            if b:IsA("TextButton") then
-                b.BackgroundColor3 = cardBgColor
-                b.TextColor3 = Color3.fromRGB(240, 200, 255)
-            end
+    local jumpConn
+    jumpConn = hum.Jumping:Connect(function()
+        if jumpConn then jumpConn:Disconnect() end
+        pcall(function()
+            if vortexFlingConn then vortexFlingConn:Disconnect() end
+            root.Anchored = false
+            hum.PlatformStand = false
+            if activeVortex then activeVortex:Destroy() end
+            disableCrimsonAtmosphere()
+        end)
+        activeState = false
+    end)
+
+    task.delay(20, function()
+        if activeState then
+            if jumpConn then jumpConn:Disconnect() end
+            pcall(function()
+                if vortexFlingConn then vortexFlingConn:Disconnect() end
+                root.Anchored = false
+                hum.PlatformStand = false
+                if activeVortex then activeVortex:Destroy() end
+                disableCrimsonAtmosphere()
+            end)
+            activeState = false
         end
-        Page.Visible = true
-        TabBtn.BackgroundColor3 = strokeColor
-        TabBtn.TextColor3 = darkBgColor
     end)
-
-    if isFirst then Page.Visible = true end
-    return Page
 end
 
-local Tab1 = HubLibrary:CreateTab("Main")
-local Tab2 = HubLibrary:CreateTab("Farm")
-local Tab3 = HubLibrary:CreateTab("Misc")
+-- 5. Conexión de eventos táctiles garantizados
+KamuiButton.MouseButton1Click:Connect(executeKamui)
+KamuiButton.TouchTap:Connect(executeKamui)

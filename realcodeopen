@@ -1,5 +1,4 @@
-repeat task.wait() until game:IsLoaded()
-
+task.wait(1)
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local SoundService = game:GetService("SoundService")
@@ -10,23 +9,24 @@ local Workspace = game:GetService("Workspace")
 local lp = Players.LocalPlayer
 local PlayerGui = lp:WaitForChild("PlayerGui")
 
--- SELLO DE VERSIÓN: 🕳️🌀👑 (Pocket Dimension Engine Replicado al 100%)
-print("Cargando versión oficial con sello: 🕳️🌀👑")
+print("Cargando Kamui Épico con Skybox rojo y sincronización de audio...")
 
--- 1. Limpieza absoluta previa
 pcall(function()
-    if PlayerGui:FindFirstChild("TruePocketGui") then PlayerGui.TruePocketGui:Destroy() end
-    if Workspace:FindFirstChild("_WorldOrigin") then Workspace._WorldOrigin:Destroy() end
+    if PlayerGui:FindFirstChild("InstantKamuiGui") then PlayerGui.InstantKamuiGui:Destroy() end
+    if Workspace:FindFirstChild("_DirectKamuiDimension") then Workspace._DirectKamuiDimension:Destroy() end
+    if Lighting:FindFirstChild("NaturalRedAtmosphere") then Lighting.NaturalRedAtmosphere:Destroy() end
+    if Lighting:FindFirstChild("NaturalRedCorrection") then Lighting.NaturalRedCorrection:Destroy() end
+    if Lighting:FindFirstChild("DynamicKamuiSky") then Lighting.DynamicKamuiSky:Destroy() end
 end)
 
--- 2. Interfaz de UI con el sello 🕳️🌀👑
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "TruePocketGui"
+ScreenGui.Name = "InstantKamuiGui"
 ScreenGui.ResetOnSpawn = false
+ScreenGui.DisplayOrder = 999999
 ScreenGui.Parent = PlayerGui
 
 local KamuiButton = Instance.new("TextButton", ScreenGui)
-KamuiButton.Size = UDim2.new(0, 115, 0, 115)
+KamuiButton.Size = UDim2.new(0, 120, 0, 120)
 KamuiButton.Position = UDim2.new(0.80, 0, 0.30, 0)
 KamuiButton.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
 KamuiButton.BackgroundTransparency = 0.2
@@ -34,7 +34,7 @@ KamuiButton.Text = ""
 KamuiButton.AutoButtonColor = false
 KamuiButton.Active = true
 KamuiButton.Draggable = true
-KamuiButton.ZIndex = 10
+KamuiButton.ZIndex = 100
 
 local buttonCorner = Instance.new("UICorner", KamuiButton)
 buttonCorner.CornerRadius = UDim.new(0.3, 0)
@@ -46,27 +46,27 @@ buttonStroke.Color = Color3.fromRGB(255, 0, 150)
 local OuterRing = Instance.new("ImageLabel", KamuiButton)
 OuterRing.AnchorPoint = Vector2.new(0.5, 0.5)
 OuterRing.Position = UDim2.new(0.5, 0, 0.5, 0)
-OuterRing.Size = UDim2.new(0, 100, 0, 100)
+OuterRing.Size = UDim2.new(0, 105, 0, 105)
 OuterRing.BackgroundTransparency = 1
 OuterRing.Image = "rbxassetid://80182942447236"
 OuterRing.ImageColor3 = Color3.fromRGB(255, 0, 150)
-OuterRing.ZIndex = 11
+OuterRing.ZIndex = 101
 
 local InnerIcon = Instance.new("TextLabel", KamuiButton)
 InnerIcon.Size = UDim2.new(1, 0, 1, 0)
 InnerIcon.BackgroundTransparency = 1
-InnerIcon.Text = "🕳️" -- Sello de Pocket Dimension
-InnerIcon.TextSize = 42
-InnerIcon.ZIndex = 12
+InnerIcon.Text = "🕳️"
+InnerIcon.TextSize = 45
+InnerIcon.ZIndex = 102
 
 task.spawn(function()
     while KamuiButton and KamuiButton.Parent do
-        OuterRing.Rotation = OuterRing.Rotation - 4
+        OuterRing.Rotation = OuterRing.Rotation - 10
         task.wait(0.03)
     end
 end)
 
--- Rueda Mangekyo Sharingan (INALTERABLE Y CENTRADA PERFECTAMENTE)
+-- Efecto visual épico en pantalla
 local KamuiRing = Instance.new("ImageLabel", ScreenGui)
 KamuiRing.AnchorPoint = Vector2.new(0.5, 0.5)
 KamuiRing.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -77,167 +77,174 @@ KamuiRing.ImageColor3 = Color3.fromRGB(255, 20, 20)
 KamuiRing.Visible = false
 KamuiRing.ZIndex = 999999
 
--- AUDIO ORIGINAL MAESTRO DE KAMUI
+-- Fondo negro circular para el colapso dimensional
+local BlackHoleCover = Instance.new("Frame", ScreenGui)
+BlackHoleCover.AnchorPoint = Vector2.new(0.5, 0.5)
+BlackHoleCover.Position = UDim2.new(0.5, 0, 0.5, 0)
+BlackHoleCover.Size = UDim2.new(0, 0, 0, 0)
+BlackHoleCover.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+BlackHoleCover.Visible = false
+BlackHoleCover.ZIndex = 999998
+
+local holeCorner = Instance.new("UICorner", BlackHoleCover)
+holeCorner.CornerRadius = UDim.new(1, 0)
+
+-- Audios
 local KamuiSound = Instance.new("Sound", SoundService)
 KamuiSound.SoundId = "rbxassetid://70698855144717"
-KamuiSound.Volume = 10
-KamuiSound.RollOffMaxDistance = 100000
+KamuiSound.Volume = 50
 
--- AUDIO DE CUERVOS AMBIENTAL
 local CrowSound = Instance.new("Sound", SoundService)
 CrowSound.SoundId = "rbxassetid://9114175376"
-CrowSound.Volume = 6
-CrowSound.RollOffMaxDistance = 100000
+CrowSound.Volume = 15
 
--- Silenciador de ruidos del servidor base
-local function muteGameSounds(state)
+-- Función para activar el Skybox público ID 136055162054954 y la atmósfera roja
+local function setAudioSkybox(state)
     pcall(function()
-        SoundService.AmbientReverb = Enum.ReverbType.NoReverb
-        for _, sound in ipairs(Workspace:GetDescendants()) do
-            if sound:IsA("Sound") and sound ~= KamuiSound and sound ~= CrowSound then
-                sound.Volume = state and 0 or 0.5
+        if state then
+            if not Lighting:FindFirstChild("DynamicKamuiSky") then
+                local sky = Instance.new("Sky")
+                sky.Name = "DynamicKamuiSky"
+                sky.SkyboxBk = "rbxassetid://136055162054954"
+                sky.SkyboxDn = "rbxassetid://136055162054954"
+                sky.SkyboxFt = "rbxassetid://136055162054954"
+                sky.SkyboxLf = "rbxassetid://136055162054954"
+                sky.SkyboxRt = "rbxassetid://136055162054954"
+                sky.SkyboxUp = "rbxassetid://136055162054954"
+                sky.Parent = Lighting
+            end
+
+            if not Lighting:FindFirstChild("NaturalRedAtmosphere") then
+                local atmos = Instance.new("Atmosphere")
+                atmos.Name = "NaturalRedAtmosphere"
+                atmos.Density = 0.35
+                atmos.Offset = 0
+                atmos.Color = Color3.fromRGB(240, 30, 30)
+                atmos.Decay = Color3.fromRGB(100, 10, 10)
+                atmos.Glare = 0.6
+                atmos.Haze = 1.2
+                atmos.Parent = Lighting
+            end
+
+            if not Lighting:FindFirstChild("NaturalRedCorrection") then
+                local corr = Instance.new("ColorCorrectionEffect")
+                corr.Name = "NaturalRedCorrection"
+                corr.TintColor = Color3.fromRGB(255, 120, 120)
+                corr.Contrast = 0.25
+                corr.Brightness = 0.02
+                corr.Parent = Lighting
+            end
+        else
+            if Lighting:FindFirstChild("DynamicKamuiSky") then Lighting.DynamicKamuiSky:Destroy() end
+            if Lighting:FindFirstChild("NaturalRedAtmosphere") then Lighting.NaturalRedAtmosphere:Destroy() end
+            if Lighting:FindFirstChild("NaturalRedCorrection") then Lighting.NaturalRedCorrection:Destroy() end
+        end
+    end)
+end
+
+-- Pintar todos los bloques de la dimensión en rojo brillante
+local function paintDimensionBlocks(isRed)
+    pcall(function()
+        local folder = Workspace:FindFirstChild("_DirectKamuiDimension")
+        if folder then
+            for _, obj in ipairs(folder:GetChildren()) do
+                if obj:IsA("Part") and obj.Name == "DimensionBlock" then
+                    if isRed then
+                        obj.Color = Color3.fromRGB(255, 20, 20) -- Rojo brillante
+                    else
+                        obj.Color = Color3.fromRGB(150, 220, 245) -- Celeste pastel normal
+                    end
+                end
             end
         end
     end)
 end
 
--- 3. JERARQUÍA NATIVA: Workspace._WorldOrigin.Locations["Pocket Dimension"]
-local worldOrigin = Instance.new("Folder")
-worldOrigin.Name = "_WorldOrigin"
-worldOrigin.Parent = Workspace
+-- Construcción de la dimensión masiva
+local dimCenter = Vector3.new(0, 1500, 0)
 
-local locationsFolder = Instance.new("Folder")
-locationsFolder.Name = "Locations"
-locationsFolder.Parent = worldOrigin
+local function buildDimension()
+    if Workspace:FindFirstChild("_DirectKamuiDimension") then return end
 
-local pocketDimensionFolder = Instance.new("Folder")
-pocketDimensionFolder.Name = "Pocket Dimension"
-pocketDimensionFolder.Parent = locationsFolder
+    local folder = Instance.new("Folder")
+    folder.Name = "_DirectKamuiDimension"
+    folder.Parent = Workspace
 
-local basePos = Vector3.new(-9500.6, 6500.4, -8155.7)
+    local mapSize = 600
+    local wallHeight = 350
+    local half = mapSize / 2
 
--- Estructura central orgánica de la Pocket Dimension
-local coreVoid = Instance.new("Part")
-coreVoid.Shape = Enum.PartType.Ball
-coreVoid.Size = Vector3.new(2500, 500, 2500)
-coreVoid.Position = basePos
-coreVoid.Anchored = true
-coreVoid.Color = Color3.fromRGB(15, 15, 20)
-coreVoid.Material = Enum.Material.Slate
-coreVoid.Parent = pocketDimensionFolder
+    local baseFloor = Instance.new("Part")
+    baseFloor.Name = "DimensionBlock"
+    baseFloor.Size = Vector3.new(mapSize, 4, mapSize)
+    baseFloor.Position = dimCenter - Vector3.new(0, 3, 0)
+    baseFloor.Anchored = true
+    baseFloor.CastShadow = false
+    baseFloor.Color = Color3.fromRGB(150, 220, 245)
+    baseFloor.Material = Enum.Material.SmoothPlastic
+    baseFloor.Parent = folder
 
--- Anillos orbitales de energía pura
-local function createPocketRing(size, color)
-    local ring = Instance.new("Part")
-    ring.Shape = Enum.PartType.Cylinder
-    ring.Size = size
-    ring.Position = basePos + Vector3.new(0, 180, 0)
-    ring.Orientation = Vector3.new(90, 0, 0)
-    ring.Anchored = true
-    ring.CanCollide = false
-    ring.Transparency = 0.25
-    ring.Color = color
-    ring.Material = Enum.Material.Neon
-    ring.Parent = pocketDimensionFolder
-end
+    local roof = Instance.new("Part")
+    roof.Size = Vector3.new(mapSize, 6, mapSize)
+    roof.Position = dimCenter + Vector3.new(0, wallHeight + 3, 0)
+    roof.Anchored = true
+    roof.CastShadow = false
+    roof.Color = Color3.fromRGB(15, 15, 20)
+    roof.Material = Enum.Material.SmoothPlastic
+    roof.Parent = folder
 
-createPocketRing(Vector3.new(18, 4000, 4000), Color3.fromRGB(160, 0, 255))
-createPocketRing(Vector3.new(12, 5500, 5500), Color3.fromRGB(255, 0, 80))
+    local function createWall(size, cf)
+        local w = Instance.new("Part")
+        w.Size = size
+        w.CFrame = cf
+        w.Anchored = true
+        w.CastShadow = false
+        w.Color = Color3.fromRGB(15, 15, 20)
+        w.Material = Enum.Material.SmoothPlastic
+        w.Parent = folder
+    end
 
--- Plataformas interactivas y objetos de poder dentro de la dimensión
-local function createPocketArtifact(offset, color)
-    local pedestal = Instance.new("Part")
-    pedestal.Shape = Enum.PartType.Cylinder
-    pedestal.Size = Vector3.new(12, 50, 12)
-    pedestal.Position = basePos + offset + Vector3.new(0, 230, 0)
-    pedestal.Anchored = true
-    pedestal.Color = Color3.fromRGB(40, 40, 45)
-    pedestal.Material = Enum.Material.Metal
-    pedestal.Parent = pocketDimensionFolder
+    createWall(Vector3.new(mapSize, wallHeight, 12), CFrame.new(dimCenter + Vector3.new(0, wallHeight/2, -half)))
+    createWall(Vector3.new(mapSize, wallHeight, 12), CFrame.new(dimCenter + Vector3.new(0, wallHeight/2, half)))
+    createWall(Vector3.new(12, wallHeight, mapSize), CFrame.new(dimCenter + Vector3.new(half, wallHeight/2, 0)))
+    createWall(Vector3.new(12, wallHeight, mapSize), CFrame.new(dimCenter + Vector3.new(-half, wallHeight/2, 0)))
 
-    local artifact = Instance.new("Part")
-    artifact.Shape = Enum.PartType.Ball
-    artifact.Size = Vector3.new(40, 40, 40)
-    artifact.Position = basePos + offset + Vector3.new(0, 275, 0)
-    artifact.Anchored = true
-    artifact.CanCollide = false
-    artifact.Color = color
-    artifact.Material = Enum.Material.Neon
-    artifact.Parent = pocketDimensionFolder
+    local tileSize = 80
+    local startX = -half + (tileSize / 2)
+    local startZ = -half + (tileSize / 2)
+    local endX = half - (tileSize / 2)
+    local endZ = half - (tileSize / 2)
 
-    task.spawn(function()
-        local t = math.random(1, 100)
-        while artifact and artifact.Parent do
-            t = t + 0.05
-            artifact.Position = (basePos + offset + Vector3.new(0, 275, 0)) + Vector3.new(0, math.sin(t) * 12, 0)
-            task.wait(0.03)
+    math.randomseed(9999)
+
+    for x = startX, endX, tileSize do
+        for z = startZ, endZ, tileSize do
+            local dist = math.sqrt(x*x + z*z)
+            local blockHeight = dist < 90 and 40 or math.floor(80 + (math.sin(x * 0.03) * math.cos(z * 0.03) * 40))
+
+            local block = Instance.new("Part")
+            block.Name = "DimensionBlock"
+            block.Size = Vector3.new(tileSize, blockHeight, tileSize)
+            block.Position = dimCenter + Vector3.new(x, blockHeight / 2, z)
+            block.Anchored = true
+            block.CastShadow = false
+            block.Color = Color3.fromRGB(150, 220, 245)
+            block.Material = Enum.Material.SmoothPlastic
+            block.Parent = folder
         end
-    end)
-end
-
-createPocketArtifact(Vector3.new(250, 0, -250), Color3.fromRGB(255, 50, 50))
-createPocketArtifact(Vector3.new(-250, 0, -250), Color3.fromRGB(120, 0, 255))
-createPocketArtifact(Vector3.new(0, 0, -400), Color3.fromRGB(255, 215, 0))
-
--- 4. Shaders Dinámicos (Rojo exclusivo en pantalla durante la cinemática)
-local activeAtmosphere, activeCorrection, activeBloom = nil, nil, nil
-
-local function enableFlashShaders()
-    pcall(function()
-        if activeAtmosphere then activeAtmosphere:Destroy() end
-        if activeCorrection then activeCorrection:Destroy() end
-        if activeBloom then activeBloom:Destroy() end
-
-        activeAtmosphere = Instance.new("Atmosphere")
-        activeAtmosphere.Name = "PocketAtmos"
-        activeAtmosphere.Density = 0.85
-        activeAtmosphere.Color = Color3.fromRGB(255, 0, 0)
-        activeAtmosphere.Decay = Color3.fromRGB(50, 0, 0)
-        activeAtmosphere.Parent = Lighting
-
-        activeCorrection = Instance.new("ColorCorrectionEffect")
-        activeCorrection.Name = "PocketCorr"
-        activeCorrection.TintColor = Color3.fromRGB(255, 30, 30)
-        activeCorrection.Brightness = -0.1
-        activeCorrection.Contrast = 0.75
-        activeCorrection.Parent = Lighting
-
-        activeBloom = Instance.new("BloomEffect")
-        activeBloom.Name = "PocketBloom"
-        activeBloom.Intensity = 3.0
-        activeBloom.Size = 60
-        activeBloom.Threshold = 0.2
-        activeBloom.Parent = Lighting
-    end)
-end
-
-local function disableFlashShaders()
-    pcall(function()
-        if activeAtmosphere then activeAtmosphere:Destroy() end
-        if activeCorrection then activeCorrection:Destroy() end
-        if activeBloom then activeBloom:Destroy() end
-        activeAtmosphere, activeCorrection, activeBloom = nil, nil, nil
-    end)
+    end
 end
 
 local insideRealm = false
 local originalCFrame = nil
 local activeState = false
-local activeVortex = nil
-local spinGuiConn = nil
-local vortexFlingConn = nil
+local spinConn = nil
 
-local function executeKamui()
+local function triggerKamui()
     if activeState then return end
     activeState = true
 
-    TweenService:Create(KamuiButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-        Size = UDim2.new(0, 100, 0, 100)
-    }):Play()
-    task.wait(0.1)
-    TweenService:Create(KamuiButton, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-        Size = UDim2.new(0, 115, 0, 115)
-    }):Play()
+    buildDimension()
 
     local char = lp.Character
     if not char then activeState = false return end
@@ -249,127 +256,75 @@ local function executeKamui()
         originalCFrame = root.CFrame
     end
 
-    muteGameSounds(true)
-    pcall(function()
-        KamuiSound.TimePosition = 0
-        KamuiSound:Play()
-        CrowSound.TimePosition = 0
-        CrowSound:Play()
-    end)
-    enableFlashShaders()
+    -- Activar el cielo rojo, pintar bloques y mostrar el Skybox ID 136055162054954
+    setAudioSkybox(true)
+    paintDimensionBlocks(true)
 
+    pcall(function()
+        KamuiSound.TimePosition = 0 KamuiSound:Play()
+        CrowSound.TimePosition = 0 CrowSound:Play()
+    end)
+
+    -- Secuencia visual épica de absorción en pantalla
     KamuiRing.Visible = true
     KamuiRing.Size = UDim2.new(0, 0, 0, 0)
     KamuiRing.Rotation = 0
 
-    TweenService:Create(KamuiRing, TweenInfo.new(0.3, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
-        Size = UDim2.new(0, 750, 0, 750)
+    BlackHoleCover.Visible = true
+    BlackHoleCover.Size = UDim2.new(0, 0, 0, 0)
+
+    TweenService:Create(KamuiRing, TweenInfo.new(0.6, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), { 
+        Size = UDim2.new(0, 1200, 0, 1200) 
     }):Play()
 
-    if spinGuiConn then spinGuiConn:Disconnect() end
-    spinGuiConn = RunService.RenderStepped:Connect(function()
-        if KamuiRing.Visible then
-            KamuiRing.Rotation = KamuiRing.Rotation + 40
-        end
+    if spinConn then spinConn:Disconnect() end
+    spinConn = RunService.RenderStepped:Connect(function()
+        if KamuiRing.Visible then KamuiRing.Rotation = KamuiRing.Rotation - 50 end
     end)
 
-    task.wait(1.5)
+    task.wait(0.4)
 
+    TweenService:Create(BlackHoleCover, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+        Size = UDim2.new(2.5, 0, 2.5, 0)
+    }):Play()
+
+    task.wait(0.4)
+
+    if spinConn then spinConn:Disconnect() end
     KamuiRing.Visible = false
-    if spinGuiConn then spinGuiConn:Disconnect() end
-    disableFlashShaders()
 
-    local targetPos = not insideRealm and (basePos + Vector3.new(0, 300, 0)) or (originalCFrame and originalCFrame.Position or (basePos + Vector3.new(0, 100, 0)))
+    local targetPos = not insideRealm and (dimCenter + Vector3.new(0, 60, 0)) or (originalCFrame and originalCFrame.Position or (dimCenter + Vector3.new(0, 60, 0)))
 
-    pcall(function()
-        hum.PlatformStand = true
-        root.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+    pcall(function() 
+        hum.PlatformStand = true 
+        root.AssemblyLinearVelocity = Vector3.new(0,0,0) 
     end)
 
+    -- ÚNICO TELETRANSPORTE LIMPIO Y DIRECTO
     root.CFrame = CFrame.new(targetPos)
-    task.wait(0.05)
-
     insideRealm = not insideRealm
 
-    local vortex = Instance.new("Part")
-    vortex.Size = Vector3.new(2, 2, 2)
-    vortex.Transparency = 1
-    vortex.Anchored = true
-    vortex.CanCollide = false
-    vortex.CFrame = root.CFrame
-    vortex.Parent = pocketDimensionFolder
-    activeVortex = vortex
-
-    local purpleCore = Instance.new("Part")
-    purpleCore.Shape = Enum.PartType.Ball
-    purpleCore.Size = Vector3.new(1, 1, 1)
-    purpleCore.Color = Color3.fromRGB(140, 0, 255)
-    purpleCore.Material = Enum.Material.Neon
-    purpleCore.Anchored = true
-    purpleCore.CanCollide = false
-    purpleCore.CFrame = vortex.CFrame
-    purpleCore.Parent = vortex
-
-    local appParticle1 = Instance.new("ParticleEmitter")
-    appParticle1.Color = ColorSequence.new(Color3.fromRGB(180, 50, 255), Color3.fromRGB(60, 0, 120))
-    appParticle1.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 1.2), NumberSequenceKeypoint.new(1, 4.5)})
-    appParticle1.Texture = "rbxassetid://258124463"
-    appParticle1.Rate = 1200
-    appParticle1.Speed = NumberRange.new(18, 35)
-    appParticle1.Lifetime = NumberRange.new(0.2, 0.4)
-    appParticle1.SpreadAngle = Vector2.new(360, 360)
-    appParticle1.Parent = vortex
-
-    TweenService:Create(purpleCore, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-        Size = Vector3.new(10, 10, 10)
+    TweenService:Create(BlackHoleCover, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Size = UDim2.new(0, 0, 0, 0)
     }):Play()
 
-    root.Anchored = true
+    task.wait(0.4)
+    BlackHoleCover.Visible = false
 
-    local ax, ay, az = 0, 0, 0
-    if vortexFlingConn then vortexFlingConn:Disconnect() end
-    vortexFlingConn = RunService.RenderStepped:Connect(function()
-        if vortex and vortex.Parent and root and root.Parent then
-            ax = ax + 50
-            ay = ay + 85
-            az = az + 60
-            local wildCF = vortex.CFrame * CFrame.Angles(math.rad(ax), math.rad(ay), math.rad(az))
-            vortex.CFrame = wildCF
-            root.CFrame = wildCF
+    pcall(function() hum.PlatformStand = false end)
+    activeState = false
+
+    -- Monitorear el audio: en cuanto termine, quitar el Skybox rojo y regresar los bloques a celeste normal
+    task.spawn(function()
+        while KamuiSound.IsPlaying do
+            task.wait(0.1)
         end
-    end)
-
-    local jumpConn
-    jumpConn = hum.Jumping:Connect(function()
-        if jumpConn then jumpConn:Disconnect() end
-        pcall(function()
-            if vortexFlingConn then vortexFlingConn:Disconnect() end
-            root.Anchored = false
-            hum.PlatformStand = false
-            if activeVortex then activeVortex:Destroy() end
-            disableFlashShaders()
-            muteGameSounds(false)
-        end)
-        activeState = false
-    end)
-
-    task.delay(20, function()
-        if activeState then
-            if jumpConn then jumpConn:Disconnect() end
-            pcall(function()
-                if vortexFlingConn then vortexFlingConn:Disconnect() end
-                root.Anchored = false
-                hum.PlatformStand = false
-                if activeVortex then activeVortex:Destroy() end
-                disableFlashShaders()
-                muteGameSounds(false)
-            end)
-            activeState = false
-        end
+        setAudioSkybox(false)
+        paintDimensionBlocks(false)
     end)
 end
 
-KamuiButton.MouseButton1Click:Connect(executeKamui)
-KamuiButton.TouchTap:Connect(executeKamui)
+KamuiButton.MouseButton1Click:Connect(triggerKamui)
+KamuiButton.TouchTap:Connect(triggerKamui)
 
-print("¡Versión 🕳️🌀👑 cargada con éxito en tu tablet!")
+print("¡Kamui épico sincronizado con el Skybox 136055162054954 activo!")
